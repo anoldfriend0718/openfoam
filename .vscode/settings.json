@@ -1,0 +1,99 @@
+{
+    "C_Cpp.autocomplete": "Disabled",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.intelliSenseEngine": "Disabled",
+    "clang-tidy.buildPath": "build",
+    "clang-tidy.checks": [
+        "clang-diagnostic-*",
+        "clang-analyzer-*",
+        "readability-*",
+        "modernize-*",
+        "-modernize-deprecated-headers",
+        "-modernize-use-trailing-return-type",
+        "-readability-magic-numbers"
+    ],
+    "clang-tidy.lintOnSave": false,
+    "clangd.arguments": [
+        "-log=verbose",
+        "-pretty",
+        "--background-index",
+        "--compile-commands-dir=${workspaceFolder}/build"
+    ],
+    "clangd.path": "/usr/bin/clangd",
+    "cmake.configureOnEdit": false,
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "/home/anoldfriend/Workspace/MyRepo/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    },
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": false,
+    "editor.formatOnSaveMode": "modifications",
+    "editor.formatOnType": false,
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "googletest.failed",
+                "settings": {
+                    "foreground": "#f00"
+                }
+            },
+            {
+                "scope": "googletest.passed",
+                "settings": {
+                    "foreground": "#0f0"
+                }
+            },
+            {
+                "scope": "googletest.run",
+                "settings": {
+                    "foreground": "#0f0"
+                }
+            },
+            {
+                "scope": "log.error",
+                "settings": {
+                    "fontStyle": "bold",
+                    "foreground": "#af1f1f"
+                }
+            },
+            {
+                "scope": "log.warning",
+                "settings": {
+                    "fontStyle": "",
+                    "foreground": "#f4ad42"
+                }
+            }
+        ]
+    },
+    "errorLens.onSave": true,
+    "files.associations": {
+        "*.in": "cpp",
+        "**/0/*": "OpenFOAM",
+        "**/constant/g": "OpenFOAM",
+        "*Dict": "OpenFOAM",
+        "*Properties": "OpenFOAM",
+        "**/system/*":"OpenFOAM",
+        "cellModel.C": "cpp",
+        "findRefCell.C": "cpp",
+        "fvSchemes": "OpenFOAM",
+        "fvSchemes.C": "cpp",
+        "fvSolution": "OpenFOAM",
+        "icoFoam.C": "cpp",
+        "IOobject.C": "cpp",
+        "messageStream.C": "cpp",
+        "ostream": "cpp",
+        "scalarTransportFoam.C": "cpp",
+        "solution.C": "cpp",
+        "Test-vector.C": "cpp",
+        "vector": "cpp"
+    },   
+    "oneDarkPro.vivid": true,
+    "python.pythonPath": "/usr/bin/python3",
+    "switcher.findSuffixOrder": [
+        ".C",
+        ".H"
+    ],
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "C_Cpp.clang_format_sortIncludes": false,
+    "terminal.integrated.automationShell.linux": "/usr/bin/zsh"
+}
