@@ -13,7 +13,7 @@
                 "-case",
                 "/home/anoldfriend/OpenFOAM/anoldfriend-7/run/trainning/debugLapacianSolver"
             ],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
