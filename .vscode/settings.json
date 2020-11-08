@@ -69,7 +69,7 @@
     "files.associations": {
         "*.in": "cpp",
         "**/0_org/*":"OpenFOAM",
-        "**/0/*": "OpenFOAM",
+        "**/[0-9]*/*": "OpenFOAM",
         "**/constant/g": "OpenFOAM",
         "*Dict": "OpenFOAM",
         "*Properties": "OpenFOAM",
