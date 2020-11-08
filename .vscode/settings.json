@@ -68,6 +68,7 @@
     "errorLens.onSave": true,
     "files.associations": {
         "*.in": "cpp",
+        "**/0_org/*":"OpenFOAM",
         "**/0/*": "OpenFOAM",
         "**/constant/g": "OpenFOAM",
         "*Dict": "OpenFOAM",
