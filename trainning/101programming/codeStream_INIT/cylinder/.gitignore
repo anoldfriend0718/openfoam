@@ -5,4 +5,5 @@
 /postProcessing/
 /processor*/
 *.log
+/VTK/
 !.gitignore

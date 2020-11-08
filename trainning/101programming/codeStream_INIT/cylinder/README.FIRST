@@ -12,6 +12,10 @@ rm -rf 0
 
 cp -rf 0_org 0
 
+foamToVTK -time 0
+
+paraview /VTK/cylinder_0.vtk &
+
 #setFields
 
 icoFoam | tee log.icofoam
