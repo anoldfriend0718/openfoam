@@ -1,0 +1,12 @@
+foamCleanTutorials
+blockMesh
+checkMesh
+
+$FOAM_USER_APPBIN/scratchFoam 
+
+foamMonitor -l postProcessing/residuals/0/residuals.dat &
+
+postProcess -func sampleDict -latestTime
+
+sleep 1 
+gnuplot ./gnuplot/gnuplot_script
