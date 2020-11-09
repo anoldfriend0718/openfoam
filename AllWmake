@@ -1,2 +1,3 @@
 bear wmake ./solvers/mylaplacianFoam
 bear wmake ./trainning/101programming/prog_scratchFoam/scratchFoam
+bear wmake ./trainning/101programming/prog_my_icoFoam/my_icoFoam
