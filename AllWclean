@@ -1,1 +1,2 @@
 wclean ./solvers/mylaplacianFoam
+wclean ./trainning/101programming/prog_scratchFoam/scratchFoam
