@@ -29,9 +29,9 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
+
 #include "fvCFD.H"
-#include "fvOptions.H"
-#include "simpleControl.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
     simpleControl simple(mesh);
 
     #include "createFields.H"
+    #include "readSampling.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -54,6 +55,14 @@ int main(int argc, char *argv[])
     while (simple.loop(runTime))
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
+
+        bool isFoundField=mesh.foundObject<volScalarField>(fieldName);
+        if(!isFoundField)
+        {
+            FatalErrorInFunction<<"Field Object "<<fieldName<<" not found!"<<exit(FatalError);
+        }
+        const volScalarField& field=mesh.lookupObject<volScalarField>(fieldName);
+        Info<<"Field Name: "<<fieldName<<", value at cell 274: "<<field[cellIndex]<<endl;
 
         while (simple.correctNonOrthogonal())
         {

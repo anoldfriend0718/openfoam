@@ -103,7 +103,7 @@ bool Foam::animationDump::write()
             }
             else
             {
-                FatalErrorIn("bool animationDump::execute()")
+                FatalErrorIn("bool animationDump::write()")
                     << "Object " << objectNames_[objectI] << " not found."
                     << abort(FatalError);
             }

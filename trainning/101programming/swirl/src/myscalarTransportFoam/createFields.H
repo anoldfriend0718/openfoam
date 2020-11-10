@@ -1,3 +1,6 @@
+#include "IOdictionary.H"
+#include "IOobject.H"
+#include "label.H"
 Info<< "Reading field T\n" << endl;
 
 volScalarField T
@@ -65,6 +68,8 @@ dimensionedScalar DT
 (
     transportProperties.lookup("DT")
 );
+
+
 
 #include "createPhi.H"
 
