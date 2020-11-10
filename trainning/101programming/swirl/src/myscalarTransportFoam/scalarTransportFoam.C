@@ -46,22 +46,15 @@ int main(int argc, char *argv[])
 
     simpleControl simple(mesh);
 
-   
-
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nCalculating scalar transport\n" << endl;
 
     #include "CourantNo.H"
 
-
-    
     while (simple.loop(runTime))
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
-        //Info<< "Hello World" << endl;
-        // dimensionedScalar source ("source",dimensionSet(0,0,-1,1,0),1.0);
-
 
         while (simple.correctNonOrthogonal())
         {

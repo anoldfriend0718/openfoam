@@ -64,32 +64,19 @@ int main(int argc, char *argv[])
     const point origin(1, 1, 0.05);
     const vector axis(0, 0, -1);
 
-    
-    // auto& internalUField=const_cast<DimensionedField<Vector<double>, volMesh>&>(U.internalField());
-    // internalUField=axis ^ (centres.internalField() - origin);
+    Info<<"change the velocity primitive field"<<endl;
+    U.primitiveFieldRef()=axis^(centres.primitiveField()-origin);
 
-
-    // // U.internalField()= axis ^ (centres.internalField() - origin);
-
-    // U.boundaryFieldRef()[0] = (axis ^ (centres.boundaryField()[0] - origin));
-    // U.boundaryFieldRef()[1] = (axis ^ (centres.boundaryField()[1] - origin));
-    // U.boundaryFieldRef()[2] = (axis ^ (centres.boundaryField()[2] - origin));
-
-    dimensioned<vector> dimensionedPoint("refPoint",dimensionSet(0,1,0,0,0,0,0),origin);
-
-    const Foam::DimensionedField<Vector<double>, volMesh>& updatedInternalVelocity=axis ^ (centres.internalField() - dimensionedPoint);
-    
-    forAll(U.internalField(),i)
+    forAll(U.boundaryField(),patchI)
     {
-        U[i]=updatedInternalVelocity[i];
+        fvPatchField<Vector<scalar>>& patchField=U.boundaryFieldRef()[patchI];
+        if(patchField.type()!="empty")
+        {
+            Info<<"change the velocity patch field at patch index: "<<patchI<<" , with patch type"<<patchField.type()<<endl;
+            patchField=(axis ^ (centres.boundaryField()[patchI] - origin));
+        }
     }
-    
 
-    forAll(U.boundaryField(), patchi)
-    {
-        U.boundaryFieldRef()[patchi] = (axis ^ (centres.boundaryField()[patchi] - origin));
-    }
-    
     U.write();
 
     volScalarField source
@@ -105,23 +92,18 @@ int main(int argc, char *argv[])
         mesh
     );
 
+    Info<<"change the source primitive field"<<endl;
+    source.primitiveFieldRef()=centres.primitiveField().component(vector::X);
 
-    DimensionedField<double, volMesh> & sourceInternalField=const_cast<DimensionedField<double, volMesh> &>(source.internalField());
-
-    Field<double> centresX(centres.primitiveField().component(vector::X));
-    Info<<"sourceInternalField size: "<<sourceInternalField.size();
-    Info<<"centresX size: "<<centresX.size();
-    forAll(sourceInternalField,i)
+    forAll(source.boundaryField(),patchI)
     {
-        sourceInternalField[i]=centresX[i];
-    }
-    
-
-    forAll(source.boundaryField(), patchi)
-    {
-        source.boundaryFieldRef()[patchi] = centres.boundaryField()[patchi].component(vector::X);
-    }
-    
+        fvPatchField<scalar>& patchField=source.boundaryFieldRef()[patchI];
+        if(patchField.type()!="empty")
+        {
+            Info<<"change the source patch field at patch index: "<<patchI<<" , with patch type"<<patchField.type()<<endl;
+            patchField==centres.boundaryField()[patchI].component(vector::X);
+        }
+    }    
     source.write();
 
     Info<< "End\n" << endl;
