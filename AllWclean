@@ -1,3 +1,4 @@
 wclean ./solvers/mylaplacianFoam
 wclean ./trainning/101programming/prog_scratchFoam/scratchFoam
 wclean ./trainning/101programming/prog_my_icoFoam/my_icoFoam
+wclean ./trainning/101programming/swirlTest/src/setSwirl/
