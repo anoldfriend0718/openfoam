@@ -11,7 +11,7 @@
             "program": "${env:FOAM_USER_APPBIN}/${fileBasenameNoExtension}",
             "args": [
                 "-case",
-                "/home/anoldfriend/OpenFOAM/anoldfriend-7/run/trainning/101programming/swirlTest"
+                "/home/anoldfriend/OpenFOAM/anoldfriend-7/run/trainning/101programming/swirl"
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
