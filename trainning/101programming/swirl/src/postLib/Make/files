@@ -1,0 +1,7 @@
+minMaxField/minMaxField.C
+animationDump/animationDump.C
+surfaceGraph/surfaceGraph.C
+helloJon/helloJon.C
+
+
+LIB = $(FOAM_USER_LIBBIN)/libpost
