@@ -29,8 +29,6 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-#include "IOobject.H"
-#include "dimensionedScalarFwd.H"
 #include "fvCFD.H"
 #include "fvOptions.H"
 #include "simpleControl.H"
@@ -42,9 +40,10 @@ int main(int argc, char *argv[])
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
-    #include "createFields.H"
 
     simpleControl simple(mesh);
+
+    #include "createFields.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -65,20 +64,15 @@ int main(int argc, char *argv[])
               - fvm::laplacian(DT, source)
             );
 
-            
             solve
             (
                 fvm::ddt(T)
               + fvm::div(phi, T)
               - fvm::laplacian(DT, T)
-             ==
-                source
+              ==
+              source
             );
 
-            // TEqn.relax();
-            // fvOptions.constrain(TEqn);
-            // TEqn.solve();
-            // fvOptions.correct(T);
         }
 
         runTime.write();
