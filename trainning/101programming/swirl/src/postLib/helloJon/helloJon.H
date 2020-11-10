@@ -34,11 +34,35 @@ Author
 SourceFiles
     helloJon.C
 
+Usage 
+
+functions
+{
+    cellT //any name you want, it refer to name attribute in the class
+    {
+        type    helloJon;
+
+        functionObjectLibs ("libpost.so");
+
+        friend qianghui; //property needed to be read
+
+        field T; //property needed to be read
+    }
+
+}
+
+Benefits of function objects 
+we donnot need to change the solver code, but add more desired operator or post processing in the workflow
+Of source, we can start from crude changes in the raw solver code. After validation, we can move the code 
+to function objects
+
+
 \*---------------------------------------------------------------------------*/
 
 #ifndef helloJon_H
 #define helloJon_H
 
+#include "IOdictionary.H"
 #include "functionObject.H"
 #include "dictionary.H"
 #include "fvMesh.H"
@@ -60,6 +84,9 @@ class helloJon
 
         //- Friend's name
         word friendsName_;
+        word fieldName_;
+        const dictionary& dict_;
+        const Time& time_;
 
 
     // Private Member Functions
@@ -103,6 +130,7 @@ public:
         virtual bool execute();
 
         //- Read and set the function object if its data has changed
+        //we can check the read function to see what properties are stored in dict
         virtual bool read(const dictionary& dict);
 };
 

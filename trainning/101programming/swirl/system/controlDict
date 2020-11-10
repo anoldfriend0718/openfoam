@@ -47,17 +47,36 @@ runTimeModifiable yes;
 
 functions
 {
-//    minMax
-//    {
-//        type        minMaxField;
+   minMax
+   {
+       type        minMaxField;
 
-//        // Where to load it from (if not already in solver)
-//        functionObjectLibs ("libpost.so");
+       // Where to load it from (if not already in solver)
+       functionObjectLibs ("libpost.so");
 
-//        name T;
-//    }
+       name T;
+   }
 
-   #includeFunc minMaxMagnitude
+    cellT
+    {
+        type    helloJon;
+
+        functionObjectLibs ("libpost.so");
+
+        friend qianghui;
+
+        field T;
+    }
+
+    dumpT
+    {
+        type animationDump;
+        functionObjectLibs ("libpost.so");
+        objects (T);
+        interval 5;
+    }
+
+   //#includeFunc minMaxMagnitude
 };
 
 

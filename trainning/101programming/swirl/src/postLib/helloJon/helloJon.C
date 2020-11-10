@@ -27,9 +27,15 @@ Author
 
 \*----------------------------------------------------------------------------*/
 
+#include "IOdictionary.H"
+#include "error.H"
+#include "errorManip.H"
+#include "functionObject.H"
 #include "helloJon.H"
 #include "addToRunTimeSelectionTable.H"
+#include "typeInfo.H"
 #include "volFields.H"
+#include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -59,7 +65,10 @@ Foam::helloJon::helloJon
 )
 :
     functionObject(name),
-    friendsName_(dict.lookup("friend"))
+    friendsName_(dict.lookup("friend")),
+    fieldName_(dict.lookup("field")),
+    dict_(dict),
+    time_(t)
 {}
 
 
@@ -72,14 +81,28 @@ bool Foam::helloJon::start()
 
 
 
-bool Foam::helloJon::write()
+bool Foam::helloJon::execute()
 {
     return true;
 }
 
-bool Foam::helloJon::execute()
+bool Foam::helloJon::write()
 {
     Info << "Hello from John.  My friend is: " << friendsName_ << endl;
+    // OF create time, then create mesh, then register object in the mesh database
+    // therefore, we can dig out the any vol*Field from the time object
+    const fvMesh& mesh=time_.lookupObject<fvMesh>(polyMesh::defaultRegion);
+    bool isFoundObject=mesh.foundObject<volScalarField>(fieldName_);
+    if(isFoundObject)
+    {
+        const volScalarField& field=mesh.lookupObject<volScalarField>(fieldName_);
+        Info<<"Temperature at cell 274: "<<field[274]<<endl;
+    }
+    else
+    {
+        FatalErrorInFunction<<"cannot found field "<<fieldName_<<exit(FatalError);
+    }
+
 
     return true;
 }
@@ -88,6 +111,7 @@ bool Foam::helloJon::execute()
 bool Foam::helloJon::read(const dictionary& dict)
 {
     friendsName_ = word(dict.lookup("friend"));
+    fieldName_=word(dict.lookup("field"));
 
     return false;
 }
