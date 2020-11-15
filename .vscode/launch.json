@@ -11,9 +11,9 @@
             "program": "${env:FOAM_USER_APPBIN}/${fileBasenameNoExtension}",
             "args": [
                 "-case",
-                "/home/anoldfriend/OpenFOAM/anoldfriend-7/run/trainning/debugLapacianSolver"
+                "/home/anoldfriend/OpenFOAM/anoldfriend-7/run/trainning/101programming/swirl"
             ],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
