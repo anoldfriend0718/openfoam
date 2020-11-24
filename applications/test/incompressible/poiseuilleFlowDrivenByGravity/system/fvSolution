@@ -9,40 +9,44 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      p;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [1 -1 -2 0 0 0 0];
-
-internalField   uniform 0;
-
-boundaryField
+solvers
 {
-    fixedWalls
+    p
     {
-        type            calculated;
-        value           $internalField;
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-06;
+        relTol          0.05;
     }
 
-    
-    left
+    pFinal
     {
-        type            cyclic;
+        $p;
+        relTol          0;
     }
 
-    right
+    U
     {
-        type            cyclic;
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-06;
+        relTol          0;
     }
-    
-    frontAndBack
-    {
-        type            empty;
-    }
-    
-    #includeEtc "caseDicts/setConstraintTypes"
 }
+
+PISO
+{
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 0;
+    pRefCell        0;
+    pRefValue       0;
+}
+
 
 // ************************************************************************* //

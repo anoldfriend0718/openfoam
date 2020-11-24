@@ -1,4 +1,4 @@
-foamCleanTurtorial 
+foamCleanTutorials 
 logfile="run.log"
 if [ -f $logfile ]; then
     rm $logfile

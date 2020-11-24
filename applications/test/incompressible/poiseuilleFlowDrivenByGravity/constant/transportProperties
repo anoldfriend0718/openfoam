@@ -10,12 +10,13 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      turbulenceProperties;
+    object      transportProperties;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType laminar;
+// Laminar viscosity
+nu              [0 2 -1 0 0 0 0] 1e-02;
 
 
 // ************************************************************************* //

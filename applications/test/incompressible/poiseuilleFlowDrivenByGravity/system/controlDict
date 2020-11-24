@@ -15,22 +15,22 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     buoyantPimpleFoam;
+application     icoGravityFoam;
 
-//startFrom       latestTime;
 startFrom       startTime;
+
 startTime       0;
 
 stopAt          endTime;
 
-endTime         500;
+endTime         1.0;
 
 deltaT          0.001;
 
-// writeControl    adjustableRunTime;
-writeControl timeStep;
+writeControl    adjustableRunTime;
+//writeControl    runTime;
 
-writeInterval   50;
+writeInterval   0.1;
 
 purgeWrite      5;
 
@@ -46,18 +46,18 @@ timePrecision   6;
 
 runTimeModifiable true;
 
-// adjustTimeStep  yes;
+adjustTimeStep  yes;
 
-// maxCo           0.8;
+maxCo           0.8;
 
-// maxDeltaT       10;
+maxDeltaT       0.01;
 
 
 functions
 {
-    #includeFunc residuals
-    #includeFunc minMaxComponents
- //   #includeFunc streamlines
+    #includeFunc  singleGraph
+    #includeFunc  residuals
+    #includeFunc  minMaxComponents
 }
 
 // ************************************************************************* //
