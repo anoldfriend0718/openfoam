@@ -22,10 +22,11 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    icoFoam
+    icoGravityFoam
 
 Description
-    Transient solver for incompressible, laminar flow of Newtonian fluids.
+    Transient solver for incompressible, laminar flow of Newtonian fluids with 
+    the user-specified gravity acceleration
 
 \*---------------------------------------------------------------------------*/
 
@@ -66,25 +67,24 @@ int main(int argc, char *argv[])
 
         if (piso.momentumPredictor())
         {
-            // solve(UEqn == (-fvc::grad(p) + g ));
-            solve(UEqn == (-fvc::grad(p)));
+            solve(UEqn == (-fvc::grad(p) + g ));
         }
 
         // --- PISO loop
         while (piso.correct())
         {
             volScalarField rAU(1.0/UEqn.A());
-
-            volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
+            //add the phi caused by gravity acceleration 
             surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU));
-            // surfaceScalarField phig(rAU*g);
+            volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
+            surfaceScalarField phig(rAUf*(g & mesh.Sf()));
 
             surfaceScalarField phiHbyA
             (
                 "phiHbyA",
                 fvc::flux(HbyA)
               + fvc::interpolate(rAU)*fvc::ddtCorr(U, phi)
-            //   + phig
+              + phig
             );
 
             adjustPhi(phiHbyA, U, p);
@@ -114,8 +114,8 @@ int main(int argc, char *argv[])
 
             #include "continuityErrs.H"
 
-            U = HbyA - rAU*fvc::grad(p);
-            // U = HbyA - rAU*fvc::grad(p)+rAU*g;
+
+            U = HbyA - rAU*fvc::grad(p)+rAU*g;
             U.correctBoundaryConditions();
         }
 
