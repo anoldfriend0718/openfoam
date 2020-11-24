@@ -1,8 +1,0 @@
-**/[0-9]*/
-!**/0/
-**/dynamicCode/
-**/polyMesh/
-**/postProcessing/
-**/processor*/
-!**/*.log
-!.gitignore
