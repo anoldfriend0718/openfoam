@@ -1,4 +1,4 @@
-foamCleanTutorials
+foamCleanTutorials 
 
 logfile="run.log"
 if [ -f $logfile ]; then

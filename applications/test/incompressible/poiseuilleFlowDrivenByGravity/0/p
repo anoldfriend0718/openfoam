@@ -10,39 +10,38 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    object      epsilon;
+    object      p;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -3 0 0 0 0];
+dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform 1e-5;
+internalField   uniform 0;
 
 boundaryField
 {
+
+    velocity-inlet
+    {
+        type            cyclic;
+    }
+
+    velocity-outlet
+    {
+        type            cyclic;
+    }
+
+
     fixedWalls
     {
-        type            epsilonWallFunction;
-        value           $internalField;
-    }
-
-    left
-    {
-        type            cyclic;
-    }
-
-    right
-    {
-        type            cyclic;
+        type            zeroGradient;
     }
 
     frontAndBack
     {
         type            empty;
     }
-
-    #includeEtc "caseDicts/setConstraintTypes"
+    
 }
-
 
 // ************************************************************************* //
