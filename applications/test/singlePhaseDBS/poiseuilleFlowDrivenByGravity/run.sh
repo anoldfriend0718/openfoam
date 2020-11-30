@@ -7,4 +7,4 @@ fi
 touch run.log
 blockMesh | tee -a $logfile
 checkMesh | tee -a $logfile
-$FOAM_USER_APPBIN/icoGravityFoam 2>&1 | tee -a $logfile
+$FOAM_USER_APPBIN/icoDBSFoam 2>&1 | tee -a $logfile

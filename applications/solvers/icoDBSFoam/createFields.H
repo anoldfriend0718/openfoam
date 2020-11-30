@@ -1,3 +1,4 @@
+#include "volFieldsFwd.H"
 Info<< "Reading transportProperties\n" << endl;
 
 IOdictionary transportProperties
@@ -91,6 +92,14 @@ volScalarField rK
     "rK",
     rK0*(1.0-eps)*(1.0-eps)/(eps*eps*eps)
 );
+
+Foam::volScalarField K
+(
+    "K",
+    1./rK
+);
+
+K.write();
 
 Info<< "\nReading g" << endl;
 uniformDimensionedVectorField g
