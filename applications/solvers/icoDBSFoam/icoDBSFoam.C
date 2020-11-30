@@ -31,6 +31,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "fvmSup.H"
 #include "pisoControl.H"
 #include "surfaceFieldsFwd.H"
 #include "surfaceInterpolate.H"
@@ -63,9 +64,10 @@ int main(int argc, char *argv[])
 
         fvVectorMatrix UEqn
         (
-            fvm::ddt(U)
-          + fvm::div(phi, U)
-          - fvm::laplacian(nu, U)
+            (1./eps)*fvm::ddt(U)
+          + (1./eps)*fvm::div(phiByEpsf, U)
+          - (1./eps)*fvm::laplacian(nu, U)
+          + fvm::SuSp(nu*rK,U)
         );
 
         if (piso.momentumPredictor())
