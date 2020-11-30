@@ -1,0 +1,19 @@
+set terminal qt
+#set term postscript color
+set xlabel "Y"
+set ylabel "Ux"
+set title "Ux vs Y"
+
+lx=0.5
+ly=0.1
+eps=0.1
+
+u0=1
+
+set yrange[-0.3:u0]
+
+plot './postProcessing/singleGraph/0.1/line_U.xy' with lines ls 4 lc rgb 'green' title "Numerical solution"
+
+pause -1
+
+#    EOF
