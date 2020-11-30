@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     #include "initContinuityErrs.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
+    
     Info<< "\nStarting time loop\n" << endl;
 
     while (runTime.loop())

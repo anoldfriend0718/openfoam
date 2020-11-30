@@ -9,17 +9,39 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      transportProperties;
+    class       volScalarField;
+    object      eps;
 }
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// Laminar viscosity
-nu              [0 2 -1 0 0 0 0] 1e-02;
+dimensions      [0 0 0 0 0 0 0];
 
-//permeability K0
-K0              [0 2 0 0 0 0 0] 1e-04;
+internalField   uniform 0.1;
 
+boundaryField
+{
+
+    velocity-inlet
+    {
+        type            cyclic;
+    }
+
+    velocity-outlet
+    {
+        type            cyclic;
+    }
+
+
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+    
+}
 
 // ************************************************************************* //
