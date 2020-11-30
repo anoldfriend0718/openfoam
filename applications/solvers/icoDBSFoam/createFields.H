@@ -86,7 +86,7 @@ surfaceScalarField epsf
 
 Info<< "create permeability filed\n" << endl;
 
-volScalarField rk
+volScalarField rK
 (
     "rK",
     rK0*(1.0-eps)*(1.0-eps)/(eps*eps*eps)

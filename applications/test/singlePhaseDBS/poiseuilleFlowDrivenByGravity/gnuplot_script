@@ -1,0 +1,26 @@
+set terminal qt
+#set term postscript color
+set xlabel "X"
+set ylabel "Ux"
+set title "velocity validation"
+
+lx=1
+ly=0.1
+radius=ly/2
+perm=ly*ly/12.
+gravity=10
+nu=0.01
+maxVel=1.5*(perm/nu*gravity)
+
+
+set xrange [ 0 : lx ]
+
+set yrange [ 0 : maxVel ]
+
+
+plot [0:ly] maxVel*(1.0-((x-radius)/radius)**2) with lines lc rgb 'red' title "Analytical solution", \
+	'./postProcessing/singleGraph/1/line_U.xy' with points ls 4 lc rgb 'green' title "Numerical solution"
+
+pause -1
+
+#    EOF
