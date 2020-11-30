@@ -5,3 +5,7 @@ The nonlinear inertial effect due to the porous medium(Forchheimer term) is also
 
 u=gravity*K/nu*(1.0-cosh(r*(y-ly/2.))/cosh(r*ly/2.))
 where r=sqrt(eps/K)
+
+## Reference
+
+ Guo, Zhaoli, and T. S. Zhao. "Lattice Boltzmann model for incompressible flows through porous media." Physical review E 66.3 (2002): 036304.
