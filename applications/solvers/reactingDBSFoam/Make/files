@@ -1,0 +1,3 @@
+reactingDBSFoam.C
+
+EXE = $(FOAM_APPBIN)/reactingDBSFoam
