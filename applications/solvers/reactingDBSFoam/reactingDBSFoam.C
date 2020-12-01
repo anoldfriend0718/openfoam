@@ -77,7 +77,9 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+            //#include "SolidEqn.H"
             #include "UEqn.H"
+            //#include "YEqn.H"
             #include "EEqn.H"
 
             // --- Pressure corrector loop

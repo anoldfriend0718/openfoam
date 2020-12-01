@@ -25,6 +25,7 @@ surfaceScalarField phiHbyA
 
 constrainPressure(p_rgh, rhof, U, phiHbyA, rhorAUf);
 
+// multiple the transient term by eps to ensure the DBS continuity equation
 fvScalarMatrix p_rghDDtEqn
 (
     eps*fvc::ddt(rhof) + eps*psi*correction(fvm::ddt(p_rgh))

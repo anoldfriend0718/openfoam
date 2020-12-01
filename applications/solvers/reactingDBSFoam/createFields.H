@@ -1,4 +1,4 @@
-Info << "Reading fluid transport properties\n" << endl;
+Info<< "Reading  effective diffusivity Df\n" << endl;
 
 IOdictionary transportProperties
 (
@@ -12,14 +12,6 @@ IOdictionary transportProperties
     )
 );
 
-dimensionedScalar nu
-(
-    "nu",
-    dimViscosity,
-    transportProperties.lookup("nu")
-);
-
-Info<< "Reading  effective diffusivity Df\n" << endl;
 dimensionedScalar Df
 (
     "Df",
@@ -70,6 +62,19 @@ autoPtr<rhoThermo> pThermo(rhoThermo::New(mesh));
 rhoThermo& thermo = pThermo();
 thermo.validate(args.executable(), "h", "e");
 
+volScalarField mu
+(
+    IOobject
+    (
+        "mu",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    thermo.mu()
+);
+
 volScalarField rhof
 (
     IOobject
@@ -98,7 +103,6 @@ volScalarField CpsByCpvf
     ),
     Cps/thermo.Cpv()
 };
-
 
 Info<< "Reading field U\n" << endl;
 volVectorField U

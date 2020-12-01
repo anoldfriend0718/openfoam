@@ -64,18 +64,6 @@ volScalarField rK
 
 
 #include "compressibleCreatePhi.H"
-// TODO: I am not sure if use phiByEpsf instead of phi when constructing turbulence model
-// Info<< "Creating turbulence model\n" << endl;
-// autoPtr<compressible::turbulenceModel> turbulence
-// (
-//     compressible::turbulenceModel::New
-//     (
-//         rho,
-//         U,
-//         phi,
-//         thermo
-//     )
-// );
 
 Info<< "calculating face flux field phi in porous medium\n" << endl;
 
