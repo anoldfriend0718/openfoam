@@ -74,6 +74,36 @@ volScalarField mu
     ),
     thermo.mu()
 );
+// mu.write();
+
+// volScalarField alpha
+// (
+//     IOobject
+//     (
+//         "alpha",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::NO_WRITE
+//     ),
+//     thermo.alpha()
+// );
+// alpha.write();
+
+// volScalarField CpByCpv
+// (
+//     IOobject
+//     (
+//         "CpByCpv",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::NO_WRITE
+//     ),
+//     thermo.CpByCpv()
+// );
+// CpByCpv.write();
+
 
 volScalarField rhof
 (
@@ -87,7 +117,7 @@ volScalarField rhof
     ),
     thermo.rho()
 );
-
+// rhof.write();
 volScalarField& p = thermo.p();
 
 //heat capacity ratio: solid Cp / fluid Cp pr Cv based on specific energy model 
@@ -103,6 +133,7 @@ volScalarField CpsByCpvf
     ),
     Cps/thermo.Cpv()
 };
+// CpsByCpvf.write();
 
 Info<< "Reading field U\n" << endl;
 volVectorField U

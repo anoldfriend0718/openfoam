@@ -14,7 +14,7 @@ u0=0.001
 set yrange[-1e-4:u0]
 
 plot [0:ly] u0*sinh(r*x)/sinh(r*ly) with lines lc rgb 'red' title "Analytical solution", \
-	'./postProcessing/singleGraph/0.1/line_U.xy' with points ls 4 lc rgb 'green' title "Numerical solution"
+	'./postProcessing/singleGraph/5/line_U.xy' with points ls 4 lc rgb 'green' title "Numerical solution"
 
 pause -1
 

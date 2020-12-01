@@ -54,6 +54,7 @@ volScalarField rK
     rK0*(1.0-eps)*(1.0-eps)/(eps*eps*eps)
 );
 
+// rK.write();
 // Foam::volScalarField K
 // (
 //     "K",
@@ -90,3 +91,5 @@ volScalarField alphaEff
     ),
     eps*thermo.alphahe()+(1-eps)*ladals/thermo.Cpv()
 };
+
+// alphaEff.write();

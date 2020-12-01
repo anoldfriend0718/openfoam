@@ -9,51 +9,35 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      controlDict;
+    class       volScalarField;
+    object      p;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     reactingDBSFoam;
+dimensions      [1 -1 -2 0 0 0 0];
 
-startFrom       startTime;
+internalField   uniform 0;
 
-startTime       0;
-
-stopAt          endTime;
-
-endTime         5;
-
-deltaT          1;
-
-//writeControl    adjustableRunTime;
-writeControl    runTime;
-
-writeInterval   1;
-
-purgeWrite      5;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-adjustTimeStep  no;
-
-
-functions
+boundaryField
 {
-    #includeFunc  singleGraph
-    #includeFunc  residuals
-    #includeFunc  minMaxComponents
+
+    "(left|right)"
+    {
+        type            cyclic;
+    }
+
+
+    "(top|bottom)"
+    {
+        type            calculated;
+        value           $internalField;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+    
 }
 
 // ************************************************************************* //
