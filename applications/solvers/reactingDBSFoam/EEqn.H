@@ -4,12 +4,12 @@
     CpsByCpvf= Cps/thermo.Cpv();
     //update the effective thermal diffusivity for energy 
     alphaEff=eps*thermo.alphahe()+(1-eps)*ladals/thermo.Cpv();
-    
+
     fvScalarMatrix EEqn
     (
-        fvm::ddt(rhof*eps, he) + fvm::div(phi, he)
+      fvm::ddt(rhof*eps, he) +  fvm::ddt(rhos*(1-eps)*CpsByCpvf, he)
+      + fvm::div(phi, he)
       + fvc::ddt(rhof, K) + fvc::div(phi, K)
-      + fvm::ddt(rhos*(1-eps)*CpsByCpvf, he)
       + (
             he.name() == "e"
           ? fvc::div

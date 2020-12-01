@@ -1,0 +1,57 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 7-7dc73e32f723
+Exec   : blockMesh
+Date   : Dec 01 2020
+Time   : 20:33:17
+Host   : "DESKTOP-VSJ4QNK"
+PID    : 26949
+I/O    : uncollated
+Case   : /home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactingDBS/couetteFlow
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating block mesh from
+    "/home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactingDBS/couetteFlow/system/blockMeshDict"
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+Creating topology patches
+
+Creating block mesh topology
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 7-7dc73e32f723
+Exec   : checkMesh
+Date   : Dec 01 2020
+Time   : 20:33:18
+Host   : "DESKTOP-VSJ4QNK"
+PID    : 26951
+I/O    : uncollated
+Case   : /home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactingDBS/couetteFlow
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create polyMesh for time = 0
+
+./run.sh: 10: /home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Opt/bin/reactingDBSFoam: not found

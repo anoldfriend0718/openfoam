@@ -51,7 +51,7 @@ dimensionedScalar Cps
 dimensionedScalar ladals
 {
     "ladals",
-    dimViscosity,
+    dimViscosity*dimDensity*dimSpecificHeatCapacity,
     solidProperties.lookup("ladals")
 };
 

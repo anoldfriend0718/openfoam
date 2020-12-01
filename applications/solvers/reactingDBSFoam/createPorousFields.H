@@ -46,7 +46,7 @@ surfaceScalarField epsf
     fvc::interpolate(eps)
 );
 
-Info<< "create permeability filed\n" << endl;
+Info<< "create permeability field\n" << endl;
 
 volScalarField rK
 (
