@@ -1,26 +1,26 @@
-Info<< "Reading  effective diffusivity Df\n" << endl;
+// Info<< "Reading  effective diffusivity Df\n" << endl;
 
-IOdictionary transportProperties
-(
-    IOobject
-    (
-        "transportProperties",
-        runTime.constant(),
-        mesh,
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
-    )
-);
+// IOdictionary transportProperties
+// (
+//     IOobject
+//     (
+//         "transportProperties",
+//         runTime.constant(),
+//         mesh,
+//         IOobject::MUST_READ_IF_MODIFIED,
+//         IOobject::NO_WRITE
+//     )
+// );
 
-dimensionedScalar Df
-(
-    "Df",
-    dimViscosity,
-    transportProperties.lookup("Df")
-);
+// dimensionedScalar Df
+// (
+//     "Df",
+//     dimViscosity,
+//     transportProperties.lookup("Df")
+// );
 
 
-Info << "Reading solid thermophysical transport properties\n" << endl;
+Info << "Reading const solid thermo-physical transport properties\n" << endl;
 
 IOdictionary solidProperties
 (
@@ -56,7 +56,7 @@ dimensionedScalar ladals
 };
 
 
-Info<< "Reading fluid thermophysical properties\n" << endl;
+Info<< "Reading fluid thermo-physical properties by thermo model\n" << endl;
 
 autoPtr<rhoThermo> pThermo(rhoThermo::New(mesh));
 rhoThermo& thermo = pThermo();
