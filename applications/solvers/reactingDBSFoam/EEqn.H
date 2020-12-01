@@ -1,38 +1,40 @@
-// {
-//     volScalarField& he = thermo.he();
+{
+    volScalarField& he = thermo.he();
+    //update the solid Cp/fluid Cpv
+    CpsByCpvf= Cps/thermo.Cpv();
+    //update the effective thermal diffusivity for energy 
+    alphaEff=eps*thermo.alphahe()+(1-eps)*ladals/thermo.Cpv();
+    
+    fvScalarMatrix EEqn
+    (
+        fvm::ddt(rhof*eps, he) + fvm::div(phi, he)
+      + fvc::ddt(rhof, K) + fvc::div(phi, K)
+      + fvm::ddt(rhos*(1-eps)*CpsByCpvf, he)
+      + (
+            he.name() == "e"
+          ? fvc::div
+            (
+                fvc::absolute(phi/fvc::interpolate(rhof), U),
+                p,
+                "div(phiv,p)"
+            )
+          : -dpdt
+        )
+      - fvm::laplacian(alphaEff, he)
+     ==
+        rhof*(U&g)
+      + radiation->Sh(thermo, he)
+      + fvOptions(rhof, he)
+    );
 
-//     CpsByCpvf= Cps/thermo.Cpv();
+    EEqn.relax();
 
-//     fvScalarMatrix EEqn
-//     (
-//         fvm::ddt(rho*eps, he) + fvm::div(phi, he)
-//       + fvc::ddt(rho, K) + fvc::div(phi, K)
-//       + 
-//       + (
-//             he.name() == "e"
-//           ? fvc::div
-//             (
-//                 fvc::absolute(phi/fvc::interpolate(rho), U),
-//                 p,
-//                 "div(phiv,p)"
-//             )
-//           : -dpdt
-//         )
-//       - fvm::laplacian(turbulence->alphaEff(), he)
-//      ==
-//         rho*(U&g)
-//       + radiation->Sh(thermo, he)
-//       + fvOptions(rho, he)
-//     );
+    fvOptions.constrain(EEqn);
 
-//     EEqn.relax();
+    EEqn.solve();
 
-//     fvOptions.constrain(EEqn);
+    fvOptions.correct(he);
 
-//     EEqn.solve();
-
-//     fvOptions.correct(he);
-
-//     thermo.correct();
-//     radiation->correct();
-// }
+    thermo.correct();
+    radiation->correct();
+}

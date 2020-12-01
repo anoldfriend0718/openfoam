@@ -84,3 +84,21 @@ surfaceScalarField phiByEpsf
     "phiByEpsf",
     phi/epsf
 );
+
+
+// construct effective thermal diffusivity for energy by 
+//alphaEff=(1-eps)*alphas/Cpvf+eps*alphahe
+//alphahe: fluid Thermal diffusivity for energy 
+//alphahe=alpha*CpByCpv= ladal/Cpf * (Cpf/Cpvf)
+volScalarField alphaEff
+{
+    IOobject
+    (
+        "alphaEff",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    eps*thermo.alphahe()+(1-eps)*ladals/thermo.Cpv()
+};

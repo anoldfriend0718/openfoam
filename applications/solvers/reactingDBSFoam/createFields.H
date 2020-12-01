@@ -1,4 +1,3 @@
-
 Info << "Reading fluid transport properties\n" << endl;
 
 IOdictionary transportProperties
@@ -20,40 +19,6 @@ dimensionedScalar nu
     transportProperties.lookup("nu")
 );
 
-
-dimensionedScalar ladalf
-{
-    "ladalf",
-    dimViscosity,
-    transportProperties.lookup("ladalf")
-};
-
-
-Info << "Reading solid transport properties\n" << endl;
-
-dimensionedScalar rhos
-(
-    "rhos",
-    dimDensity,
-    transportProperties.lookup("rhos")
-);
-
-dimensionedScalar Cps
-{
-    "Cps",
-    dimSpecificHeatCapacity,
-    transportProperties.lookup("Cps")
-};
-
-dimensionedScalar ladals
-{
-    "ladals",
-    dimViscosity,
-    transportProperties.lookup("ladals")
-};
-
-
-
 Info<< "Reading  effective diffusivity Df\n" << endl;
 dimensionedScalar Df
 (
@@ -62,26 +27,48 @@ dimensionedScalar Df
     transportProperties.lookup("Df")
 );
 
-Info<< "Reading thermophysical properties\n" << endl;
+
+Info << "Reading solid thermophysical transport properties\n" << endl;
+
+IOdictionary solidProperties
+(
+    IOobject
+    (
+        "solid",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
+
+dimensionedScalar rhos
+(
+    "rhos",
+    dimDensity,
+    solidProperties.lookup("rhos")
+);
+
+dimensionedScalar Cps
+{
+    "Cps",
+    dimSpecificHeatCapacity,
+    solidProperties.lookup("Cps")
+};
+
+dimensionedScalar ladals
+{
+    "ladals",
+    dimViscosity,
+    solidProperties.lookup("ladals")
+};
+
+
+Info<< "Reading fluid thermophysical properties\n" << endl;
 
 autoPtr<rhoThermo> pThermo(rhoThermo::New(mesh));
 rhoThermo& thermo = pThermo();
 thermo.validate(args.executable(), "h", "e");
-
-//heat capacity ratio: solid Cp / fluid Cp pr Cv based on specific energy model 
-volScalarField CpsByCpvf
-{
-    IOobject
-    (
-        "CpsByCpvf",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    Cps/thermo.Cpv()
-};
-
 
 volScalarField rhof
 (
@@ -98,6 +85,21 @@ volScalarField rhof
 
 volScalarField& p = thermo.p();
 
+//heat capacity ratio: solid Cp / fluid Cp pr Cv based on specific energy model 
+volScalarField CpsByCpvf
+{
+    IOobject
+    (
+        "CpsByCpvf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    Cps/thermo.Cpv()
+};
+
+
 Info<< "Reading field U\n" << endl;
 volVectorField U
 (
@@ -111,8 +113,6 @@ volVectorField U
     ),
     mesh
 );
-
-
 
 
 #include "readGravitationalAcceleration.H"
