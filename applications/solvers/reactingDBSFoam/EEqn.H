@@ -1,10 +1,13 @@
 // {
 //     volScalarField& he = thermo.he();
 
+//     CpsByCpvf= Cps/thermo.Cpv();
+
 //     fvScalarMatrix EEqn
 //     (
-//         fvm::ddt(rho, he) + fvm::div(phi, he)
+//         fvm::ddt(rho*eps, he) + fvm::div(phi, he)
 //       + fvc::ddt(rho, K) + fvc::div(phi, K)
+//       + 
 //       + (
 //             he.name() == "e"
 //           ? fvc::div

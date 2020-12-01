@@ -32,7 +32,7 @@ Description
 {
     fvScalarMatrix rhoEqn
     (
-        fvm::ddt(rhof)
+        eps*fvm::ddt(rhof) //QXu mark: if the reaction occur, the source term should be added
       + fvc::div(phi)
       ==
         fvOptions(rhof)
