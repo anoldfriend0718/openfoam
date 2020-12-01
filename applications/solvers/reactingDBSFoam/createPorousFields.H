@@ -1,6 +1,6 @@
 Info<< "Reading porous medium transportProperties\n" << endl;
 
-IOdictionary transportProperties
+IOdictionary porousTransportProperties
 (
     IOobject
     (
@@ -16,7 +16,7 @@ dimensionedScalar K0
 {
     "K0",
     dimensionSet(0, 2, 0, 0, 0, 0, 0),
-    transportProperties.lookup("K0")
+    porousTransportProperties.lookup("K0")
 };
 
 dimensionedScalar rK0
@@ -65,17 +65,17 @@ volScalarField rK
 
 #include "compressibleCreatePhi.H"
 // TODO: I am not sure if use phiByEpsf instead of phi when constructing turbulence model
-Info<< "Creating turbulence model\n" << endl;
-autoPtr<compressible::turbulenceModel> turbulence
-(
-    compressible::turbulenceModel::New
-    (
-        rho,
-        U,
-        phi,
-        thermo
-    )
-);
+// Info<< "Creating turbulence model\n" << endl;
+// autoPtr<compressible::turbulenceModel> turbulence
+// (
+//     compressible::turbulenceModel::New
+//     (
+//         rho,
+//         U,
+//         phi,
+//         thermo
+//     )
+// );
 
 Info<< "calculating face flux field phi in porous medium\n" << endl;
 

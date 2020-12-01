@@ -1,10 +1,64 @@
+Info << "Reading fluid transport properties\n" << endl;
+
+IOdictionary transportProperties
+(
+    IOobject
+    (
+        "transportProperties",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
+
+dimensionedScalar nu
+(
+    "nu",
+    dimViscosity,
+    transportProperties.lookup("nu")
+);
+
+
+dimensionedScalar ladalf
+{
+    "ladalf",
+    dimViscosity,
+    transportProperties.lookup("ladalf")
+};
+
+
+Info << "Reading solid transport properties\n" << endl;
+
+dimensionedScalar rhos
+(
+    "rhos",
+    dimDensity,
+    transportProperties.lookup("rhos")
+);
+
+dimensionedScalar ladals
+{
+    "ladals",
+    dimViscosity,
+    transportProperties.lookup("ladals")
+};
+
+Info<< "Reading  effective diffusivity Df\n" << endl;
+dimensionedScalar Df
+(
+    "Df",
+    dimViscosity,
+    transportProperties.lookup("Df")
+);
+
 Info<< "Reading thermophysical properties\n" << endl;
 
 autoPtr<rhoThermo> pThermo(rhoThermo::New(mesh));
 rhoThermo& thermo = pThermo();
 thermo.validate(args.executable(), "h", "e");
 
-volScalarField rho
+volScalarField rhof
 (
     IOobject
     (
@@ -56,7 +110,7 @@ volScalarField p_rgh
 );
 
 // Force p_rgh to be consistent with p
-p_rgh = p - rho*gh;
+p_rgh = p - rhof*gh;
 
 label pRefCell = 0;
 scalar pRefValue = 0.0;
@@ -93,6 +147,5 @@ volScalarField K("K", 0.5*magSqr(U));
 
 #include "createPorousFields.H"
 
-#include "createMRF.H"
 #include "createRadiationModel.H"
 #include "createFvOptions.H"

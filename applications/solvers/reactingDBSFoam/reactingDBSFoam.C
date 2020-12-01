@@ -57,7 +57,6 @@ int main(int argc, char *argv[])
     #include "compressibleCourantNo.H"
     #include "setInitialDeltaT.H"
 
-    turbulence->validate();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -87,13 +86,9 @@ int main(int argc, char *argv[])
                 #include "pEqn.H"
             }
 
-            if (pimple.turbCorr())
-            {
-                turbulence->correct();
-            }
         }
 
-        rho = thermo.rho();
+        rhof = thermo.rho();
 
         runTime.write();
 
