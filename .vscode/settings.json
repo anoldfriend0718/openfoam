@@ -70,7 +70,7 @@
         "*.in": "cpp",
         "**/0_org/*":"OpenFOAM",
         "**/[0-9]*/*": "OpenFOAM",
-        "**/constant/g": "OpenFOAM",
+        "**/constant/*": "OpenFOAM",
         "*Dict": "OpenFOAM",
         "*Properties": "OpenFOAM",
         "**/system/*":"OpenFOAM",

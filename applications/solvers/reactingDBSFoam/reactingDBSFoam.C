@@ -72,11 +72,15 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
+        rhofEps.oldTime()=rhof*eps;
+        
         #include "rhoEqn.H"
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+            // rhofEps.storeOldTimes();
+
             //#include "SolidEqn.H"
             #include "UEqn.H"
             //#include "YEqn.H"
@@ -93,7 +97,7 @@ int main(int argc, char *argv[])
         rhof = thermo.rho();
 
         runTime.write();
-
+        
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;

@@ -7,8 +7,9 @@ fi
 touch run.log
 blockMesh | tee -a $logfile
 checkMesh | tee -a $logfile
-$FOAM_USER_APPBIN/reactingDBSFoam 2>&1 > $logfile &
 
-# $FOAM_USER_APPBIN/reactingDBSFoam 2>&1 | tee -a $logfile
-# sleep 1 
+
+$FOAM_USER_APPBIN/reactingDBSFoam 2>&1 > $logfile #&
+
+#sleep 1 
 # gnuplot ResidualPlots - 

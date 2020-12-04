@@ -7,10 +7,10 @@
 \*---------------------------------------------------------------------------*/
 Build  : 7-7dc73e32f723
 Exec   : blockMesh
-Date   : Dec 01 2020
-Time   : 23:10:13
+Date   : Dec 02 2020
+Time   : 13:41:15
 Host   : "DESKTOP-VSJ4QNK"
-PID    : 39032
+PID    : 44888
 I/O    : uncollated
 Case   : /home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactingDBS/couetteFlow
 nProcs : 1
@@ -82,10 +82,10 @@ End
 \*---------------------------------------------------------------------------*/
 Build  : 7-7dc73e32f723
 Exec   : checkMesh
-Date   : Dec 01 2020
-Time   : 23:10:14
+Date   : Dec 02 2020
+Time   : 13:41:16
 Host   : "DESKTOP-VSJ4QNK"
-PID    : 39034
+PID    : 44890
 I/O    : uncollated
 Case   : /home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactingDBS/couetteFlow
 nProcs : 1
@@ -166,10 +166,10 @@ End
 \*---------------------------------------------------------------------------*/
 Build  : 7-7dc73e32f723
 Exec   : /home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Opt/bin/reactingDBSFoam
-Date   : Dec 01 2020
-Time   : 23:10:14
+Date   : Dec 02 2020
+Time   : 13:41:16
 Host   : "DESKTOP-VSJ4QNK"
-PID    : 39036
+PID    : 44892
 I/O    : uncollated
 Case   : /home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactingDBS/couetteFlow
 nProcs : 1
@@ -280,7 +280,7 @@ GAMG:  Solving for p_rgh, Initial residual = 0.714364, Final residual = 4.33437e
 diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
 time step continuity errors : sum local = 4.24767e-13, global = 6.54278e-17, cumulative = 4.03808e-16
 PIMPLE: Converged in 3 iterations
-ExecutionTime = 0.2 s  ClockTime = 0 s
+ExecutionTime = 0.22 s  ClockTime = 0 s
 
 Courant Number mean: 0.00206083 max: 0.169144
 Time = 2
@@ -339,7 +339,7 @@ GAMG:  Solving for p_rgh, Initial residual = 0.457564, Final residual = 1.13711e
 diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
 time step continuity errors : sum local = 3.89622e-15, global = 2.22368e-18, cumulative = 4.34642e-16
 PIMPLE: Converged in 5 iterations
-ExecutionTime = 0.31 s  ClockTime = 0 s
+ExecutionTime = 0.35 s  ClockTime = 0 s
 
 Courant Number mean: 0.00217698 max: 0.170794
 Time = 3
@@ -378,7 +378,7 @@ GAMG:  Solving for p_rgh, Initial residual = 0.633375, Final residual = 5.36978e
 diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
 time step continuity errors : sum local = 6.50572e-15, global = -5.73015e-18, cumulative = 4.23931e-16
 PIMPLE: Converged in 3 iterations
-ExecutionTime = 0.38 s  ClockTime = 0 s
+ExecutionTime = 0.45 s  ClockTime = 0 s
 
 Courant Number mean: 0.0021865 max: 0.170843
 Time = 4
@@ -427,7 +427,7 @@ GAMG:  Solving for p_rgh, Initial residual = 0.50405, Final residual = 1.45355e-
 diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
 time step continuity errors : sum local = 1.34066e-16, global = -7.52126e-18, cumulative = 3.89278e-16
 PIMPLE: Converged in 4 iterations
-ExecutionTime = 0.48 s  ClockTime = 0 s
+ExecutionTime = 0.56 s  ClockTime = 0 s
 
 Courant Number mean: 0.00218736 max: 0.170846
 Time = 5
@@ -466,7 +466,7 @@ GAMG:  Solving for p_rgh, Initial residual = 0.567078, Final residual = 2.95045e
 diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
 time step continuity errors : sum local = 7.62098e-17, global = -2.17923e-18, cumulative = 3.81108e-16
 PIMPLE: Converged in 3 iterations
-ExecutionTime = 0.56 s  ClockTime = 0 s
+ExecutionTime = 0.63 s  ClockTime = 0 s
 
 End
 

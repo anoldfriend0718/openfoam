@@ -92,4 +92,31 @@ volScalarField alphaEff
     eps*thermo.alphahe()+(1-eps)*ladals/thermo.Cpv()
 };
 
+Foam::volScalarField rhofEps
+{
+    IOobject
+    (
+        "rhofEps",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    eps*rhof
+};
+rhofEps.oldTime()=rhof*eps;
+
+Foam::volScalarField effRhosCpsByCpvf
+{
+    IOobject
+    (
+        "effRhosCpsByCpvf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    rhos*(1-eps)*CpsByCpvf
+};
+
 // alphaEff.write();
