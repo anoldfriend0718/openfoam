@@ -1,0 +1,8 @@
+EXE_INC =  -O0 -fdefault-inline -ggdb3 -DFULLDEBUG \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude
+
+EXE_LIBS = \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lmeshTools

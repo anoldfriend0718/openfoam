@@ -8,10 +8,10 @@
             "name": "OF-Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Opt/bin/reactingDBSFoam",
+            "program": "/home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Debug/bin/Test-TimeLoop",
             "args": [
                 "-case",
-                "/home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactingDBS/BernardCells"
+                "~/OpenFOAM/anoldfriend-7/applications/test/timeLoop/Test-TimeLoop"
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",

@@ -22,83 +22,74 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    reactingDBSFoam
+    laplacianFoam
 
 Description
-    Transient solver for buoyant, turbulent flow of compressible fluids for
-    ventilation and heat-transfer.
-
-    Turbulence is modelled using a run-time selectable compressible RAS or
-    LES model.
+    Solves a simple Laplace equation, e.g. for thermal diffusion in a solid.
 
 \*---------------------------------------------------------------------------*/
 
+#include "dimensionSet.H"
+#include "dimensionSets.H"
+#include "dimensionedScalarFwd.H"
 #include "fvCFD.H"
-#include "rhoThermo.H"
-#include "turbulentFluidThermoModel.H"
-#include "radiationModel.H"
 #include "fvOptions.H"
 #include "pimpleControl.H"
+#include "volFieldsFwd.H"
+#include "zero.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
 {
-    #include "postProcess.H"
-
     #include "setRootCaseLists.H"
+
     #include "createTime.H"
     #include "createMesh.H"
-    #include "createControl.H"
-    #include "createFields.H"
-    #include "createFieldRefs.H"
-    #include "initContinuityErrs.H"
-    #include "createTimeControls.H"
-    #include "compressibleCourantNo.H"
-    #include "setInitialDeltaT.H"
 
+    pimpleControl pimple(mesh);
+
+   
+
+    volScalarField T
+    (
+        IOobject
+        (
+            "T",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimTemperature,0)
+    );
+    // T.oldTime();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    Info<< "\nStarting time loop\n" << endl;
-
+    Info<< "\nCalculating temperature distribution\n" << endl;
+    label num=0;
+    // debug=1;
     while (runTime.run())
     {
-        #include "readTimeControls.H"
-        #include "compressibleCourantNo.H"
-        #include "setDeltaT.H"
+        const volScalarField& oldField=T.oldTime();
+        Info<<"old run time= "<<oldField.time().timeName()<<endl;
+        Info<<"old run time= "<<oldField.name()<<endl;
+        Info<<"old run time Index= "<<oldField.time().timeIndex()<<endl;
+        Info<<" old Temperature=  "<< oldField.primitiveField()<<endl;
 
         runTime++;
 
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        num++;
+        Info<< "num = " << num << nl << endl;
+        Info<< "run Time= "<<runTime.timeName()<<endl;
+        Info<< "current time Index= "<<runTime.timeIndex()<<endl;
+  
+        T=dimensionedScalar(dimTemperature,num);
+        Info<< "current Temperature: "<<T.primitiveField() <<endl;
 
-        #include "rhoEqn.H"
 
-        // --- Pressure-velocity PIMPLE corrector loop
-        while (pimple.loop())
-        {
-            //#include "SolidEqn.H"
-            #include "UEqn.H"
-            //#include "YEqn.H"
-            #include "EEqn.H"
-
-            // --- Pressure corrector loop
-            while (pimple.correct())
-            {
-                #include "pEqn.H"
-            }
-
-        }
-
-        rhof = thermo.rho();
-        rhofEps=rhof*eps;
-        // effRhosCpsByCpvf=rhos*(1-eps)*CpsByCpvf; //if eps updated at last, this one should be updated
-
-        runTime.write();
-        
-        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-            << nl << endl;
     }
 
     Info<< "End\n" << endl;
