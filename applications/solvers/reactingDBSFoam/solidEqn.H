@@ -34,7 +34,7 @@ Description
     Info << "solving solid equation"<<endl;
 
     // Foam::volScalarField effReactionRate("mdots")
-    mdotSolid=mag(fvc::grad(eps))*(4.0*eps*(1-eps))*reactionRate*rhof*(Y-Yeq)*beta;
+    mdotSolid=ssArea*reactionRate*rhof*(Y-Yeq)*beta;
     fvScalarMatrix sEqn
     (
         rhos*fvm::ddt(epsSolid) 
@@ -52,6 +52,7 @@ Description
 
     epsSolid=max(min(epsSolid,1.0),0.0);
     eps=1.0-epsSolid;
+    ssArea=mag(fvc::grad(eps))*(4.0*eps*(1-eps));
 }
 
 // ************************************************************************* //

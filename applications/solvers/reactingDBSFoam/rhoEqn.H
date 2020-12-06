@@ -31,7 +31,7 @@ Description
 
 {
 
-    mdotSolid=mag(fvc::grad(eps))*(4.0*eps*(1-eps))*reactionRate*rhof*(Y-Yeq)*beta;
+    mdotSolid=ssArea*reactionRate*rhof*(Y-Yeq)*beta;
 
     fvScalarMatrix rhoEqn
     (

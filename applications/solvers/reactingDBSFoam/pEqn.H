@@ -27,7 +27,7 @@ constrainPressure(p_rgh, rhof, U, phiHbyA, rhorAUf);
 
 // multiple the transient term by eps to ensure the DBS continuity equation
 
-mdotSolid=mag(fvc::grad(eps))*(4.0*eps*(1-eps))*reactionRate*rhof*(Y-Yeq)*beta;
+mdotSolid=ssArea*reactionRate*rhof*(Y-Yeq)*beta;
 
 fvScalarMatrix p_rghDDtEqn
 (

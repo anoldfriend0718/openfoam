@@ -82,8 +82,11 @@ int main(int argc, char *argv[])
         while (pimple.loop())
         {
             #include "solidEqn.H"
+
             #include "UEqn.H"
-            //#include "YEqn.H"
+
+            #include "YEqn.H"
+
             #include "EEqn.H"
 
             // --- Pressure corrector loop
@@ -91,7 +94,6 @@ int main(int argc, char *argv[])
             {
                 #include "pEqn.H"
             }
-
         }
 
         rhof = thermo.rho();

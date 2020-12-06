@@ -52,7 +52,7 @@ Info<< "creating solid fraction" << endl;
 
 Foam::volScalarField epsSolid("epsSolid",1-eps);
 
-Info<< "create permeability field\n" << endl;
+Info<< "create permeability field" << endl;
 
 scalar minEps=1e-8;
 volScalarField tEps(max(eps,minEps));
@@ -60,6 +60,20 @@ volScalarField rK
 (
     "rK",
     rK0*(1.0-eps)*(1.0-eps)/(tEps*tEps*tEps)
+);
+
+Info<< "create effective diffusivity field" << endl;
+volScalarField eps2Df
+(
+    "eps2Df",
+    eps*eps*Df
+);
+
+Info<<"creating effective specific surface area"<<endl;
+volScalarField ssArea
+(
+    "ssArea",
+    mag(fvc::grad(eps))*(4.0*eps*(1-eps))
 );
 
 // rK.write();

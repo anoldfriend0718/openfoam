@@ -11,6 +11,7 @@
     //update the rhofEps and effRhosCpsByCpvf
     rhofEps=rhof*eps;
     effRhosCpsByCpvf=rhos*(1-eps)*CpsByCpvf;
+    mdotSolid=ssArea*reactionRate*rhof*(Y-Yeq)*beta;
 
     fvScalarMatrix EEqn
     (
@@ -31,6 +32,7 @@
 	    - fvm::laplacian(alphaEff, he)
      ==
         rhof*(U&g)
+      + fvm::Su(mdotSolid*reactionHeat,he)
       + radiation->Sh(thermo, he)
       + fvOptions(rhof, he)
     );

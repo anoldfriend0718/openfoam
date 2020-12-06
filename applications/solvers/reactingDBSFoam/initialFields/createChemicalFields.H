@@ -38,11 +38,12 @@ volScalarField Y
     mesh
 );
 
+//sold dissoultion rate
 volScalarField mdotSolid
 (
     IOobject
     (
-        "mdot",
+        "mdotSolid",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
@@ -51,6 +52,23 @@ volScalarField mdotSolid
     mesh,
     dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),0.0)
 );
+
+//fluid species comsumption rate 
+volScalarField mdotY
+(
+    IOobject
+    (
+        "mdotY",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),0.0)
+);
+
+
 
 
 Info<< "==Complete Creating the chemical fields=="<<nl<<endl;

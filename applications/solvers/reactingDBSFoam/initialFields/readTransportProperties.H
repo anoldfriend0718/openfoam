@@ -18,6 +18,6 @@ dimensionedScalar Df
     dimViscosity,
     transportProperties.lookup("Df")
 );
-Info<< "effective diffusivity: "<<Df<<endl;
+Info<< "effective molecular diffusivity: "<<Df<<endl;
 
 Info<< "==Complete reading transport Properties== "<<nl<<endl;
