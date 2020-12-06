@@ -1,3 +1,4 @@
+#include "volFieldsFwd.H"
 Info<< "Reading porous medium transportProperties\n" << endl;
 
 IOdictionary porousTransportProperties
@@ -46,12 +47,18 @@ surfaceScalarField epsf
     fvc::interpolate(eps)
 );
 
+Info<< "Reading solid fraction \n" << endl;
+
+Foam::volScalarField epsSolid("epsSolid",1-eps);
+
 Info<< "create permeability field\n" << endl;
 
+scalar minEps=1e-8;
+volScalarField tEps(max(eps,minEps));
 volScalarField rK
 (
     "rK",
-    rK0*(1.0-eps)*(1.0-eps)/(eps*eps*eps)
+    rK0*(1.0-eps)*(1.0-eps)/(tEps*tEps*tEps)
 );
 
 // rK.write();

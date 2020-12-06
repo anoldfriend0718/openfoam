@@ -33,6 +33,9 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
+#include "IOdictionary.H"
+#include "IOobject.H"
+#include "dimensionedScalarFwd.H"
 #include "fvCFD.H"
 #include "rhoThermo.H"
 #include "radiationModel.H"
@@ -50,6 +53,30 @@ int main(int argc, char *argv[])
     #include "createMesh.H"
     #include "createControl.H"
     #include "createFields.H"
+
+    Info<<"Reading the chemical properties"<<endl;
+    IOdictionary chemicalProperties
+    (
+        IOobject
+        (
+            "chemicalProperties",
+            runTime.constant(),
+            mesh,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE
+        )
+    );
+
+    dimensionedScalar gamma(chemicalProperties.lookup("gamma"));
+    dimensionedScalar reactionRate(chemicalProperties.lookup("reactionRate"));
+    dimensionedScalar Yeq(chemicalProperties.lookup("Yeq"));
+    dimensionedScalar reactionHeat(chemicalProperties.lookup("reactionHeat"));
+
+    Info<<"Stoichiometric Coefficient: "<<gamma<<endl;
+    Info<<"const solid dissolution rate: "<<reactionRate<<endl;
+    Info<<"equilibrium mass concentration: "<<Yeq<<endl;
+    Info<<"reaction heat: "<<reactionHeat<<endl;
+
     #include "createFieldRefs.H"
     #include "initContinuityErrs.H"
     #include "createTimeControls.H"
