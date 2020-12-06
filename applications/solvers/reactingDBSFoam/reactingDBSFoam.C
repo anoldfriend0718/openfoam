@@ -35,7 +35,6 @@ Description
 
 #include "fvCFD.H"
 #include "rhoThermo.H"
-#include "turbulentFluidThermoModel.H"
 #include "radiationModel.H"
 #include "fvOptions.H"
 #include "pimpleControl.H"
