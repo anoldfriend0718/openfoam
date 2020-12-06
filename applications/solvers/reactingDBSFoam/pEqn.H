@@ -26,12 +26,16 @@ surfaceScalarField phiHbyA
 constrainPressure(p_rgh, rhof, U, phiHbyA, rhorAUf);
 
 // multiple the transient term by eps to ensure the DBS continuity equation
+
+mdotSolid=mag(fvc::grad(eps))*(4.0*eps*(1-eps))*reactionRate*rhof*(Y-Yeq)*beta;
+
 fvScalarMatrix p_rghDDtEqn
 (
     eps*fvc::ddt(rhof) + eps*psi*correction(fvm::ddt(p_rgh))
   + fvc::div(phiHbyA)
   ==
-    fvOptions(psi, p_rgh, rhof.name())
+    fvm::Su(mdotSolid*(1.0-rhof/rhos),p_rgh)
+  + fvOptions(psi, p_rgh, rhof.name())
 );
 
 while (pimple.correctNonOrthogonal())

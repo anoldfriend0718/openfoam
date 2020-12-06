@@ -38,7 +38,7 @@ volScalarField Y
     mesh
 );
 
-volScalarField mdot
+volScalarField mdotSolid
 (
     IOobject
     (
@@ -50,7 +50,6 @@ volScalarField mdot
     ),
     mesh,
     dimensionedScalar(dimensionSet(1,-3,-1,0,0,0,0),0.0)
-    // mag(fvc::grad(eps))*(4.0*eps*(1-eps))*reactionRate*rhof*(Y-Yeq)
 );
 
 

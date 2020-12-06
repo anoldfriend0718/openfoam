@@ -59,12 +59,6 @@ int main(int argc, char *argv[])
     #include "compressibleCourantNo.H"
     #include "setInitialDeltaT.H"
 
- 
-
-
-
-
-
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -80,12 +74,14 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
+
+
         #include "rhoEqn.H"
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            //#include "SolidEqn.H"
+            #include "solidEqn.H"
             #include "UEqn.H"
             //#include "YEqn.H"
             #include "EEqn.H"

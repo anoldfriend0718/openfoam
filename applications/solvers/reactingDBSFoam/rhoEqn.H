@@ -30,12 +30,16 @@ Description
 \*---------------------------------------------------------------------------*/
 
 {
+
+    mdotSolid=mag(fvc::grad(eps))*(4.0*eps*(1-eps))*reactionRate*rhof*(Y-Yeq)*beta;
+
     fvScalarMatrix rhoEqn
     (
         eps*fvm::ddt(rhof) //QXu mark: if the reaction occur, the source term should be added
       + fvc::div(phi)
       ==
-        fvOptions(rhof)
+        fvm::Su(mdotSolid*(1.0-rhof/rhos),rhof) 
+      + fvOptions(rhof)
     );
 
     fvOptions.constrain(rhoEqn);

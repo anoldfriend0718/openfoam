@@ -34,19 +34,24 @@ Description
     Info << "solving solid equation"<<endl;
 
     // Foam::volScalarField effReactionRate("mdots")
-    
+    mdotSolid=mag(fvc::grad(eps))*(4.0*eps*(1-eps))*reactionRate*rhof*(Y-Yeq)*beta;
     fvScalarMatrix sEqn
     (
         rhos*fvm::ddt(epsSolid) 
       ==
-        fvOptions(epsSolid)
+        - fvm::Su(mdotSolid,epsSolid)
+        + fvOptions(epsSolid)
     );
 
+    sEqn.relax();
     fvOptions.constrain(sEqn);
 
     sEqn.solve();
 
-    fvOptions.correct(rhof);
+    fvOptions.correct(epsSolid);
+
+    epsSolid=max(min(epsSolid,1.0),0.0);
+    eps=1.0-epsSolid;
 }
 
 // ************************************************************************* //
