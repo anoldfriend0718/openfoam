@@ -1,4 +1,4 @@
-Info<< "Reading  transport Properties\n" << endl;
+Info<< "==Reading  transport Properties==\n" << endl;
 
 IOdictionary transportProperties
 (
@@ -20,4 +20,4 @@ dimensionedScalar Df
 );
 Info<< "effective diffusivity: "<<Df<<endl;
 
-Info<< "Complete reading transport Properties "<<nl<<endl;
+Info<< "==Complete reading transport Properties== "<<nl<<endl;

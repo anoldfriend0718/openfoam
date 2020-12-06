@@ -1,4 +1,4 @@
-Info<<"Reading the chemical properties"<<nl<<endl;
+Info<<"==Reading the chemical properties=="<<nl<<endl;
 IOdictionary chemicalProperties
 (
     IOobject
@@ -21,4 +21,4 @@ Info<<"const solid dissolution rate: "<<reactionRate<<endl;
 Info<<"equilibrium mass concentration: "<<Yeq<<endl;
 Info<<"reaction heat: "<<reactionHeat<<endl;
 
-Info<< "Complete reading chemical Properties "<<nl<<endl;
+Info<< "==Complete reading chemical Properties== "<<nl<<endl;

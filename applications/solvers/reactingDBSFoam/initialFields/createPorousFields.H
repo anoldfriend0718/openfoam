@@ -1,5 +1,5 @@
 
-Info<< "Reading porous medium transportProperties\n" << endl;
+Info<< "==Reading porous medium transportProperties==\n" << endl;
 
 IOdictionary porousTransportProperties
 (
@@ -83,4 +83,4 @@ surfaceScalarField phiByEpsf
 );
 
 
-Info<< "Complete creating porous Fields "<<nl<<endl;
+Info<< "==Complete creating porous Fields== "<<nl<<endl;

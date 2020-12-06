@@ -1,4 +1,4 @@
-Info << "Reading const solid thermo-physical transport properties\n" << endl;
+Info << "==Reading const solid thermo-physical transport properties==\n" << endl;
 
 IOdictionary solidProperties
 (
@@ -37,4 +37,4 @@ dimensionedScalar ladals
 Info<<"solid thermal conductivity: "<<ladals<<endl;
 
 
-Info<< "Complete reading solid Properties "<<nl<<endl;
+Info<< "==Complete reading solid Properties== "<<nl<<endl;

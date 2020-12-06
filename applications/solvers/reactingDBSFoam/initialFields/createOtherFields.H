@@ -1,4 +1,4 @@
-Info<<"create extra property Fields"<<nl<<endl;
+Info<<"==Create extra property Fields=="<<nl<<endl;
 //heat capacity ratio: solid Cp / fluid Cp pr Cv based on specific energy model 
 volScalarField CpsByCpvf
 {
@@ -65,4 +65,4 @@ Info<<"store effRhosCpsByCpvf old field "<<endl;
 effRhosCpsByCpvf.oldTime();
 
 
-Info<<"Complete creating extra property Fields"<<nl<<endl;
+Info<<"==Complete creating extra property Fields=="<<nl<<endl;

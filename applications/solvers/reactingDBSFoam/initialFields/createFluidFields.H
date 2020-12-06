@@ -1,4 +1,4 @@
-Info<< "Reading fluid thermo-physical properties by thermo model\n" << endl;
+Info<< "==Reading fluid thermo-physical properties by thermo model==\n" << endl;
 
 autoPtr<rhoThermo> pThermo(rhoThermo::New(mesh));
 rhoThermo& thermo = pThermo();
@@ -102,4 +102,4 @@ volScalarField dpdt
 Info<< "Creating field kinetic energy K" << endl;
 volScalarField K("K", 0.5*magSqr(U));
 
-Info<< "Complete creating Fluid Fields "<<nl<<endl;
+Info<< "==Complete creating Fluid Fields== "<<nl<<endl;
