@@ -1,15 +1,15 @@
 {
-    eps2Df=eps*eps*Df;
+    rhofEps2Df=rhof*eps*eps*Df;
     mdotY=ssArea*reactionRate*rhof;
 
     fvScalarMatrix YEqn
     (
         fvm::ddt(eps,rhof, Y)
         + fvm::div(phi,Y)
-        - fvm::laplacian(eps2Df,Y)
+        - fvm::laplacian(rhofEps2Df,Y)
         ==
-        - fvm::Sp(mdotY,Y)
-        + fvm::Su(mdotY*Yeq,Y)
+        - fvm::Sp(mdotY,Y) //implicit scheme
+        + fvm::Su(mdotY*Yeq,Y) //explicit scheme
         + fvOptions(rhof, Y)
     );
 

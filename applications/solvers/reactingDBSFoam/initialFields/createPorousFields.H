@@ -63,10 +63,10 @@ volScalarField rK
 );
 
 Info<< "create effective diffusivity field" << endl;
-volScalarField eps2Df
+volScalarField rhofEps2Df
 (
-    "eps2Df",
-    eps*eps*Df
+    "rhofEps2Df",
+    rhof*eps*eps*Df
 );
 
 Info<<"creating effective specific surface area"<<endl;

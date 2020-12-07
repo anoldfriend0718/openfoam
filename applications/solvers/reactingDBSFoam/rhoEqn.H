@@ -30,7 +30,6 @@ Description
 \*---------------------------------------------------------------------------*/
 
 {
-
     mdotSolid=ssArea*reactionRate*rhof*(Y-Yeq)*beta;
 
     fvScalarMatrix rhoEqn
