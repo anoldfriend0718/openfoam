@@ -20,9 +20,15 @@ internalField   uniform 0;
 
 boundaryField
 {
-    "(inlet|outlet)"
+    inlet
     {
         type            fixedFluxPressure;
+        value           $internalField;
+    }
+
+    outlet
+    {
+        type            fixedValue;
         value           $internalField;
     }
 

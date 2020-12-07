@@ -71,7 +71,7 @@ PIMPLE
     nCorrectors       2;
     nOuterCorrectors  1;
 
-    pRefCell          0;
+    pRefCell          (2e-4 0 0);
     pRefValue         0;
 }
 
