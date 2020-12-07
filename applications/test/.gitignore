@@ -7,3 +7,4 @@
 **/processor*/
 !**/*.log
 !.gitignore
+**/temp/
