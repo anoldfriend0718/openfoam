@@ -9,7 +9,7 @@ mu=thermo.mu();
 // Solve the Momentum equation
 fvVectorMatrix UEqn
 (
-      (1./eps)*(fvm::ddt(rhof, U) + fvm::div(phiByEpsf, U))
+      (1.0/eps)*(fvm::ddt(rhof, U) + fvm::div(phiByEpsf, U))
     - (1.0/eps)*fvm::laplacian(mu, U)
     ==
     - fvm::SuSp(mu*rK,U)

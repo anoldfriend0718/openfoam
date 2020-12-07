@@ -61,6 +61,7 @@ volScalarField rK
     "rK",
     rK0*(1.0-eps)*(1.0-eps)/(tEps*tEps*tEps)
 );
+// rK.write();
 
 Info<< "create effective diffusivity field" << endl;
 volScalarField rhofEps2Df
