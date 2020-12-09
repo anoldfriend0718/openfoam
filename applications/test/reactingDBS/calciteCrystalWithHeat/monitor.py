@@ -1,8 +1,11 @@
 
+import sys
+sys.path.append(r"/home/anoldfriend/OpenFOAM/anoldfriend-7/utilities/")
+
 import signal
 import multiprocessing as mp
 import time
-from utils import read_residuals,plot_multiple_residuals,quit
+from residual_monitor import read_residuals,plot_multiple_residuals,quit
 
 log="run.log"
 pressure_name="p_rgh"
