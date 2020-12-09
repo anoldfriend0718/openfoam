@@ -4,7 +4,6 @@ import numpy as np
 import re
 
 import sys
-import time
 
 from IPython.display import clear_output
 
@@ -22,10 +21,15 @@ def read_residuals(log_file,line_offset,pressure_name,nCorrectors,sample_size):
     solver_term="Solving for "
     physical_time_term="Time = "
     execution_time_term="ExecutionTime = "
+    courant_number_term="Courant Number mean:"
+    deltaT_number_term="deltaT = "
     objs=set()
     residuals=dict()
     physical_times=list()
     execution_times=list()
+    meanCos=list()
+    maxCos=list()
+    deleta_times=list()
     for line in content:
         if re.search(solver_term, line):
             elements=line.split(" ")
@@ -43,10 +47,19 @@ def read_residuals(log_file,line_offset,pressure_name,nCorrectors,sample_size):
             elements=line.split(" ")
             time=elements[2]
             physical_times.append(time)
+        elif re.search(deltaT_number_term, line):
+            elements=line.split(" ")
+            time=elements[2]
+            deleta_times.append(time)
+        elif re.search(courant_number_term, line):
+            elements=line.split(" ")
+            meanCos.append(elements[3])
+            maxCos.append(elements[5])
         
+    info={}   
     if len(residuals.keys())==0:
         print("Error Message: no residual was read...")
-        return pd.DataFrame({}),line_offset,0,0,0
+        return pd.DataFrame({}),line_offset,0,info
 
     if pressure_name in residuals.keys():
         residuals[pressure_name]=residuals[pressure_name][1::nCorrectors]
@@ -66,17 +79,44 @@ def read_residuals(log_file,line_offset,pressure_name,nCorrectors,sample_size):
 
     df_sample=pd.DataFrame(residuals,index=indexes).astype(float)
 
-    return df_sample,line_offset,iterations,physical_times[-1],execution_times[-1]
+
+    if len(physical_times)>0:
+        info["cum_physical_time"]= physical_times[-1]
+
+    if len(execution_times)>0:
+        info["cum_execution_time"]= execution_times[-1]
+
+    if len(deleta_times)>0:
+        info["latest_delta_time"]=deleta_times[-1]
+    
+    if len(maxCos)>0:
+        info["maxCo"]=maxCos[-1]
+
+    if len(meanCos)>0:
+        info["meanCo"]=meanCos[-1]
+    
+    return df_sample,line_offset,iterations,info
 
 
-def plot_residuals(df_sample,iterations_offset,residuals,thresholds,title,save_file):
+def plot_residuals(df_sample,iterations_offset,residual_objects,thresholds,title,text,save_file):
     # clear_output(wait=True)
     indexes=[i+iterations_offset for i in df_sample.index.tolist()]
     if len(indexes)>0:
+
+        left, width = 0, 1
+        bottom, height = 0, 1
+        right = left + width
+        top = bottom + height
+        fig,ax=plt.subplots()
+        # p = plt.Rectangle((left, bottom), width, height, fill=False)
+        # p.set_transform(ax.transAxes)
+        # p.set_clip_on(False)
+        # ax.add_patch(p)
+        
+        ax.plot(indexes,df_sample.loc[:,residual_objects])
+
         x_start=indexes[0]
         x_end=indexes[-1]
-        fig,ax=plt.subplots()
-        ax.plot(indexes,df_sample.loc[:,residuals])
         x_lims=[x_start,x_end]
         for threshold in thresholds:
             ax.plot(x_lims,[threshold,threshold],"--")
@@ -86,8 +126,13 @@ def plot_residuals(df_sample,iterations_offset,residuals,thresholds,title,save_f
         ax.set_ylabel("Residuals")
         ax.set_title(title)
 
+        ax.text(right*1.1, 0.4 * (bottom + top), text,
+            horizontalalignment='left',
+            verticalalignment='center',
+            transform=ax.transAxes)
+
         threshold_names=[str(value) for value in thresholds]
-        legends=np.concatenate([np.array(residuals),threshold_names])
+        legends=np.concatenate([np.array(residual_objects),threshold_names])
         ax.legend(legends,loc="upper left",bbox_to_anchor=((1.1,0.9)))
 
         fig.savefig(save_file, bbox_inches='tight')
@@ -96,13 +141,14 @@ def plot_residuals(df_sample,iterations_offset,residuals,thresholds,title,save_f
     else:
         print("Error Message: no residual can be plot...")
 
-def plot_multiple_residuals(df,iterations_offset,m_residuals,m_thresholds,titles,m_save_files):
-    for i, residuals in enumerate(m_residuals):
-        residuals=m_residuals[i]
+def plot_multiple_residuals(df,iterations_offset,m_residual_objects,m_thresholds,titles,texts,m_save_files):
+    for i, obj in enumerate(m_residual_objects):
+        obj=m_residual_objects[i]
         thresholds=m_thresholds[i]
         save_file=m_save_files[i]
         title=titles[i]
-        plot_residuals(df,iterations_offset,residuals,thresholds,title,save_file)
+        text=texts[i]
+        plot_residuals(df,iterations_offset,obj,thresholds,title,text,save_file)
 
 
 

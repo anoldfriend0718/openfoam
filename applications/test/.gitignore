@@ -9,3 +9,4 @@
 !.gitignore
 **/temp/
 **/residual*.jpg
+**/oldruns/
