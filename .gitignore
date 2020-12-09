@@ -1,5 +1,7 @@
 run/
-
+**/.venv/
+typescript
+**/__pycache__/
 # git-ls-files --others --exclude-from=.git/info/exclude
 # Lines that start with '#' are comments.
 build/
