@@ -108,7 +108,11 @@ def plot_residuals(df_sample,iterations_offset,residual_objects,thresholds,title
         right = left + width
         top = bottom + height
         fig,ax=plt.subplots()
-   
+        # p = plt.Rectangle((left, bottom), width, height, fill=False)
+        # p.set_transform(ax.transAxes)
+        # p.set_clip_on(False)
+        # ax.add_patch(p)
+        
         ax.plot(indexes,df_sample.loc[:,residual_objects])
 
         x_start=indexes[0]
@@ -133,6 +137,7 @@ def plot_residuals(df_sample,iterations_offset,residual_objects,thresholds,title
 
         fig.savefig(save_file, bbox_inches='tight')
         plt.clf()
+
     else:
         print("Error Message: no residual can be plot...")
 

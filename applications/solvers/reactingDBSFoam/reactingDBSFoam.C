@@ -34,13 +34,11 @@ Description
 \*---------------------------------------------------------------------------*/
 
 
-#include "IOobject.H"
 #include "fvCFD.H"
 #include "rhoThermo.H"
 #include "radiationModel.H"
 #include "fvOptions.H"
 #include "pimpleControl.H"
-#include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
