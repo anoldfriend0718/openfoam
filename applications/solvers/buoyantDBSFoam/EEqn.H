@@ -3,20 +3,17 @@
     //update the solid Cp/fluid Cpv
     CpsByCpvf= Cps/thermo.Cpv();
     //update the effective thermal diffusivity for energy 
-    alphaEff=eps*thermo.alphahe()+(1-eps)*ladals/thermo.Cpv();
+    alphaEff=eps*thermo.alphahe()+eps_solid*ladals/thermo.Cpv();
 
     //store the old rhofEps and effRhosCpsByCpvf due to ddt computations
-    rhofEps.storeOldTimes();
-    effRhosCpsByCpvf.storeOldTimes();
+    rhosCpsByCpvf.storeOldTimes();
     //update the rhofEps and effRhosCpsByCpvf
-    rhofEps=rhof*eps;
-    effRhosCpsByCpvf=rhos*(1-eps)*CpsByCpvf;
+    rhosCpsByCpvf=rhos*CpsByCpvf;
 
     fvScalarMatrix EEqn
     (
-       fvm::ddt(rhofEps, he) + fvm::div(phi, he)
-         //fvm::ddt(eps,rhof, he) + fvm::div(phi, he)
-      + fvm::ddt(effRhosCpsByCpvf, he)
+        fvm::ddt(eps,rhof, he) + fvm::div(phi, he)
+      + fvm::ddt(eps_solid,rhosCpsByCpvf, he)
       + fvc::ddt(rhof, K) + fvc::div(phi, K)
       + (
             he.name() == "e"

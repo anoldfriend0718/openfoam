@@ -95,7 +95,7 @@ PIMPLE
 
         p_rgh      
         {
-            tolerance  1e-8;
+            tolerance  1e-7;
             relTol     0;
         }
         

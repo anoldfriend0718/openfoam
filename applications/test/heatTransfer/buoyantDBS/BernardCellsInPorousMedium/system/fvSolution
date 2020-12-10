@@ -22,17 +22,11 @@ solvers
         solver          diagonal;
     }
 
-    "epsSolid.*"
-    {
-        solver          diagonal;
-    }
-
-
     p_rgh
     {
         solver          GAMG;
         smoother        DIC;
-        tolerance       1e-6;
+        tolerance       1e-8;
         relTol          0.01;
     }
 
@@ -42,15 +36,15 @@ solvers
         relTol          0;
     }
 
-    "(U|e|Y)"
+    "(U|e)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-6;
+        tolerance       1e-8;
         relTol          0.01;
     }
 
-    "(U|e|Y)Final"
+    "(U|e)Final"
     {
         $U;
         relTol          0;
@@ -58,48 +52,37 @@ solvers
 
 }
 
-// PIMPLE
-// {
-//     nNonOrthogonalCorrectors 0;
-//     nCorrectors         2;
-// }
-
 PIMPLE
 {
     momentumPredictor yes;
     nNonOrthogonalCorrectors 0;
     nCorrectors       2;
-    nOuterCorrectors  50;
+    nOuterCorrectors  5;
 
-    pRefCell          (2e-4 0 0);
+    pRefCell          0;
     pRefValue         0;
 
     outerCorrectorResidualControl
     {
         e     
         {
-            tolerance  1e-7;
-            relTol     0;
-        }
-
-        Y    
-        {
-            tolerance  1e-7;
+            tolerance  1e-5;
             relTol     0;
         }
 
         U      
         {
-            tolerance  1e-8;
+            tolerance  1e-5;
             relTol     0;
         }
 
         p_rgh      
         {
-            tolerance  1e-7;
+            tolerance  1e-5;
             relTol     0;
         }
         
+    }
 }
 
 relaxationFactors
@@ -109,5 +92,7 @@ relaxationFactors
         ".*"   1.0;
     }
 }
+
+
 
 // ************************************************************************* //

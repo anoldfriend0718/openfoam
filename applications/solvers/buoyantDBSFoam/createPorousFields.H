@@ -40,6 +40,21 @@ volScalarField eps
     mesh
 );
 
+volScalarField eps_solid
+{
+    "eps_solid",
+    1-eps
+};
+
+scalar minEps=1e-8;
+volScalarField tEps(max(eps,minEps));
+
+volScalarField rEps
+{
+    "rEps",
+    1.0/tEps
+};
+
 surfaceScalarField epsf
 (
     "epsf",
@@ -51,29 +66,22 @@ Info<< "create permeability field\n" << endl;
 volScalarField rK
 (
     "rK",
-    rK0*(1.0-eps)*(1.0-eps)/(eps*eps*eps)
+    rK0*(1.0-eps)*(1.0-eps)/(tEps*tEps*tEps)
 );
-
-// rK.write();
-// Foam::volScalarField K
-// (
-//     "K",
-//     1./rK
-// );
-
-// K.write();
 
 
 #include "compressibleCreatePhi.H"
 
 Info<< "calculating face flux field phi in porous medium\n" << endl;
 
+
+surfaceScalarField tEpsf(max(epsf,minEps));
+
 surfaceScalarField phiByEpsf
 (
     "phiByEpsf",
-    phi/epsf
+    phi/tEpsf
 );
-
 
 // construct effective thermal diffusivity for energy by 
 //alphaEff=(1-eps)*alphas/Cpvf+eps*alphahe
@@ -89,39 +97,22 @@ volScalarField alphaEff
         IOobject::NO_READ,
         IOobject::NO_WRITE
     ),
-    eps*thermo.alphahe()+(1-eps)*ladals/thermo.Cpv()
+    eps*thermo.alphahe()+eps_solid*ladals/thermo.Cpv()
 };
 
-Info<<"create rhofEps "<<endl;
-Foam::volScalarField rhofEps
+
+Info<<"create rhosCpsByCpvf"<<endl;
+Foam::volScalarField rhosCpsByCpvf
 {
     IOobject
     (
-        "rhofEps",
+        "rhosCpsByCpvf",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
         IOobject::NO_WRITE
     ),
-    eps*rhof
+    rhos*CpsByCpvf
 };
-Info<<"store rhofEps old field "<<endl;
-rhofEps.oldTime();
-
-
-
-Info<<"create effRhosCpsByCpvf"<<endl;
-Foam::volScalarField effRhosCpsByCpvf
-{
-    IOobject
-    (
-        "effRhosCpsByCpvf",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    rhos*(1-eps)*CpsByCpvf
-};
-Info<<"store effRhosCpsByCpvf old field "<<endl;
-effRhosCpsByCpvf.oldTime();
+Info<<"store rhosCpsByCpvf old field "<<endl;
+rhosCpsByCpvf.oldTime();
