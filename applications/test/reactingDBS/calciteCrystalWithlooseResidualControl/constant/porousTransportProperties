@@ -10,20 +10,14 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      solid;
+    object      porousTransportProperties;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 
-//solid density
-rhos            rhos [1 -3 0 0 0 0 0] 2165;
-
-// solid heat capacity 
-Cps             Cps [0 2 -2 -1 0 0 0] 0; 
-
-// solid thermal diffusivity for temperature 
-ladals          ladals [1 1 -3 -1 0 0 0] 0;
+//permeability K0
+K0              [0 2 0 0 0 0 0] 1e-15;
 
 
 // ************************************************************************* //

@@ -33,13 +33,12 @@ solvers
         solver          GAMG;
         smoother        DIC;
         tolerance       1e-6;
-        relTol          0.01;
+        relTol          0.1;
     }
 
     p_rghFinal
     {
         $p_rgh;
-        tolerance       1e-8;
         relTol          0;
     }
 
@@ -47,14 +46,13 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-6;
-        relTol          0.01;
+        tolerance       1e-05;
+        relTol          0.1;
     }
 
     "(U|e|Y)Final"
     {
         $U;
-        tolerance       1e-8;
         relTol          0;
     }
 
@@ -68,37 +66,11 @@ solvers
 
 PIMPLE
 {
-    momentumPredictor yes;
     nNonOrthogonalCorrectors 0;
-    nCorrectors       2;
-    nOuterCorrectors  10;
-
-    pRefCell          (2e-4 0 0);
-    pRefValue         0;
-
-    outerCorrectorResidualControl
-    {
-
-        Y    
-        {
-            tolerance  5e-6;
-            relTol     0;
-        }
-
-        p_rgh      
-        {
-            tolerance  1e-6;
-            relTol     0;
-        }
+    nCorrectors         2;
         
 }
 
-relaxationFactors
-{
-    equations
-    {
-        ".*"   1.0;
-    }
-}
+
 
 // ************************************************************************* //

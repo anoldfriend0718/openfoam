@@ -1,16 +1,20 @@
 
-//update the filed related to porous medium 
+//update the filed related to porous medium
 tEps=max(eps,minEps);
+rEps=1.0/tEps;
 rK= rK0*(1.0-eps)*(1.0-eps)/(tEps*tEps*tEps);
+
 epsf=fvc::interpolate(eps);
-phiByEpsf = phi/epsf;
+tEpsf=max(epsf,minEps);
+phiByEpsf = phi/tEpsf;
+
 mu=thermo.mu();
 
 // Solve the Momentum equation
 fvVectorMatrix UEqn
 (
-      (1.0/eps)*(fvm::ddt(rhof, U) + fvm::div(phiByEpsf, U))
-    - (1.0/eps)*fvm::laplacian(mu, U)
+      rEps*(fvm::ddt(rhof, U) + fvm::div(phiByEpsf, U))
+    - rEps*fvm::laplacian(mu, U)
     ==
     - fvm::SuSp(mu*rK,U)
     + fvOptions(rhof, U) 

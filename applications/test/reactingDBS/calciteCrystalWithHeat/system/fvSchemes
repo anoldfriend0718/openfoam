@@ -30,12 +30,12 @@ divSchemes
     default         none;
 
     div(phiByEpsf,U)    Gauss linearUpwind grad(U);
-    div(phi,e)      Gauss limitedLinear 1;
+    div(phi,e)          bounded Gauss limitedLinear 1;
 
-    div(phiv,p)     Gauss linear;
-    div(phi,K)      Gauss linear;
+    div(phiv,p)         bounded Gauss limitedLinear 1;
+    div(phi,K)          bounded Gauss limitedLinear 1;
 
-    div(phi,Y)          bounded Gauss upwind;
+    div(phi,Y)          bounded Gauss limitedLinear 1;
 
 }
 

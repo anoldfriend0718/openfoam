@@ -94,8 +94,6 @@ int main(int argc, char *argv[])
         }
 
         rhof = thermo.rho();
-        rhofEps=rhof*eps;
-        // effRhosCpsByCpvf=rhos*(1-eps)*CpsByCpvf; //if eps updated at last, this one should be updated
 
         runTime.write();
         

@@ -42,20 +42,25 @@ volScalarField eps
     mesh
 );
 
-surfaceScalarField epsf
-(
-    "epsf",
-    fvc::interpolate(eps)
-);
+scalar minEps=1e-8;
+volScalarField tEps(max(eps,minEps));
+volScalarField rEps
+{
+    "rEps",
+    1.0/tEps
+};
 
 Info<< "creating solid fraction" << endl;
 
-Foam::volScalarField epsSolid("epsSolid",1-eps);
+volScalarField epsSolid
+(
+    "epsSolid",
+    1-eps
+);
 
 Info<< "create permeability field" << endl;
 
-scalar minEps=1e-8;
-volScalarField tEps(max(eps,minEps));
+
 volScalarField rK
 (
     "rK",
@@ -91,10 +96,17 @@ volScalarField ssArea
 
 Info<< "calculating face flux field phi in porous medium" << endl;
 
+surfaceScalarField epsf
+(
+    "epsf",
+    fvc::interpolate(eps)
+);
+surfaceScalarField tEpsf(max(epsf,minEps));
+
 surfaceScalarField phiByEpsf
 (
     "phiByEpsf",
-    phi/epsf
+    phi/tEpsf
 );
 
 

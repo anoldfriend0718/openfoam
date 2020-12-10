@@ -54,6 +54,8 @@ Description
     eps=1.0-epsSolid;
     //update the geometrical  property of the porous medium 
     ssArea=mag(fvc::grad(eps))*(4.0*eps*(1-eps));
+
+
 }
 
 // ************************************************************************* //

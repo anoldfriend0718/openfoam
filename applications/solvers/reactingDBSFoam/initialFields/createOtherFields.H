@@ -32,37 +32,22 @@ volScalarField alphaEff
     eps*thermo.alphahe()+(1-eps)*ladals/thermo.Cpv()
 };
 
-Info<<"create rhofEps "<<endl;
-Foam::volScalarField rhofEps
-{
-    IOobject
-    (
-        "rhofEps",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    eps*rhof
-};
-Info<<"store rhofEps old field "<<endl;
-rhofEps.oldTime();
 
-Info<<"create effRhosCpsByCpvf"<<endl;
-Foam::volScalarField effRhosCpsByCpvf
+Info<<"create rhosCpsByCpvf"<<endl;
+Foam::volScalarField rhosCpsByCpvf
 {
     IOobject
     (
-        "effRhosCpsByCpvf",
+        "rhosCpsByCpvf",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
         IOobject::NO_WRITE
     ),
-    rhos*(1-eps)*CpsByCpvf
+    rhos*CpsByCpvf
 };
-Info<<"store effRhosCpsByCpvf old field "<<endl;
-effRhosCpsByCpvf.oldTime();
+Info<<"store rhosCpsByCpvf old field "<<endl;
+rhosCpsByCpvf.oldTime();
 
 
 Info<<"==Complete creating extra property Fields=="<<nl<<endl;
