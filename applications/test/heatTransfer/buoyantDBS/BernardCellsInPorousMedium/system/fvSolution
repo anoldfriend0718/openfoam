@@ -59,8 +59,9 @@ PIMPLE
     nCorrectors       2;
     nOuterCorrectors  5;
 
-    pRefCell          0;
+    pRefPoint          (4.5 0 0);
     pRefValue         0;
+
 
     outerCorrectorResidualControl
     {
