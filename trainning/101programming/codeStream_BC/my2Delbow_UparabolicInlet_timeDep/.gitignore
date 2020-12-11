@@ -3,5 +3,5 @@
 /dynamicCode/
 **/polyMesh/
 /postProcessing/
-!*.log
+*.log
 !.gitignore
