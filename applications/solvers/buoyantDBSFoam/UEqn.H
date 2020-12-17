@@ -1,5 +1,5 @@
     //update the filed related to porous medium 
-    phiByEpsf = phi/tEpsf;
+    phiByEpsf = phi*repsf;
     mu=thermo.mu();
 
     // Solve the Momentum equation

@@ -61,6 +61,13 @@ surfaceScalarField epsf
     fvc::interpolate(eps)
 );
 
+surfaceScalarField repsf
+(
+    "repsf",
+    fvc::interpolate(1/tEps)
+);
+
+
 Info<< "create permeability field\n" << endl;
 
 volScalarField rK
@@ -80,7 +87,7 @@ surfaceScalarField tEpsf(max(epsf,minEps));
 surfaceScalarField phiByEpsf
 (
     "phiByEpsf",
-    phi/tEpsf
+    phi*repsf
 );
 
 // construct effective thermal diffusivity for energy by 
