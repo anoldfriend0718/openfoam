@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
             (1./eps)*fvm::ddt(U)
           + (1./eps)*fvm::div(phiByEpsf, U)
           - (1./eps)*fvm::laplacian(nu, U)
-          + fvm::SuSp(nu*rK,U)
+          + fvm::SuSp(drag,U)
         );
 
         if (piso.momentumPredictor())

@@ -20,21 +20,6 @@ dimensionedScalar nu
     transportProperties.lookup("nu")
 );
 
-dimensionedScalar K0
-{
-    "K0",
-    dimensionSet(0, 2, 0, 0, 0, 0, 0),
-    transportProperties.lookup("K0")
-};
-
-dimensionedScalar rK0
-{
-    "rK0",
-    dimensionSet(0, -2, 0, 0, 0, 0, 0),
-    (1.0/K0).value()
-};
-
-
 
 Info<< "Reading field p\n" << endl;
 volScalarField p
@@ -50,7 +35,6 @@ volScalarField p
     mesh
 );
 
-
 Info<< "Reading field U\n" << endl;
 volVectorField U
 (
@@ -64,43 +48,6 @@ volVectorField U
     ),
     mesh
 );
-
-Info<< "\nReading field porosity" << endl;
-volScalarField eps
-(
-    IOobject
-    (
-        "eps",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
-volScalarField tEps(eps+SMALL);
-surfaceScalarField repsf
-(
-    "repsf",
-    fvc::interpolate(1/tEps)
-);
-
-Info<< "create permeability field\n" << endl;
-
-volScalarField rK
-(
-    "rK",
-    rK0*(1.0-eps)*(1.0-eps)/(tEps*tEps*tEps)
-);
-
-// Foam::volScalarField K
-// (
-//     "K",
-//     1./rK
-// );
-
-// K.write();
 
 Info<< "\nReading g" << endl;
 uniformDimensionedVectorField g
@@ -118,15 +65,10 @@ uniformDimensionedVectorField g
 
 #include "createPhi.H"
 
-surfaceScalarField phiByEpsf
-(
-    "phiByEpsf",
-     phi*repsf
-);
-
-
 
 label pRefCell = 0;
 scalar pRefValue = 0.0;
 setRefCell(p, mesh.solutionDict().subDict("PISO"), pRefCell, pRefValue);
 mesh.setFluxRequired(p.name());
+
+#include "createPorousMediaFields.H"
