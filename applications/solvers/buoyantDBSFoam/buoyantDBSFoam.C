@@ -88,6 +88,8 @@ int main(int argc, char *argv[])
         }
 
         rhof = thermo.rho();
+
+        #include "updateVariables.H"
     
         runTime.write();
         

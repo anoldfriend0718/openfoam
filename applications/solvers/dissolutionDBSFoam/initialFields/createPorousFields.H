@@ -50,6 +50,12 @@ volScalarField rEps
     1.0/tEps
 };
 
+surfaceScalarField rEpsf
+(
+    "repsf",
+    fvc::interpolate(1/tEps)
+);
+
 Info<< "creating solid fraction" << endl;
 
 volScalarField epsSolid
@@ -96,18 +102,13 @@ volScalarField ssArea
 
 Info<< "calculating face flux field phi in porous medium" << endl;
 
-surfaceScalarField epsf
-(
-    "epsf",
-    fvc::interpolate(eps)
-);
-surfaceScalarField tEpsf(max(epsf,minEps));
 
 surfaceScalarField phiByEpsf
 (
     "phiByEpsf",
-    phi/tEpsf
+    phi*rEpsf
 );
 
+volScalarField rhofByEps("rhofByEps",rhof*rEps);
 
 Info<< "==Complete creating porous Fields== "<<nl<<endl;

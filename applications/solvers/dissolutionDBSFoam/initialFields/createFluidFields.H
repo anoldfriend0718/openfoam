@@ -102,4 +102,7 @@ volScalarField dpdt
 Info<< "Creating field kinetic energy K" << endl;
 volScalarField K("K", 0.5*magSqr(U));
 
+dimensionedScalar initialMass = fvc::domainIntegrate(rhof);
+dimensionedScalar totalVolume = sum(mesh.V());
+
 Info<< "==Complete creating Fluid Fields== "<<nl<<endl;

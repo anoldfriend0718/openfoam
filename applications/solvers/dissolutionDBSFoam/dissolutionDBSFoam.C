@@ -91,9 +91,12 @@ int main(int argc, char *argv[])
             {
                 #include "pEqn.H"
             }
+
         }
 
         rhof = thermo.rho();
+        
+        #include "updateVariables.H"
 
         runTime.write();
         

@@ -1,12 +1,11 @@
 
 //update the filed related to porous medium
 tEps=max(eps,minEps);
-rEps=1.0/tEps;
 rK= rK0*(1.0-eps)*(1.0-eps)/(tEps*tEps*tEps);
 
-epsf=fvc::interpolate(eps);
-tEpsf=max(epsf,minEps);
-phiByEpsf = phi/tEpsf;
+rEps=1.0/tEps;
+rEpsf=fvc::interpolate(rEps);
+phiByEpsf = phi*rEpsf;
 
 mu=thermo.mu();
 

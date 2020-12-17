@@ -30,8 +30,6 @@ Description
 \*---------------------------------------------------------------------------*/
 
 {
-    //update the rhofByEps before solving rhoEqn so that the old time value can be rightly stored  
-    rhofByEps=rhof*rEps;
 
     fvScalarMatrix rhoEqn
     (

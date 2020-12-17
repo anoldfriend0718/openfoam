@@ -55,11 +55,6 @@ volScalarField rEps
     1.0/tEps
 };
 
-surfaceScalarField epsf
-(
-    "epsf",
-    fvc::interpolate(eps)
-);
 
 surfaceScalarField repsf
 (
@@ -80,9 +75,6 @@ volScalarField rK
 #include "compressibleCreatePhi.H"
 
 Info<< "calculating face flux field phi in porous medium\n" << endl;
-
-
-surfaceScalarField tEpsf(max(epsf,minEps));
 
 surfaceScalarField phiByEpsf
 (
