@@ -17,9 +17,13 @@ surfaceScalarField phiHbyA
         fvc::flux(rhof*HbyA)
       + rhorAUf*fvc::ddtCorr(rhof, U, phi)
     )
-  + phig
+
 );
 
+bool closedVolume = adjustPhi(phiHbyA, U, p_rgh);
+// Info<<"closedVolume:"<<closedVolume<<endl;
+
+phiHbyA += phig;
 
 // Update the pressure BCs to ensure flux consistency
 
@@ -67,6 +71,16 @@ while (pimple.correctNonOrthogonal())
 }
 
 p = p_rgh + rhof*gh;
+
+// For closed-volume cases adjust the pressure level
+// to obey overall mass continuity
+if (!thermo.incompressible() && closedVolume)
+{
+    p += (initialMass - fvc::domainIntegrate(psi*p))
+        /fvc::domainIntegrate(psi);
+    p_rgh = p - rhof*gh;
+}
+
 
 // Thermodynamic density update
 thermo.correctRho(psi*p - psip0);

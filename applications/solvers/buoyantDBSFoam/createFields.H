@@ -189,6 +189,10 @@ if (thermo.incompressible())
 
 mesh.setFluxRequired(p_rgh.name());
 
+
+dimensionedScalar initialMass = fvc::domainIntegrate(rhof);
+dimensionedScalar totalVolume = sum(mesh.V());
+
 Info<< "Creating field dpdt\n" << endl;
 volScalarField dpdt
 (

@@ -1,0 +1,22 @@
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           dictionary;
+    object          funkySetFieldsDict;
+}
+// usage: 
+// funkySetFields -time 0
+expressions
+(
+    pressureWater
+    {
+     field p; //field to initialize
+     // 1022.601443 - water density according to your polynomial value
+     // 1504758.0233745 - static pressure at the bottom according to your polynomial value
+     expression "1000*9.81*(0-pos().y)";
+    //  condition  "1";
+     keepPatches 1; 
+    }
+    
+);
