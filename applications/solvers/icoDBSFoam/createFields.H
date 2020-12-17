@@ -79,10 +79,11 @@ volScalarField eps
     mesh
 );
 
-surfaceScalarField epsf
+volScalarField tEps(eps+SMALL);
+surfaceScalarField repsf
 (
-    "epsf",
-    fvc::interpolate(eps)
+    "repsf",
+    fvc::interpolate(1/tEps)
 );
 
 Info<< "create permeability field\n" << endl;
@@ -90,7 +91,7 @@ Info<< "create permeability field\n" << endl;
 volScalarField rK
 (
     "rK",
-    rK0*(1.0-eps)*(1.0-eps)/(eps*eps*eps)
+    rK0*(1.0-eps)*(1.0-eps)/(tEps*tEps*tEps)
 );
 
 // Foam::volScalarField K
@@ -115,15 +116,12 @@ uniformDimensionedVectorField g
 );
 
 
-
-
-
 #include "createPhi.H"
 
 surfaceScalarField phiByEpsf
 (
     "phiByEpsf",
-    phi/epsf
+     phi*repsf
 );
 
 

@@ -89,10 +89,11 @@ int main(int argc, char *argv[])
                 "phiHbyA",
                 fvc::flux(HbyA)
               + fvc::interpolate(rAU)*fvc::ddtCorr(U, phi)
-              + phig
             );
 
             adjustPhi(phiHbyA, U, p);
+
+            phiHbyA+=phig;
 
             // Update the pressure BCs to ensure flux consistency
             constrainPressure(p, U, phiHbyA, rAU);
@@ -122,6 +123,8 @@ int main(int argc, char *argv[])
 
             U = HbyA - rAU*fvc::grad(p)+rAU*g;
             U.correctBoundaryConditions();
+
+            phiByEpsf = phi*repsf;
         }
 
         runTime.write();
