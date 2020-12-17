@@ -9,46 +9,36 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      controlDict;
+    class       volVectorField;
+    location    "0";
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     buoyantDBSFoam;
+dimensions      [0 1 -1 0 0 0 0];
 
-startFrom       latestTime;
+internalField   uniform (0 0 0);
 
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1000;
-
-deltaT          1;
-
-writeControl    runTime;
-
-writeInterval   50;
-
-purgeWrite      0;
-
-writeFormat     binary;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-functions
+boundaryField
 {
-    #includeFunc residuals
-    #includeFunc streamlines
+    inlet
+    {
+        type            fixedValue;
+        value           uniform (0.001 0 0);
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            noSlip;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
 }
+
 
 // ************************************************************************* //

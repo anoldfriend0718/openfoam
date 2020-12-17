@@ -15,7 +15,9 @@ surfaceScalarField phiHbyA
     "phiHbyA",
     (
         fvc::flux(rhof*HbyA)
-      + rhorAUf*fvc::ddtCorr(rhof, U, phi)
+        //rhofByEps old time is called in ddtCorr, so we need to update the rhofByEps when one time step completes or a new time step starts
+      + rhorAUf*fvc::ddtCorr(rhofByEps, U, phiByEpsf)  
+      //+ rhorAUf*fvc::ddtCorr(rhof, U, phi)  
     )
 
 );

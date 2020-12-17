@@ -30,6 +30,9 @@ Description
 \*---------------------------------------------------------------------------*/
 
 {
+    //update the rhofByEps before solving rhoEqn so that the old time value can be rightly stored  
+    rhofByEps=rhof*rEps;
+
     fvScalarMatrix rhoEqn
     (
         eps*fvm::ddt(rhof) //QXu mark: if the reaction occur, the source term should be added

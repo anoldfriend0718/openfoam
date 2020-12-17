@@ -13,6 +13,7 @@ volScalarField eps
 );
 
 volScalarField tEps(eps+SMALL);
+volScalarField rEps("rEps",1./tEps);
 
 //Permeability Models
 Info<< "Reading intrinsic permeability field field K\n" << endl;
@@ -102,7 +103,7 @@ forAll(mesh.boundary(), patchi)
 		}
 	}
 }
-Solid.write();
+// Solid.write();
 surfaceScalarField Solidf(fvc::interpolate(Solid));
 
 //Eliminating intermediate values of Solid Indicator Function

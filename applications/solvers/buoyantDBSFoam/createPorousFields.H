@@ -90,6 +90,8 @@ surfaceScalarField phiByEpsf
     phi*repsf
 );
 
+volScalarField rhofByEps("rhofByEps",rhof*rEps);
+
 // construct effective thermal diffusivity for energy by 
 //alphaEff=(1-eps)*alphas/Cpvf+eps*alphahe
 //alphahe: fluid Thermal diffusivity for energy 

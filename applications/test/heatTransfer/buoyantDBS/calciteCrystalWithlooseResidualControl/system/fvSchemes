@@ -11,44 +11,53 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      controlDict;
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     buoyantDBSFoam;
-
-startFrom       latestTime;
-
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1000;
-
-deltaT          1;
-
-writeControl    runTime;
-
-writeInterval   50;
-
-purgeWrite      0;
-
-writeFormat     binary;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-functions
+ddtSchemes
 {
-    #includeFunc residuals
-    #includeFunc streamlines
+    default         Euler;
 }
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+
+    div(phiByEpsf,U)    Gauss linearUpwind grad(U);
+    div(phi,e)          bounded Gauss limitedLinear 1;
+
+    div(phiv,p)         bounded Gauss limitedLinear 1;
+    div(phi,K)          bounded Gauss limitedLinear 1;
+
+    div(phi,Y)          bounded Gauss upwind;
+
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+    method meshWave;
+}
+
 
 // ************************************************************************* //

@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
             (
                 "phiHbyA",
                 fvc::flux(HbyA)
-              + fvc::interpolate(rAU)*fvc::ddtCorr(U, phi)
+              + fvc::interpolate(rAU)*fvc::ddtCorr(rEps,U, phiByEpsf)
             );
 
             adjustPhi(phiHbyA, U, p);

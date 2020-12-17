@@ -15,25 +15,28 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     buoyantDBSFoam;
+application     pimpleFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 
 stopAt          endTime;
 
-endTime         1000;
+endTime         5;
 
-deltaT          1;
+//endTime         30;
 
-writeControl    runTime;
+deltaT          0.00001;
 
-writeInterval   50;
+writeControl    adjustableRunTime;
+
+// writeInterval   0.2;
+writeInterval   1;
 
 purgeWrite      0;
 
-writeFormat     binary;
+writeFormat     ascii;
 
 writePrecision  6;
 
@@ -43,12 +46,18 @@ timeFormat      general;
 
 timePrecision   6;
 
-runTimeModifiable true;
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.9;
+
+maxDeltaT       0.01;
 
 functions
 {
-    #includeFunc residuals
-    #includeFunc streamlines
+    #includeFunc  residuals
+    #includeFunc  minMaxComponents
 }
 
 // ************************************************************************* //
