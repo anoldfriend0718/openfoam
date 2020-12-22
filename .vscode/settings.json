@@ -18,7 +18,8 @@
         "-log=verbose",
         "-pretty",
         "--background-index",
-        "--compile-commands-dir=${workspaceFolder}/build"
+        "--compile-commands-dir=${env:WM_PROJECT_DIR}/build"
+        // "--compile-commands-dir=${workspaceFolder}/build"
     ],
     "clangd.path": "/usr/bin/clangd",
     "cmake.configureOnEdit": false,
