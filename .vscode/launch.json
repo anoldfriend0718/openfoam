@@ -8,7 +8,7 @@
             "name": "OF-Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${env:FOAM_USER_APPBIN}/Test-thermoMixture",
+            "program": "/home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Debug/bin/Test-eulerImplicitReactionSolver",
             "args": [
                 "-case",
                 "./"
