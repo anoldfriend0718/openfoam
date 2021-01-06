@@ -92,8 +92,47 @@ int main(int argc, char *argv[]) {
             <<endl;
     }
 
-    Info<<"Mixture: "
-        <<", Cp: "<<thermo.Cp()().field()
+    volScalarField& T=thermo.T();
+
+    Info<<"Mixture with "
+        <<" Temperature: "<<T.field()<<endl
+        <<"  Cp: "<<thermo.Cp()().field()
+        <<", Cv: "<<thermo.Cv()().field()
+        <<", Cpv: "<<thermo.Cpv()().field()
+        <<", CpByCpv: "<<thermo.CpByCpv()().field()
+        <<", He: "<<thermo.he()().field()
+        <<", rho: "<<thermo.rho()().field()
+        <<", psi: "<<thermo.psi()().field()
+        <<", kappa: "<<thermo.kappa()().field()
+        <<", mu: "<<thermo.mu()().field()
+        <<", alphahe: "<<thermo.alphahe()().field()
+        <<endl;
+
+    Info<<"simulate solving energy equation by update the enthalpy..."<<endl;
+    volScalarField& he=thermo.he();
+
+    scalar he1=353008;
+    forAll(he, celli)
+    {
+        he[celli]=he1;
+    }
+
+    volScalarField::Boundary& heBf = he.boundaryFieldRef();
+    forAll(heBf, patchi)
+    {
+        scalarField& hep=heBf[patchi];
+        forAll(hep,facei)
+        {
+            hep[facei]=he1;
+        }
+    }
+
+    
+    thermo.correct();
+    
+    Info<<"Mixture with "
+        <<" Temperature: "<<T.field()<<endl
+        <<"  Cp: "<<thermo.Cp()().field()
         <<", Cv: "<<thermo.Cv()().field()
         <<", Cpv: "<<thermo.Cpv()().field()
         <<", CpByCpv: "<<thermo.CpByCpv()().field()
