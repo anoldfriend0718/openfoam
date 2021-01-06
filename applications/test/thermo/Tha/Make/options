@@ -1,0 +1,13 @@
+EXE_INC = -O0 -fdefault-inline -ggdb3 -DFULLDEBUG\
+    -I$(LIB_SRC)/finiteVolume/lnInclude\
+    -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude\
+    -I$(LIB_SRC)/transportModels/compressible/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/reactionThermo/lnInclude 
+
+EXE_LIBS = \
+    -lfiniteVolume\
+    -lfluidThermophysicalModels \
+    -lcompressibleTransportModels \
+    -lreactionThermophysicalModels \
+    -lspecie
