@@ -105,7 +105,12 @@
         "EulerImplicit.C": "cpp",
         "laminar.C": "cpp",
         "Reaction.C": "cpp",
-        "IrreversibleReaction.C": "cpp"
+        "IrreversibleReaction.C": "cpp",
+        "Test-readReactingMixtureConstThermoPhysicalProperties.C": "cpp",
+        "Test-thermoMixture.C": "cpp",
+        "Test-readThermoPhysicalProperties.C": "cpp",
+        "Test-Tha.C": "cpp",
+        "dissolutionDBSFoam.C": "cpp"
     },   
     "oneDarkPro.vivid": true,
     "python.pythonPath": "/usr/bin/python3",

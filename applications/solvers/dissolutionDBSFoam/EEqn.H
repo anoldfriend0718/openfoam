@@ -12,6 +12,7 @@
 
     mdotSolid=ssArea*reactionRate*rhof*(Y-Yeq)*beta;
 
+    //only suitable for the const cp/cv 
     fvScalarMatrix EEqn
     (
        fvm::ddt(eps,rhof, he) + fvm::div(phi, he)
