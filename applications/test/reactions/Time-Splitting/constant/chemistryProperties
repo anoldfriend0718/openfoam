@@ -16,7 +16,7 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 
-// chemistry           on;
+chemistry           on;
 
 initialChemicalTimeStep 1e-07;
 maxChemicalTimeStep     1e-2;
