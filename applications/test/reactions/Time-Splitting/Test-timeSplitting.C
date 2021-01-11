@@ -84,8 +84,6 @@ int main(int argc, char *argv[]) {
     const PtrList<gasThermoType>& gasThermos=mixture.speciesData();
 
 
-
-
     const scalarField& rho=thermo.rho();
     const scalarField& T=thermo.T();
     const scalarField& p=thermo.p();
@@ -327,7 +325,10 @@ int main(int argc, char *argv[]) {
             scalar Cps=c[nTotalSpecies-2]*cokeThermo.molWeight*cokeThermo.Cp+
                        c[nTotalSpecies-1]*rockThermo.molWeight*rockThermo.Cp;
             scalar ha=(Cpf+Cps)*Ti;
-            Info<<"timeLeft: "<<dt<<", Cpf: "<<Cpf<<", Cps: "<<Cps<<", Ti: "<<Ti<<", Ha: "<<ha<<endl;
+
+            Info<<"timeLeft: "<<dt<<endl;
+            Info<<">>>>>>>>>>>>>>>>>>>>>>>"<<endl;
+            Info<<"Cpf: "<<Cpf<<", Cps: "<<Cps<<", Ti: "<<Ti<<", Ha: "<<ha<<endl;
 
 
             volScalarField ssArea
@@ -359,12 +360,32 @@ int main(int argc, char *argv[]) {
             Info<<"chemical time step: "<<dt<<", latest estimation of integration step: "<<subDeltaT<<endl;
 
             //solve for the new composition
-            scalar c_O2_new=(c[O2Index]/dt)/(ak+1/dt);
+            //Euler Implict
+            // scalar c_O2_new=(c[O2Index]/dt)/(ak+1/dt);
+
+            //2nd R-K method
+            // scalar f1=-ak*c[O2Index];
+            // scalar f2=-ak*(c[O2Index]+dt*f1);
+            // scalar c_O2_new=c[O2Index]+0.5*dt*(f1+f2);
+
+            //4th R-K method  
+            scalar f1=-ak*c[O2Index];
+            scalar f2=-ak*(c[O2Index]+dt/2.0*f1);
+            scalar f3=-ak*(c[O2Index]+dt/2.0*f2);
+            scalar f4=-ak*(c[O2Index]+dt*f3);
+            scalar c_O2_new=c[O2Index]+dt/6.0*(f1+2.0*f2+2.0*f3+f4);
+
+
             scalar deltaC_O2=c_O2_new-c[O2Index];
             Info<<"c_O2_new: "<<c_O2_new<<", deltaC_O2: "<<deltaC_O2<<endl;
             c[O2Index]+=deltaC_O2;
             c[CO2Index]-=deltaC_O2;
             c[cokeIndex]+=deltaC_O2;
+            // Limit the composition
+            for (label i=0; i<nTotalSpecies; i++)
+            {
+                c[i] = max(0, c[i]);
+            }
             Info<<"new c updated: "<<c<<endl;
 
             //solve for new coke fraction
@@ -379,11 +400,12 @@ int main(int argc, char *argv[]) {
             }
             Cps=c[nTotalSpecies-2]*cokeThermo.molWeight*cokeThermo.Cp+
                        c[nTotalSpecies-1]*rockThermo.molWeight*rockThermo.Cp;
-            // scalar ha=(Cpf+Cps)*Ti;
+
             Ti=(ha-deltaC_O2*hr)/(Cpf+Cps);
-            Info<<"new T updated: "<<Ti<<endl;
+            Info<<"new T updated: "<<Ti<<", with cumulative increment T: "<<Ti-T[celli]<<endl;
 
             timeLeft -= dt;
+            Info<<"======================"<<endl;
         }
 
         deltaTChem[celli] =min(deltaTChem[celli], deltaTChemMax);
@@ -395,9 +417,20 @@ int main(int argc, char *argv[]) {
 
     }
 
-    Info<<"RR O2: "<<RRO2.field()<<endl;
-    Info<<"RR CO2: "<<RRCO2.field()<<endl;
-    Info<<"RR coke: "<<RRCoke.field()<<endl;
+    Info<<"Time-splitting RR O2: "<<RRO2.field()<<endl;
+    Info<<"Time-splitting RR CO2: "<<RRCO2.field()<<endl;
+    Info<<"Time-splitting RR coke: "<<RRCoke.field()<<endl;
+
+
+    volScalarField ssArea
+    (
+        "ssArea",
+        mag(fvc::grad(coke))*(4.0*coke*(1-coke))
+    );
+    const scalar ak=ssArea[0]*A*std::exp(-Ta/T[0]);
+    const scalar cokeReactionRate=ak*c0[O2Index];
+
+    Info<<"Normal RR O2: "<<-cokeReactionRate*mixture.Wi(O2Index)<<endl;
     
     
 
