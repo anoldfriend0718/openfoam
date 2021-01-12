@@ -111,13 +111,36 @@ class cokeCombustion:
         inline scalar solveODEBy4thRK(const scalar ak,const scalar ci,const scalar dt);
 
     public:
+        TypeName("cokeCombustion");
+        
         cokeCombustion(const fvMesh& mesh, const rhoReactionThermo& thermo, const constSolidThermo& cokeThermo,
                        const constSolidThermo& rockThermo);
           
         inline void correct()
         {
-            scalar flowDeltaT=mesh_.time().deltaTValue();
+            const Time& runtime=mesh_.time();
+            scalar flowDeltaT=runtime.deltaTValue();
+
+            if(debug)
+            {
+                Info<<endl;
+                Info<<"@@@@@@@@@@@@@@@@@ TimeIndex="<<runtime.timeIndex()<<" @@@@@@@@@@@@@@@@@"<<endl;
+                Info<<"about to solve coke combustion at Time "
+                    <<runtime.timeName()
+                    <<", with time step: "
+                    <<flowDeltaT
+                    <<endl;
+            }
+            
             this->solve(flowDeltaT);
+
+            if(debug)
+            {
+                Info<<"complete solve coke combustion at Time "
+                    <<runtime.timeName()<<endl;
+                Info<<"$$$$$$$$$$$$$$$$$ TimeIndex="<<runtime.timeIndex()<<" $$$$$$$$$$$$$$$$$"<<endl;
+                Info<<endl;
+            }
         }
 
         void solve(const scalar deltaTValue);
@@ -147,4 +170,9 @@ class cokeCombustion:
 
 };
 }
+
+// #ifdef NoRepository
+//     #include "cokeCombustion.C"
+// #endif
+
 #endif
