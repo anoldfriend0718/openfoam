@@ -42,7 +42,7 @@ customizedReactions
     cokeCombustion
     {
         type     irreversibleArrheniusReaction;
-        odeSolver "EulerImplicit";//4thRK, EulerImplicit,2ndRK
+        odeSolver "4thRK";//4thRK, EulerImplicit,2ndRK
         reaction "coke + O2 = CO2";
         A        9.717e6; //m/s
         Ta       15767;
