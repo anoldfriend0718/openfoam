@@ -114,6 +114,12 @@ class cokeCombustion:
         cokeCombustion(const fvMesh& mesh, const rhoReactionThermo& thermo, const constSolidThermo& cokeThermo,
                        const constSolidThermo& rockThermo);
           
+        inline void correct()
+        {
+            scalar flowDeltaT=mesh_.time().deltaTValue();
+            this->solve(flowDeltaT);
+        }
+
         void solve(const scalar deltaTValue);
 
         tmp<fvScalarMatrix> R(volScalarField& Y) const;

@@ -129,8 +129,7 @@ int main(int argc, char *argv[]) {
     Info<<"coke fraction: "<<coke.field()<<", rock fraction: "<<rock.field()<<endl;
 
     cokeCombustion combustion(mesh,thermo,cokeThermo,rockThermo);
-    scalar flowDt=runTime.deltaTValue();
-    combustion.solve(flowDt);
+    combustion.correct();
 
     Info<<"Test the RR..."<<endl;
     Info<<"Time-splitting RR O2: "<<combustion.RRO2().field()<<endl;
