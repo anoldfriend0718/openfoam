@@ -25,7 +25,7 @@
             },
             // Use the standard MS compiler pattern to detect errors, warnings and infos
             "problemMatcher": "$gcc"
-        },
+        }
 
 
     ]

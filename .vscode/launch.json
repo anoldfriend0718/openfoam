@@ -8,13 +8,13 @@
             "name": "OF-Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Debug/bin/Test-TimeLoop",
+            "program": "/home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Debug/bin/Test-eulerImplicitReactionSolver",
             "args": [
                 "-case",
-                "~/OpenFOAM/anoldfriend-7/applications/test/timeLoop/Test-TimeLoop"
+                "./"
             ],
             "stopAtEntry": true,
-            "cwd": "${workspaceFolder}",
+            "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",

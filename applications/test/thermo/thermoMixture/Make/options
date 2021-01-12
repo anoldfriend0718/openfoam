@@ -1,0 +1,5 @@
+EXE_INC = -O0 -fdefault-inline -ggdb3 -DFULLDEBUG\
+    -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude
+
+EXE_LIBS = \
+    -lspecie

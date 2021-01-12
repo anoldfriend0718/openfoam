@@ -1,0 +1,23 @@
+water
+{
+    specie
+    {
+        molWeight       18;
+    }
+    equationOfState
+    {
+        rho0            1000;
+        T0              300;
+        beta            3e-03;
+    }
+    thermodynamics
+    {
+        Cv              4200;
+        Hf              0;
+    }
+    transport
+    {
+        mu              1e-03;
+        Pr              1;
+    }
+}
