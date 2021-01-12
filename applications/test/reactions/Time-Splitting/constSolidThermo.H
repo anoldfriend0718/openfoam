@@ -44,10 +44,7 @@ Ostream& operator<<(Ostream&, const constSolidThermo&);
 
 class constSolidThermo
 {
-    
     public:
-        friend Ostream& operator<<(Ostream&, const constSolidThermo&);
-        
         constSolidThermo(const dictionary& dict):
             molWeight(readScalar(dict.lookup("molWeight"))),
             density(readScalar(dict.lookup("density"))),
@@ -56,20 +53,21 @@ class constSolidThermo
         {
 
         }
+
+        inline friend Ostream& operator<<(Ostream& os, const constSolidThermo& thermo)
+        {
+            os<<"W: "<<thermo.molWeight<< token::SPACE;
+            os<<"rho: "<<thermo.density<< token::SPACE;
+            os<<"kappa: "<<thermo.kappa<< token::SPACE;
+            os<<"Cp: "<<thermo.Cp<< token::SPACE;
+            return os;
+        }
+
         scalar molWeight;
         scalar density;
         scalar kappa;
         scalar Cp;
 };
-
-Ostream& operator<<(Ostream& os, const constSolidThermo& thermo)
-{
-    os<<"W: "<<thermo.molWeight<< token::SPACE;
-    os<<"rho: "<<thermo.density<< token::SPACE;
-    os<<"kappa: "<<thermo.kappa<< token::SPACE;
-    os<<"Cp: "<<thermo.Cp<< token::SPACE;
-    return os;
-}
 }
 
 #endif

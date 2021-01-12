@@ -1,3 +1,4 @@
 Test-timeSplitting.C
+cokeCombustion.C
 
 EXE = $(FOAM_USER_APPBIN)/Test-timeSplitting

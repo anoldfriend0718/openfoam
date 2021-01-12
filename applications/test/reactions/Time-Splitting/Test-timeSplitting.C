@@ -6,7 +6,9 @@
 #include "rhoReactionThermo.H"
 #include "thermo.H"
 #include "volFieldsFwd.H"
+#include "constSolidThermo.H"
 #include "cokeCombustion.H"
+#include "fvc.H"
 
 using namespace Foam;
 
