@@ -104,12 +104,18 @@ class cokeCombustion:
                     const scalar pi, const scalar ssi,
                     scalar& dt,scalar& subDeltaT);
  
-        inline scalar solveODEByEulerImplicit(const scalar ak,const scalar ci,const scalar dt);
+        inline scalar solveODEByEulerImplicit(const scalar ak,const scalar ci,
+                                              const scalar dt) const;
 
-        inline scalar solveODEBy2ndRK(const scalar ak,const scalar ci,const scalar dt);
+        inline scalar solveODEBy2ndRK(const scalar ak,const scalar ci,
+                                      const scalar dt) const;
 
-        inline scalar solveODEBy4thRK(const scalar ak,const scalar ci,const scalar dt);
+        inline scalar solveODEBy4thRK(const scalar ak,const scalar ci,
+                                      const scalar dt) const;
 
+        inline scalar solveODEBy4thRKFull(const scalar ssi,const scalar Ti0,
+                                         const scalar ci0, const scalar Cps0,
+                                         const scalar Cpf0,const scalar dt) const;
     public:
         TypeName("cokeCombustion");
         

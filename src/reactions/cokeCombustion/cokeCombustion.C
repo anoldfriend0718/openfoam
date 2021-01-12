@@ -162,7 +162,7 @@ void Foam::cokeCombustion::sortIndex()
     {
         if(debug)
         {
-            Info<<Y_[i].name()<<" is active: "<<compositions_.active(i)<<endl;
+            Info<<Y_[i].name()<<" index: "<<i<<endl;
         }
         
         if(Y_[i].name()=="O2")
@@ -196,18 +196,6 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
     const scalarField& rho=thermo_.rho();
     const scalarField& T=thermo_.T();
     const scalarField& p=thermo_.p();
-
-    if(debug>1)
-    {
-        forAll(rho,i)
-        {
-            Info<<"rho: "<<rho<<endl;
-            Info<<"T: "<<T<<endl;
-            Info<<"p: "<<p<<endl;
-        }
-    }
-
-
     volScalarField cokeSpeciesSurfaceArea //without filter depth
     (
         "cokeSpeciesSurfaceArea",
@@ -216,8 +204,13 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
 
     if(debug>1)
     {
+        Info<<"rho: "<<rho<<endl;
+        Info<<"T: "<<T<<endl;
+        Info<<"p: "<<p<<endl;
         Info<<"coke surface area without counting filter depth: "
             <<cokeSpeciesSurfaceArea.field()<<endl;
+        Info<<"filter depth: "
+            <<(4*coke_*(1-coke_))->field()<<endl;
     }
     
     forAll(rho,celli)
@@ -314,7 +307,8 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     }
     
     const scalar filterDepth=4.0*cokei*(1-cokei);
-    const scalar ak=ssi*filterDepth*A_*std::exp(-Ta_/Ti);
+    const scalar effssi=ssi*filterDepth;
+    const scalar ak=effssi*A_*std::exp(-Ta_/Ti);
     const scalar cokeReactionRate=ak*c[O2Index_];
     if(debug>1)
     {
@@ -353,9 +347,13 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     {
         c_O2_new=solveODEBy2ndRK(ak,c[O2Index_],dt);
     }
-    else
+    else if(odeSolver_=="4thRK")
     {
         c_O2_new=solveODEBy4thRK(ak,c[O2Index_],dt);
+    }
+    else 
+    {
+        c_O2_new=solveODEBy4thRKFull(effssi,Ti,c[O2Index_],Cps,Cpf,dt);
     }
     
     scalar deltaC_O2=c_O2_new-c[O2Index_];
@@ -398,13 +396,13 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
 }
 
 
-inline Foam::scalar Foam::cokeCombustion::solveODEByEulerImplicit(const scalar ak,const scalar ci,const scalar dt)
+inline Foam::scalar Foam::cokeCombustion::solveODEByEulerImplicit(const scalar ak,const scalar ci,const scalar dt) const
 {
     scalar c_O2_new=(ci/dt)/(ak+1/dt);
     return c_O2_new;
 }
 
-inline Foam::scalar Foam::cokeCombustion::solveODEBy2ndRK(const scalar ak,const scalar ci,const scalar dt)
+inline Foam::scalar Foam::cokeCombustion::solveODEBy2ndRK(const scalar ak,const scalar ci,const scalar dt) const
 {
     scalar f1=-ak*ci;
     scalar f2=-ak*(ci+dt*f1);
@@ -412,7 +410,7 @@ inline Foam::scalar Foam::cokeCombustion::solveODEBy2ndRK(const scalar ak,const 
     return c_O2_new;
 }
 
-inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRK(const scalar ak,const scalar ci,const scalar dt)
+inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRK(const scalar ak,const scalar ci,const scalar dt) const
 {
     scalar f1=-ak*ci;
     scalar f2=-ak*(ci+dt/2.0*f1);
@@ -421,6 +419,63 @@ inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRK(const scalar ak,const 
     scalar c_O2_new=ci+dt/6.0*(f1+2.0*f2+2.0*f3+f4);
     return c_O2_new;
 }
+
+inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRKFull(const scalar effssi,const scalar Ti0,const scalar ci0,
+    const scalar Cps0,const scalar Cpf0,
+    const scalar dt) const
+{
+    scalar ak1=effssi*A_*exp(-Ta_/Ti0);
+    scalar f1=-ak1*ci0;
+    if(debug>1)
+    {
+        Info<<"4th RK full method [1]: "
+            <<" Ti1: "<<Ti0
+            <<", ak1: "<<ak1
+            <<", f1: "<<f1
+            <<endl;
+    }
+
+    scalar Ti2=Ti0-(hr_*f1*dt/2.0)/(Cps0+Cpf0);
+    scalar ak2=effssi*A_*exp(-Ta_/Ti2);
+    scalar f2=-ak2*(ci0+dt/2.0*f1);
+    if(debug>1)
+    {
+        Info<<"4th RK full method [2]: "
+            <<" Ti2: "<<Ti2
+            <<", ak2: "<<ak2
+            <<", f2: "<<f2
+            <<endl;
+    }
+
+    scalar Ti3=Ti0-(hr_*f2*dt/2.0)/(Cps0+Cpf0);
+    scalar ak3=effssi*A_*exp(-Ta_/Ti3);
+    scalar f3=-ak3*(ci0+dt/2.0*f2);
+    if(debug>1)
+    {
+        Info<<"4th RK full method [3]: "
+            <<" Ti3: "<<Ti3
+            <<", ak3: "<<ak3
+            <<", f3: "<<f3
+            <<endl;
+    }
+
+    scalar Ti4=Ti0-(hr_*f3*dt)/(Cps0+Cpf0);
+    scalar ak4=effssi*A_*exp(-Ta_/Ti4);
+    scalar f4=-ak4*(ci0+dt*f3);
+    if(debug>1)
+    {
+        Info<<"4th RK full method [4]: "
+            <<" Ti4: "<<Ti4
+            <<", ak4: "<<ak4
+            <<", f4: "<<f4
+            <<endl;
+    }
+
+    scalar c_O2_new=ci0+dt/6.0*(f1+2.0*f2+2.0*f3+f4);
+
+    return c_O2_new;
+}
+
 
 
 
