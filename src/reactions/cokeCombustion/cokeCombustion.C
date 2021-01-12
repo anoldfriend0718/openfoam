@@ -193,7 +193,7 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
     UniformField<scalar> deltaT(deltaTValue);
     // Info<<"Flow Delta Time: "<<deltaTValue<<endl;
 
-    const scalarField& rho=thermo_.rho();
+    const scalarField& rho=thermo_.rho()();
     const scalarField& T=thermo_.T();
     const scalarField& p=thermo_.p();
     volScalarField cokeSpeciesSurfaceArea //without filter depth
@@ -207,6 +207,9 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
         Info<<"rho: "<<rho<<endl;
         Info<<"T: "<<T<<endl;
         Info<<"p: "<<p<<endl;
+        Info<<"Y O2: "<<Y_[O2Index_].field()<<endl;
+        Info<<"eps: "<<eps_.field()<<endl;
+        Info<<"coke: "<<coke_.field()<<endl;
         Info<<"coke surface area without counting filter depth: "
             <<cokeSpeciesSurfaceArea.field()<<endl;
         Info<<"filter depth: "
@@ -329,7 +332,7 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     //compare the left flow time and the latest estimation of integration step to get the chemical time step
     dt=min(dt,subDeltaT); 
 
-    if(debug>0)
+    if(debug>1)
     {
         Info<<"chemical time step: "<<dt
             <<", latest estimation of integration step: "<<subDeltaT<<endl;
@@ -357,7 +360,11 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     }
     
     scalar deltaC_O2=c_O2_new-c[O2Index_];
-    Info<<"c_O2_new: "<<c_O2_new<<", deltaC_O2: "<<deltaC_O2<<endl;
+    if(debug>1)
+    {
+        Info<<"c_O2_new: "<<c_O2_new<<", deltaC_O2: "<<deltaC_O2<<endl;
+    }
+    
     c[O2Index_]+=deltaC_O2;
     c[CO2Index_]-=deltaC_O2;
     c[cokeIndex_]+=deltaC_O2;
@@ -394,7 +401,6 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     }
     
 }
-
 
 inline Foam::scalar Foam::cokeCombustion::solveODEByEulerImplicit(const scalar ak,const scalar ci,const scalar dt) const
 {
