@@ -1,0 +1,7 @@
+# Ignore everything in this directory
+VTK
+compile_commands.json
+run.log
+**/polyMesh
+# Except this file
+!.gitignore
