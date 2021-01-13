@@ -1,0 +1,154 @@
+Info<<"Reading the species transport properties"<< nl <<endl;
+IOdictionary transportProperties
+(
+    IOobject
+    (
+        "transportProperties",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
+
+dimensionedScalar DO2(transportProperties.lookup("DO2"));
+dimensionedScalar DCO2(transportProperties.lookup("DCO2"));
+Info<<"O2 molecular diffusivity: "<<DO2.value()<< nl <<endl;
+Info<<"CO2 molecular diffusivity: "<<DCO2.value()<< nl <<endl;
+
+
+Info<< "Reading gas thermophysical properties" <<nl<< endl;
+autoPtr<rhoReactionThermo> pThermo(rhoReactionThermo::New(mesh));
+rhoReactionThermo& thermo = pThermo();
+thermo.validate(args.executable(), "h", "e");
+
+Info<< "Reading solid thermophysical properties"<<nl << endl;
+IOdictionary thermoSolid
+(
+    IOobject
+    (
+        "thermo.Solid",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
+
+const constSolidThermo cokeThermo(thermoSolid.subDict("coke"));
+const constSolidThermo rockThermo(thermoSolid.subDict("rock"));
+Info<<"coke thermo: "<<cokeThermo<<nl<<endl;
+Info<<"rock thermo: "<<rockThermo<<nl<<endl;
+
+Info<<"Reading Field U"<<nl<<endl;
+volVectorField U
+(
+    IOobject
+    (
+        "U",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
+Info<<"Reading field fluid rho and phi"<<nl<<endl;
+volScalarField rho
+(
+    IOobject
+    (
+        "rho",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    thermo.rho()
+);
+
+surfaceScalarField phi
+(
+    IOobject
+    (
+        "phi",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    linearInterpolate(rho*U) & mesh.Sf()
+);
+
+Info<<"Reading dynamic viscosity and pressure field"<<nl<<endl;
+const volScalarField& mu=thermo.mu()();
+
+volScalarField& p = thermo.p();
+
+#include "readGravitationalAcceleration.H"
+#include "readhRef.H"
+#include "gh.H"
+
+Info<< "Reading field p_rgh" <<nl<< endl;
+volScalarField p_rgh
+(
+    IOobject
+    (
+        "p_rgh",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
+// Force p_rgh to be consistent with p
+p_rgh = p - rho*gh;
+
+label pRefCell = 0;
+scalar pRefValue = 0.0;
+
+if (thermo.incompressible())
+{
+    setRefCell
+    (
+        p,
+        p_rgh,
+        pimple.dict(),
+        pRefCell,
+        pRefValue
+    );
+}
+
+mesh.setFluxRequired(p_rgh.name());
+
+Info<< "Creating field dpdt" <<nl<< endl;
+volScalarField dpdt
+(
+    IOobject
+    (
+        "dpdt",
+        runTime.timeName(),
+        mesh
+    ),
+    mesh,
+    dimensionedScalar(p.dimensions()/dimTime, 0)
+);
+
+Info<< "Creating field kinetic energy K"<<nl << endl;
+volScalarField K("K", 0.5*magSqr(U));
+
+Info<< "Calculating the inital mass and total volume"<< nl <<endl;
+dimensionedScalar initialMass = fvc::domainIntegrate(rho);
+dimensionedScalar totalVolume = sum(mesh.V());
+
+#include "createPorousMediumFields.H"
+
+Info<< "Creating coke combustion reaction model"<<nl << endl;
+cokeCombustion reaction(mesh,thermo,cokeThermo,rockThermo);
+
+#include "createFvOptions.H"
+
+

@@ -3,5 +3,7 @@ VTK
 compile_commands.json
 run.log
 **/polyMesh
+**/*.bk
+postProcessing
 # Except this file
 !.gitignore

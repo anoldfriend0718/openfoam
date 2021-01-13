@@ -25,7 +25,7 @@ stopAt          endTime;
 
 // endTime         5;
 
-endTime         1;
+endTime         0.0001;
 // endTime         20;
 
 deltaT          1e-5;
@@ -34,7 +34,7 @@ deltaT          1e-5;
 writeControl    runTime;
 
 // writeInterval   1;
-writeInterval   0.1;
+writeInterval   0.0001;
 
 purgeWrite      0;
 
@@ -46,20 +46,21 @@ writeCompression off;
 
 timeFormat      general;
 
-timePrecision   6;
+timePrecision   7;
 
 runTimeModifiable yes;
 
-adjustTimeStep  yes;
+// adjustTimeStep  yes;
+adjustTimeStep  no;
 
 maxCo           0.99;
 
 maxDeltaT       0.0012;
 
-functions
-{
-    #includeFunc  residuals
-    #includeFunc  minMaxComponents
-}
+// functions
+// {
+//     #includeFunc  residuals
+//     #includeFunc  minMaxComponents
+// }
 
 // ************************************************************************* //

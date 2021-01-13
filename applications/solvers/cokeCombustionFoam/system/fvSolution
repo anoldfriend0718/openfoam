@@ -22,7 +22,7 @@ solvers
         solver          diagonal;
     }
 
-    "epsCoke.*"
+    "coke.*"
     {
         solver          diagonal;
     }
