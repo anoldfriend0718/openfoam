@@ -102,13 +102,13 @@ int main(int argc, char *argv[])
 
         cokeEqn.solve();
         fvOptions.correct(coke);
+        coke=max(min(coke,1.0),0.0);
 
         Info<<"updating the porous medium and related fields"<<endl;
         eps=1-coke-rock;
         rEps=1.0/(eps+SMALL);
         rEpsf=fvc::interpolate(rEps);
         phiByEpsf=phi*rEpsf;
-        rhoByEps=rho*rEps;
 
         forAll(eps,celli)
         {
@@ -148,46 +148,31 @@ int main(int argc, char *argv[])
             }
         }
 
-         // #include "rhoEqn.H"
-        //Solve fluid contunity equation
-        const tmp<volScalarField>& deltarRho=1./rho-1.0/rhoCoke;
-        const tmp<volScalarField>& tRRg=(-deltarRho*rho*reaction.Rs(coke))&coke; //note signs
+        #include "rhoEqn.H"
+   
+        // --- Pressure-velocity PIMPLE corrector loop
+        while (pimple.loop())
+        { 
+            #include "UEqn.H"
 
-        fvScalarMatrix rhoEqn
-        (
-            eps*fvm::ddt(rho)
-          + fvc::div(phi)
-          ==
-            fvm::Su(tRRg,rho)
-          + fvOptions(rho)
-        );
-
-        fvOptions.constrain(rhoEqn);
-        rhoEqn.solve();
-        fvOptions.correct(rho);
-
-
-        // // --- Pressure-velocity PIMPLE corrector loop
-        // while (pimple.loop())
-        // { 
-        //     #include "UEqn.H"
 
         //     #include "YEqn.H"
 
         //     #include "EEqn.H"
 
-        //     // --- Pressure corrector loop
-        //     while (pimple.correct())
-        //     {
-        //         #include "pEqn.H"
-        //     }
-        // }
+            // --- Pressure corrector loop
+            while (pimple.correct())
+            {
+               #include "pEqn.H"
+            }
+        }
 
-        // rhof = thermo.rho();
+        rho = thermo.rho();
+        rhoByEps=rho*rEps;
         
-        // #include "updateVariables.H"
+        // // #include "updateVariables.H"
 
-        // runTime.write();
+        runTime.write();
         
         // Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
         //     << "  ClockTime = " << runTime.elapsedClockTime() << " s"

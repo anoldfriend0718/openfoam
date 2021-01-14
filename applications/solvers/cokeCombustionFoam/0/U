@@ -26,6 +26,10 @@ boundaryField
         type            fixedValue;
         value           uniform (0.001 0 0); //Re~0.01
     }
+    // outlet
+    // {
+    //     type            zeroGradient;
+    // }
     outlet
     {
         type            pressureInletOutletVelocity;
