@@ -85,6 +85,7 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
+        //// #include "cokeEqn.H"
         Info<< "solving reaction model"<<endl;
         reaction.correct();
 
@@ -93,8 +94,8 @@ int main(int argc, char *argv[])
         (
             fvm::ddt(rhoCoke,coke)
           ==
-              reaction.Rs(coke)
-            + fvOptions(rhoCoke,coke)
+            reaction.Rs(coke) //note signs
+          + fvOptions(rhoCoke,coke)
         );
         cokeEqn.relax();
         fvOptions.constrain(cokeEqn);
@@ -147,23 +148,24 @@ int main(int argc, char *argv[])
             }
         }
 
+         // #include "rhoEqn.H"
+        //Solve fluid contunity equation
+        const tmp<volScalarField>& deltarRho=1./rho-1.0/rhoCoke;
+        const tmp<volScalarField>& tRRg=(-deltarRho*rho*reaction.Rs(coke))&coke; //note signs
 
+        fvScalarMatrix rhoEqn
+        (
+            eps*fvm::ddt(rho)
+          + fvc::div(phi)
+          ==
+            fvm::Su(tRRg,rho)
+          + fvOptions(rho)
+        );
 
+        fvOptions.constrain(rhoEqn);
+        rhoEqn.solve();
+        fvOptions.correct(rho);
 
-
-        
-
-
-
-
-
-
-
-
-
-
-        // #include "cokeEqn.H"
-        // #include "rhoEqn.H"
 
         // // --- Pressure-velocity PIMPLE corrector loop
         // while (pimple.loop())
