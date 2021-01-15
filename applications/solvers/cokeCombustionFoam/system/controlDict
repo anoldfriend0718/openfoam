@@ -25,7 +25,7 @@ stopAt          endTime;
 
 // endTime         5;
 
-endTime         0.005;
+endTime         0.002;
 // endTime         20;
 
 deltaT          1e-4;

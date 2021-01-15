@@ -73,6 +73,21 @@ int main(int argc, char *argv[])
         mesh,
         dimensionedScalar("rhoCoke", dimDensity, cokeThermo.density) 
     );
+    //just for outputing coke reaction rate (kg/m3/s)
+    volScalarField cokeRectionRate
+    (
+        IOobject
+        (
+            "cokeRectionRate",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
+    );
+
 
 
     while (runTime.run())
@@ -88,6 +103,7 @@ int main(int argc, char *argv[])
         //// #include "cokeEqn.H"
         Info<< "solving reaction model"<<endl;
         reaction.correct();
+        cokeRectionRate=reaction.Rs(coke) & coke;
 
         //solving coke volume evolution equation
         fvScalarMatrix cokeEqn
@@ -156,7 +172,8 @@ int main(int argc, char *argv[])
             #include "UEqn.H"
 
 
-        //     #include "YEqn.H"
+            #include "YEqn.H"
+
 
         //     #include "EEqn.H"
 
@@ -174,9 +191,9 @@ int main(int argc, char *argv[])
 
         runTime.write();
         
-        // Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-        //     << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-        //     << nl << endl;
+        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
+            << nl << endl;
     }
 
     Info<< "End\n" << endl;

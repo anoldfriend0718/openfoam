@@ -5,6 +5,7 @@ run.log
 **/polyMesh
 **/*.bk
 postProcessing
+**/processor*/
 **/[0-9.]*/
 !**/0/
 # Except this file

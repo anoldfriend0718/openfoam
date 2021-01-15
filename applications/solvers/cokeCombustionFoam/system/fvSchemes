@@ -36,7 +36,7 @@ divSchemes
     div(phiv,p)         bounded Gauss limitedLinear 1;
     div(phi,K)          bounded Gauss limitedLinear 1;
 
-    div(phi,Yi_h)          bounded Gauss limitedLinear 1;
+    div(phi,Yi_h)       Gauss limitedLinear01 1;
 
 }
 

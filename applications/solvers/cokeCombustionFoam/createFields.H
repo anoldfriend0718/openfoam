@@ -22,6 +22,42 @@ autoPtr<rhoReactionThermo> pThermo(rhoReactionThermo::New(mesh));
 rhoReactionThermo& thermo = pThermo();
 thermo.validate(args.executable(), "h", "e");
 
+
+Info<< "Reading species" <<nl<< endl;
+basicSpecieMixture& composition = thermo.composition();
+PtrList<volScalarField>& Y = composition.Y();
+multivariateSurfaceInterpolationScheme<scalar>::fieldTable fields;
+forAll(Y, i)
+{
+    fields.add(Y[i]);
+}
+fields.add(thermo.he());
+
+label O2Index=-1;
+label CO2Index=-1;
+label N2Index=-1;
+forAll(Y, i)
+{
+    if(Y[i].name()=="O2")
+    {
+        O2Index=i;
+    }
+    else if(Y[i].name()=="CO2")
+    {
+        CO2Index=i;
+    }
+    else if(Y[i].name()=="N2")
+    {
+        N2Index=i;
+    }
+}
+if(O2Index==-1 || CO2Index==-1 || N2Index==-1)
+{
+    FatalErrorInFunction<<"No O2/CO2/N2 in species"
+    <<exit(FatalError);
+}
+
+
 Info<< "Reading solid thermophysical properties"<<nl << endl;
 IOdictionary thermoSolid
 (
