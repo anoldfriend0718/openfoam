@@ -60,19 +60,6 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
-    volScalarField rhoCoke
-    (
-        IOobject
-        (
-            "solid",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        dimensionedScalar("rhoCoke", dimDensity, cokeThermo.density) 
-    );
     //just for outputing coke reaction rate (kg/m3/s)
     volScalarField cokeRectionRate
     (
@@ -88,6 +75,76 @@ int main(int argc, char *argv[])
         dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
     );
 
+    //just for outputing combustion heat rate (kg/m3/s)
+    volScalarField Qdot
+    (
+        IOobject
+        (
+            "Qdot",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("Qdot", dimEnergy/dimVolume/dimTime, 0)
+    );
+
+    volScalarField rhoCoke
+    (
+        IOobject
+        (
+            "solid",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        cokeThermo.density
+    );
+
+    volScalarField cokeRhoCpByCpvf
+    (
+        IOobject
+        (
+            "cokeRhoCpByCpvf",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        cokeThermo.density*cokeThermo.Cp/thermo.Cpv()
+    );
+    
+    //create the oldTime data, field0Ptr_, for the later ddt computation
+    cokeRhoCpByCpvf.oldTime();
+
+    volScalarField rockRhoCpByCpvf
+    (
+        IOobject
+        (
+            "rockRhoCpByCpvf",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        rockThermo.density*rockThermo.Cp/thermo.Cpv()
+    );
+    //create the oldTime data, field0Ptr_, for the later ddt computation
+    rockRhoCpByCpvf.oldTime();
+
+    tmp<fv::convectionScheme<scalar>> mvConvection
+    (
+        fv::convectionScheme<scalar>::New
+        (
+            mesh,
+            fields,
+            phi,
+            mesh.divScheme("div(phi,Yi_h)")
+        )
+    );
 
 
     while (runTime.run())
@@ -104,6 +161,7 @@ int main(int argc, char *argv[])
         Info<< "solving reaction model"<<endl;
         reaction.correct();
         cokeRectionRate=reaction.Rs(coke) & coke;
+        Qdot=reaction.Qdot().ref();
 
         //solving coke volume evolution equation
         fvScalarMatrix cokeEqn
@@ -171,23 +229,73 @@ int main(int argc, char *argv[])
         { 
             #include "UEqn.H"
 
-
-            #include "YEqn.H"
-
-
-        //     #include "EEqn.H"
-
             // --- Pressure corrector loop
             while (pimple.correct())
             {
                #include "pEqn.H"
             }
-        }
 
+            #include "YEqn.H"
+
+            //     #include "EEqn.H"
+            {
+                volScalarField& he = thermo.he();
+
+                cokeRhoCpByCpvf.storeOldTimes();
+                cokeRhoCpByCpvf=cokeThermo.density*cokeThermo.Cp/thermo.Cpv();
+                
+                rockRhoCpByCpvf.storeOldTimes();
+                rockRhoCpByCpvf=rockThermo.density*rockThermo.Cp/thermo.Cpv();
+
+                tmp<volScalarField> talphaEff = eps * thermo.alphahe()
+                                              + coke* cokeThermo.kappa/thermo.Cpv()
+                                              + rock* rockThermo.kappa/thermo.Cpv();
+                const volScalarField& alphaEff = talphaEff();    
+                
+                //only suitable for the const cpv    
+                fvScalarMatrix EEqn
+                (
+                      fvm::ddt(eps, rho,            he) 
+                    + fvm::ddt(coke,cokeRhoCpByCpvf,he)
+                    + fvm::ddt(rock,rockRhoCpByCpvf,he)
+                    + mvConvection->fvmDiv(phi, he)
+                    + fvc::ddt(rho, K) + fvc::div(phi, K)
+                    + (
+                          he.name() == "e"
+                        ? fvc::div
+                            (
+                                fvc::absolute(phi/fvc::interpolate(rho), U),
+                                p,
+                                "div(phiv,p)"
+                            )
+                        : -dpdt
+                      )
+                    - fvm::laplacian(alphaEff, he)
+                  ==
+                      rho*(U&g)
+                    + fvm::Su(reaction.Qdot(),he)
+                    + fvOptions(rho, he)
+                );   
+
+                EEqn.relax();
+
+                fvOptions.constrain(EEqn);
+
+                EEqn.solve();
+
+                fvOptions.correct(he);
+
+                thermo.correct();
+
+                const volScalarField& T=thermo.T();
+
+                Info<< "min/max(T) = "
+                    << min(T).value() << ", " << max(T).value() << endl;    
+            }
+        }
+                
         rho = thermo.rho();
         rhoByEps=rho*rEps;
-        
-        // // #include "updateVariables.H"
 
         runTime.write();
         

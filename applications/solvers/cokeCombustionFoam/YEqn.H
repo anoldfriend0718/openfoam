@@ -1,14 +1,3 @@
-tmp<fv::convectionScheme<scalar>> mvConvection
-(
-    fv::convectionScheme<scalar>::New
-    (
-        mesh,
-        fields,
-        phi,
-        mesh.divScheme("div(phi,Yi_h)")
-    )
-);
-
 {
     PtrList<volScalarField> rhoDeffs(Y.size());
     rhoDeffs.set(O2Index,new volScalarField("rhoEps2DO2",rho*eps*eps*DO2));
