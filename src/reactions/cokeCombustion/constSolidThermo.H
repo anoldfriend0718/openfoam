@@ -35,6 +35,8 @@ SourceFiles
 
 #include "Ostream.H"
 #include "dictionary.H"
+#include "dimensionSets.H"
+#include "dimensionedScalarFwd.H"
 
 namespace Foam
 {
@@ -46,10 +48,30 @@ class constSolidThermo
 {
     public:
         constSolidThermo(const dictionary& dict):
-            molWeight(readScalar(dict.lookup("molWeight"))),
-            density(readScalar(dict.lookup("density"))),
-            kappa(readScalar(dict.lookup("kappa"))),
-            Cp(readScalar(dict.lookup("cp")))
+            molWeight
+            (
+                "W",
+                dimMoles/dimMass,
+                readScalar(dict.lookup("molWeight"))
+            ),
+            density
+            (
+                "rho",
+                dimDensity,
+                readScalar(dict.lookup("density"))
+            ),
+            kappa
+            (
+                "kappa",
+                dimViscosity*dimDensity*dimSpecificHeatCapacity,
+                readScalar(dict.lookup("kappa"))
+            ),
+            Cp
+            (
+                "Cp",
+                dimSpecificHeatCapacity,
+                readScalar(dict.lookup("cp"))
+            )
         {
 
         }
@@ -63,10 +85,10 @@ class constSolidThermo
             return os;
         }
 
-        scalar molWeight;
-        scalar density;
-        scalar kappa;
-        scalar Cp;
+        dimensionedScalar molWeight;
+        dimensionedScalar density;
+        dimensionedScalar kappa;
+        dimensionedScalar Cp;
 };
 }
 
