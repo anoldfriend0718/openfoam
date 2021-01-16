@@ -8,12 +8,16 @@ import sys
 from IPython.display import clear_output
 
 def read_residuals(log_file,line_offset,pressure_name,nCorrectors,sample_size):
+    # print("line_offset: ",line_offset)
+    # print("nCorrectors: ", nCorrectors)
+    # print("sample_size: ",sample_size)
     # s1=datetime.now()
     with open(log_file,"r") as fp:
         fp.seek(line_offset)
         content = fp.readlines()
         line_offset=fp.tell()
     content = [x.strip() for x in content] 
+    print("line number: ",len(content))
     # e1=datetime.now()
     # print(f"reading time: {(e1-s1).total_seconds()} seconds")
 
@@ -66,9 +70,13 @@ def read_residuals(log_file,line_offset,pressure_name,nCorrectors,sample_size):
     if "rho" in residuals.keys():
         residuals.pop('rho', None)
 
+    if "coke" in residuals.keys():
+        residuals.pop('coke', None)
+
     lengths=[len(residuals[k]) for k in residuals.keys()]
     min_length=min(lengths)
     iterations=max(lengths)
+    print(f"min_iteraction: {min_length}, max_iteraction: {iterations}")
 
     x_start=max(min_length-sample_size,0)
     x_end=min_length
