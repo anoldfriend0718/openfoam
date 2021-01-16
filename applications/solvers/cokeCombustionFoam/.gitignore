@@ -8,5 +8,6 @@ postProcessing
 **/processor*/
 **/[0-9.]*/
 !**/0/
+*.jpg
 # Except this file
 !.gitignore
