@@ -3,6 +3,7 @@
 #include "Time.H"
 #include "argList.H"
 #include "fvMesh.H"
+#include "fvmSup.H"
 #include "rhoReactionThermo.H"
 #include "thermo.H"
 #include "volFieldsFwd.H"
@@ -125,7 +126,7 @@ int main(int argc, char *argv[]) {
         ),
         1-eps-coke
     );
-    Info<<"fluid porosity: "<<coke.field()<<", solid fraction: "<<(1-eps)->field()<<endl;
+    Info<<"fluid porosity: "<<eps.field()<<", solid fraction: "<<(1-eps)->field()<<endl;
     Info<<"coke fraction: "<<coke.field()<<", rock fraction: "<<rock.field()<<endl;
 
     cokeCombustion combustion(mesh,thermo,cokeThermo,rockThermo);
@@ -137,6 +138,9 @@ int main(int argc, char *argv[]) {
     Info<<"Time-splitting RR coke: "<<combustion.RRCoke().field()<<endl;
     Info<<"Normal RR O2: "<<combustion.calculateTransientRRO2()().field()<<endl;
 
+    
+    
+    
     Info<<"Test the su matrix..."<<endl;
     volScalarField YO2=thermo.composition().Y(0);
     volScalarField YCO2=thermo.composition().Y(2);
@@ -144,8 +148,47 @@ int main(int argc, char *argv[]) {
     Info<<"R CO2: "<<(combustion.R(YCO2)&YCO2)->field()<<endl;
     Info<<"R coke: "<<(combustion.Rs(coke)&coke)->field()<<endl;
 
+
+    Info<<"R O2 source term: "<<combustion.R(YO2)->source()<<endl;
+    Info<<"R O2 matrix: "<<combustion.R(YO2)()<<endl;
+
+    volScalarField RO2_1=(combustion.R(YO2)&YO2)();
+    auto RO2Matrix_1=fvm::Su(RO2_1,YO2);
+    Info<<"R O2 matrix 1: "<<RO2Matrix_1()<<endl;
+
+
+
     Info<<"Test Qdot..."<<endl;
     Info<<"Qdot: "<<combustion.Qdot()->field()<<endl;
+
+    
+    volScalarField rhoCoke
+    (
+        IOobject
+        (
+            "solid",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        cokeThermo.density
+    );
+
+    const tmp<GeometricField<double, fvPatchField, volMesh>>& deltarRho
+        =1./rhof-1.0/rhoCoke;
+    Info<<"deltarRho<< "<<deltarRho->field()<<endl;
+    Info<<"rhoCoke: "<<rhoCoke.field()<<endl;
+    Info<<"rhof: "<<rhof.field()<<endl;
+
+    Info<<"Rs source term: "<<combustion.Rs(coke)->source()<<endl;
+    const tmp<fvMatrix<double>>& RRg=-deltarRho*rhof*combustion.Rs(coke);
+    Info<<"RRg source term: "<<RRg->source()<<endl;
+
+    Info<<"RRg: "<<RRg.ref()<<endl;
+
+    Info<<"RRg2: "<<fvm::Su(RRg&coke,rhof)()<<endl;
 
 
     return 0;

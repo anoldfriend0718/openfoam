@@ -17,7 +17,7 @@ FoamFile
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0.9;
+internalField   uniform 0.99;
 
 boundaryField
 {
@@ -29,7 +29,7 @@ boundaryField
     outlet
     {
         type            fixedValue;
-        value           uniform 0.9; //fakee for coke grad
+        value           uniform 0.99; //fakee for coke grad
 
     }
     fixedWalls

@@ -1,0 +1,179 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 7-7dc73e32f723
+Exec   : /home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Opt/bin/Test-timeSplitting
+Date   : Jan 15 2021
+Time   : 18:40:10
+Host   : "DESKTOP-VSJ4QNK"
+PID    : 31920
+I/O    : uncollated
+Case   : /home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactions/Time-Splitting
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Reading gas thermophysical properties
+
+Selecting thermodynamics package 
+{
+    type            heRhoThermo;
+    mixture         reactingMixture;
+    transport       const;
+    thermo          hConst;
+    energy          sensibleEnthalpy;
+    equationOfState perfectGas;
+    specie          specie;
+}
+
+Selecting chemistryReader foamChemistryReader
+    elements not defined in "/home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactions/Time-Splitting/constant/reactions"
+Reading solid thermophysical properties
+
+coke thermo: W: W [-1 0 0 0 1 0 0] 12 rho: rho [1 -3 0 0 0 0 0] 1110 kappa: kappa [1 1 -3 -1 0 0 0] 0.27 Cp: Cp [0 2 -2 -1 0 0 0] 1000 
+rock thermo: W: W [-1 0 0 0 1 0 0] 100 rho: rho [1 -3 0 0 0 0 0] 2500 kappa: kappa [1 1 -3 -1 0 0 0] 2.443 Cp: Cp [0 2 -2 -1 0 0 0] 723.5 
+read U and create phi...
+fluid porosity: 1(0.01), solid fraction: 1(0.99)
+coke fraction: 1(0.99), rock fraction: 1(0)
+O2 index: 0
+N2 index: 1
+CO2 index: 2
+chemistry on/off: on
+coke combustion ode solver: 4thRK
+
+@@@@@@@@@@@@@@@@@ TimeIndex=0 @@@@@@@@@@@@@@@@@
+about to solve coke combustion at Time 0, with time step: 1e-05
+rho: 1(3.97319)
+T: 1(873)
+p: 1(1e+06)
+Y O2: 1(0.23)
+eps: 1(0.01)
+coke: 1(0.99)
+coke surface area without counting filter depth: 1(990000)
+filter depth: 1(0.0396)
+cell [0]: c0: 5(0.000285584 0.00109211 0 91.575 0)
+cell [0]: timeLeft: 1e-05
+cell [0]: >>>>>>>>>>>>>>>>>>>>>>> Chemical Time Index= 0 >>>>>>>>>>>>>>>>>>>>>>>
+Cpf: 40.1303, Cps: 1.0989e+06, Ti: 873, Ha: 9.59375e+08
+coke reaction rate: 1.5593
+chemical time step: 1e-05, latest estimation of integration step: 0.000183149
+c_O2_new: 0.000270409, deltaC_O2: -1.51749e-05
+new c updated: 5(0.000270409 0.00109211 1.51749e-05 91.575 0)
+new coke fraction updated: 0.99
+new Ti updated: 873.005
+cell [0]: ======================  Chemical Time Index= 0 ======================
+
+complete solve coke combustion at Time 0
+$$$$$$$$$$$$$$$$$ TimeIndex=0 $$$$$$$$$$$$$$$$$
+
+Test the RR...
+Time-splitting RR O2: 1(-48.558)
+Time-splitting RR CO2: 1(66.7849)
+Time-splitting RR coke: 1(-18.2099)
+Normal RR O2: 1(-49.8957)
+Test the su matrix...
+R O2: 1(-48.558)
+R CO2: 1(66.7849)
+R coke: 1(-18.2099)
+R O2 source term: 1(4.8558e-17)
+R O2 matrix: false false false 
+[1 0 -1 0 0 0 0]
+1(4.8558e-17)
+
+4
+(
+1(0)
+1(0)
+2{0}
+0()
+)
+
+
+4
+(
+1(0)
+1(0)
+2{0}
+0()
+)
+
+
+R O2 matrix 1: false false false 
+[1 0 -1 0 0 0 0]
+1(4.8558e-17)
+
+4
+(
+1(0)
+1(0)
+2{0}
+0()
+)
+
+
+4
+(
+1(0)
+1(0)
+2{0}
+0()
+)
+
+
+Test Qdot...
+Qdot: 1(5.89547e+08)
+deltarRho<< 1(0.250786)
+rhoCoke: 1(1110)
+rhof: 1(3.97319)
+Rs source term: 1(1.82099e-17)
+RRg source term: 1(-1.81448e-17)
+RRg: false false false 
+[1 0 -1 0 0 0 0]
+1(-1.81448e-17)
+
+4
+(
+1(-0)
+1(-0)
+2{-0}
+0()
+)
+
+
+4
+(
+1(-0)
+1(-0)
+2{-0}
+0()
+)
+
+
+RRg2: false false false 
+[1 0 -1 0 0 0 0]
+1(-1.81448e-17)
+
+4
+(
+1(0)
+1(0)
+2{0}
+0()
+)
+
+
+4
+(
+1(0)
+1(0)
+2{0}
+0()
+)
+
+
