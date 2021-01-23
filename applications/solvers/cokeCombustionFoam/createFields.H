@@ -117,6 +117,38 @@ surfaceScalarField phi
     linearInterpolate(rho*U) & mesh.Sf()
 );
 
+Info<<"Reading cokeRhoCpByCpvf and rockRhoCpByCpvf"<<nl<<endl;
+volScalarField cokeRhoCpByCpvf
+(
+    IOobject
+    (
+        "cokeRhoCpByCpvf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    cokeThermo.density*cokeThermo.Cp/thermo.Cpv()
+);
+
+//create the oldTime data, field0Ptr_, for the later ddt computation
+cokeRhoCpByCpvf.oldTime();
+
+volScalarField rockRhoCpByCpvf
+(
+    IOobject
+    (
+        "rockRhoCpByCpvf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    rockThermo.density*rockThermo.Cp/thermo.Cpv()
+);
+//create the oldTime data, field0Ptr_, for the later ddt computation
+rockRhoCpByCpvf.oldTime();
+
 Info<<"Reading dynamic viscosity and pressure field"<<nl<<endl;
 const volScalarField& mu=thermo.mu()();
 
@@ -182,9 +214,20 @@ dimensionedScalar totalVolume = sum(mesh.V());
 
 #include "createPorousMediumFields.H"
 
-Info<< "Creating coke combustion reaction model"<<nl << endl;
-cokeCombustion reaction(mesh,thermo,cokeThermo,rockThermo);
+#include "initReactionModel.H"
 
 #include "createFvOptions.H"
+
+Info<< "Reading mvConvection "<< nl <<endl;
+tmp<fv::convectionScheme<scalar>> mvConvection
+(
+    fv::convectionScheme<scalar>::New
+    (
+        mesh,
+        fields,
+        phi,
+        mesh.divScheme("div(phi,Yi_h)")
+    )
+);
 
 

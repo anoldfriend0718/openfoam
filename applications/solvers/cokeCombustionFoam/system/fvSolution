@@ -111,7 +111,7 @@ PIMPLE
     momentumPredictor yes;
     nNonOrthogonalCorrectors 0;
     nCorrectors       2;
-    nOuterCorrectors  10;
+    nOuterCorrectors  100;
 
     outerCorrectorResidualControl
     {
@@ -129,7 +129,7 @@ PIMPLE
 
         p_rgh      
         {
-            tolerance  1e-6;
+            tolerance  5e-4;
             relTol     0;
         }
         
@@ -141,11 +141,26 @@ PIMPLE
 
 relaxationFactors
 {
+    // fields
+    // {
+    //     p_rgh           0.7;
+    // }
     equations
     {
-        ".*" 1;
+        U               0.7;
+        // ".*"            0.7;
     }
+    
 }
+
+// relaxationFactors
+// {
+//     equations
+//     {
+//         ".*" 1;
+//     }
+// }
+
 
 // relaxationFactors
 // {

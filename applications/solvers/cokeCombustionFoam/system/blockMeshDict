@@ -16,9 +16,9 @@ FoamFile
 
 convertToMeters 1e-6;
 lx 200;
-ly 200;
-Nx 75;
-Ny 75;
+ly 50;
+Nx 200;
+Ny 50;
 vertices        
 (
     (0 0 0)

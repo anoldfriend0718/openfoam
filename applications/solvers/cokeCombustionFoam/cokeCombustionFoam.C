@@ -60,92 +60,10 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
-    //just for outputing coke reaction rate (kg/m3/s)
-    volScalarField cokeRectionRate
-    (
-        IOobject
-        (
-            "cokeRectionRate",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
-    );
+   
 
-    //just for outputing combustion heat rate (kg/m3/s)
-    volScalarField Qdot
-    (
-        IOobject
-        (
-            "Qdot",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        dimensionedScalar("Qdot", dimEnergy/dimVolume/dimTime, 0)
-    );
 
-    volScalarField rhoCoke
-    (
-        IOobject
-        (
-            "solid",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        cokeThermo.density
-    );
-
-    volScalarField cokeRhoCpByCpvf
-    (
-        IOobject
-        (
-            "cokeRhoCpByCpvf",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        cokeThermo.density*cokeThermo.Cp/thermo.Cpv()
-    );
-    
-    //create the oldTime data, field0Ptr_, for the later ddt computation
-    cokeRhoCpByCpvf.oldTime();
-
-    volScalarField rockRhoCpByCpvf
-    (
-        IOobject
-        (
-            "rockRhoCpByCpvf",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        rockThermo.density*rockThermo.Cp/thermo.Cpv()
-    );
-    //create the oldTime data, field0Ptr_, for the later ddt computation
-    rockRhoCpByCpvf.oldTime();
-
-    tmp<fv::convectionScheme<scalar>> mvConvection
-    (
-        fv::convectionScheme<scalar>::New
-        (
-            mesh,
-            fields,
-            phi,
-            mesh.divScheme("div(phi,Yi_h)")
-        )
-    );
-
+ 
 
     while (runTime.run())
     {

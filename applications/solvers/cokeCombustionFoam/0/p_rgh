@@ -26,6 +26,13 @@ boundaryField
         value           $internalField;
     }
 
+    // outlet
+    // {
+    //     type            prghTotalPressure;
+    //     value           $internalField;
+    //     p0              $internalField;
+    // }
+
     outlet
     {
         type            fixedValue;
@@ -34,8 +41,8 @@ boundaryField
 
     fixedWalls
     {
-        type            fixedFluxPressure;
-        value           $internalField;
+        type            prghTotalPressure;
+        p0              $internalField;
     }
 
     frontAndBack

@@ -9,5 +9,7 @@ postProcessing
 **/[0-9.]*/
 !**/0/
 *.jpg
+dynamicCode
+structures
 # Except this file
 !.gitignore
