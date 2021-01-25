@@ -51,6 +51,7 @@ Foam::cokeCombustion::cokeCombustion(const Foam::fvMesh& mesh,
         )
     ),
     chemistry_(lookup("chemistry")),
+    chemicalTimeCoeff_(lookupOrDefault("chemicalTimeCoeff", 1.0)),
     deltaTChemIni_(readScalar(lookup("initialChemicalTimeStep"))),
     deltaTChemMax_(lookupOrDefault("maxChemicalTimeStep", great)),
     deltaTChem_
@@ -308,7 +309,7 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     {
         Info<<"Cpf: "<<Cpf<<", Cps: "<<Cps<<", Ti: "<<Ti<<", Ha: "<<ha<<endl;
     }
-    
+
     // const scalar filterDepth=4.0*cokei*(1-cokei);
     const scalar filterDepth=(1-(1-cokei)*(1-cokei)); //either coke or eps in one cell
     const scalar effssi=2.0*cokeGradi*filterDepth; // need a factor of 2 to correct the species surface area
@@ -318,7 +319,7 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     {
         Info<<"coke reaction rate: "<<cokeReactionRate<<endl;
     }
-    
+
     // Calculate the stable/accurate time-step
     scalar tMin = great;
     forAll(reactantIndexs_,i)
