@@ -30,15 +30,29 @@
 
     // Update the pressure BCs to ensure flux consistency
     constrainPressure(p_rgh, rho, U, phiHbyA, rhorAUf);
+    // fvScalarMatrix p_rghDDtEqn
+    // (
+    //     eps*fvc::ddt(rho) 
+    //     + eps*psi*correction(fvm::ddt(p_rgh))
+    //     + fvc::div(phiHbyA)
+    // ==
+    //     fvm::Su(RRg,p_rgh)
+    //     + fvOptions(psi, p_rgh, rho.name())
+    // );
+
+    //update the RRg source term due to the rho change after correcting thermo model
+    const tmp<volScalarField>& deltarRho=1./rho-1.0/rhoCoke;
+    const tmp<volScalarField>& tRRg=(-deltarRho*rho*reaction.Rs(coke))&coke; //note signs
     fvScalarMatrix p_rghDDtEqn
     (
         eps*fvc::ddt(rho) 
         + eps*psi*correction(fvm::ddt(p_rgh))
         + fvc::div(phiHbyA)
-    ==
-        fvm::Su(RRg,p_rgh)
+      ==
+        fvm::Su(tRRg,p_rgh)
         + fvOptions(psi, p_rgh, rho.name())
     );
+
 
 
     while (pimple.correctNonOrthogonal())

@@ -22,46 +22,32 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Global
-    rhoEqn
+    setDeltaT
 
 Description
-    Solve the continuity for density.
+    Reset the timestep to maintain a constant maximum courant Number.
+    Reduction of time-step is immediate, but increase is damped to avoid
+    unstable oscillations.
 
 \*---------------------------------------------------------------------------*/
 
+if (adjustTimeStep)
 {
-    // //Solve fluid contunity equation
-    // const tmp<volScalarField>& deltarRho=1./rho-1.0/rhoCoke;
-    // const tmp<volScalarField>& tRRg=(-deltarRho*rho*reaction.Rs(coke))&coke; //note signs
+    scalar minLatestChemicalTimeStep=gMin(reaction.deltaTChem().field());
+    scalar chemicalTime=reaction.chemicalTimeCoeff()*minLatestChemicalTimeStep;
+    scalar maxDeltaTFact = maxCo/(CoNum + small);
+    scalar deltaTFact = min(min(maxDeltaTFact, 1.0 + 0.1*maxDeltaTFact), 1.2);
 
-    // fvScalarMatrix rhoEqn
-    // (
-    //     eps*fvm::ddt(rho)
-    //   + fvc::div(phi)
-    //  ==
-    //     fvm::Su(tRRg,rho)
-    //   + fvOptions(rho)
-    // );
-
-    const tmp<volScalarField>& tmdotCoke=reaction.Rs(coke)&coke;
-    const volScalarField& mdotCoke=tmdotCoke.ref();
-    
-    fvScalarMatrix rhoEqn
+    runTime.setDeltaT
     (
-        fvm::ddt(eps,rho)
-      + fvc::div(phi)
-     ==
-        fvm::Su(-mdotCoke,rho)
-      + fvOptions(rho)
+        min
+        (
+            chemicalTime,
+            min(deltaTFact*runTime.deltaTValue(),maxDeltaT)
+        )
     );
 
-    fvOptions.constrain(rhoEqn);
-    rhoEqn.solve();
-    fvOptions.correct(rho);
-
-    // //update the RRg in this iteraction step with the rho solved by rhoEqn
-    // RRg=-mdotCoke+mdotCoke*rho*rRhoCoke;
-
+    Info<< "deltaT = " <<  runTime.deltaTValue() << endl;
 }
 
 // ************************************************************************* //

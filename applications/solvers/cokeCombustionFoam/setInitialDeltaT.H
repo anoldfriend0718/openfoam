@@ -22,46 +22,39 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Global
-    rhoEqn
+    setInitialDeltaT
 
 Description
-    Solve the continuity for density.
+    Set the initial timestep corresponding to the timestep adjustment
+    algorithm in setDeltaT but only if it would reduce the timestep.
 
 \*---------------------------------------------------------------------------*/
 
+if (adjustTimeStep)
 {
-    // //Solve fluid contunity equation
-    // const tmp<volScalarField>& deltarRho=1./rho-1.0/rhoCoke;
-    // const tmp<volScalarField>& tRRg=(-deltarRho*rho*reaction.Rs(coke))&coke; //note signs
-
-    // fvScalarMatrix rhoEqn
-    // (
-    //     eps*fvm::ddt(rho)
-    //   + fvc::div(phi)
-    //  ==
-    //     fvm::Su(tRRg,rho)
-    //   + fvOptions(rho)
-    // );
-
-    const tmp<volScalarField>& tmdotCoke=reaction.Rs(coke)&coke;
-    const volScalarField& mdotCoke=tmdotCoke.ref();
-    
-    fvScalarMatrix rhoEqn
-    (
-        fvm::ddt(eps,rho)
-      + fvc::div(phi)
-     ==
-        fvm::Su(-mdotCoke,rho)
-      + fvOptions(rho)
-    );
-
-    fvOptions.constrain(rhoEqn);
-    rhoEqn.solve();
-    fvOptions.correct(rho);
-
-    // //update the RRg in this iteraction step with the rho solved by rhoEqn
-    // RRg=-mdotCoke+mdotCoke*rho*rRhoCoke;
-
+    if ((runTime.timeIndex() == 0) && (CoNum > small))
+    {
+        // scalar minLatestChemicalTimeStep=gMin(reaction.deltaTChem().field());
+        // // scalar chemicalTime=reaction.chemicalTimeCoeff()*minLatestChemicalTimeStep;
+        // scalar chemicalTime=1.0*minLatestChemicalTimeStep;
+        runTime.setDeltaT
+        (
+            // min
+            // (
+            //     chemicalTime,
+            //     min
+            //     (
+            //         maxCo*runTime.deltaTValue()/CoNum,
+            //         min(runTime.deltaTValue(), maxDeltaT)
+            //     )
+            // )
+                min
+                (
+                    maxCo*runTime.deltaTValue()/CoNum,
+                    min(runTime.deltaTValue(), maxDeltaT)
+                )
+        );
+    }
 }
 
 // ************************************************************************* //

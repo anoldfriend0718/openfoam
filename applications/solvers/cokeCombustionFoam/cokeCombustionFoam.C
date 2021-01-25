@@ -36,6 +36,7 @@ Description
 #include "cokeCombustion.H"
 #include "pimpleControl.H"
 #include "fvOptions.H"
+
 #include "surfaceFieldsFwd.H"
 #include "volFieldsFwd.H"
 
@@ -60,11 +61,6 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
-   
-
-
- 
-
     while (runTime.run())
     {
         #include "readTimeControls.H"
@@ -72,73 +68,10 @@ int main(int argc, char *argv[])
         #include "setDeltaT.H"
 
         runTime++;
-
+        
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        //// #include "cokeEqn.H"
-        Info<< "solving reaction model"<<endl;
-        reaction.correct();
-        cokeRectionRate=reaction.Rs(coke) & coke;
-        Qdot=reaction.Qdot().ref();
-
-        //solving coke volume evolution equation
-        fvScalarMatrix cokeEqn
-        (
-            fvm::ddt(rhoCoke,coke)
-          ==
-            reaction.Rs(coke) //note signs
-          + fvOptions(rhoCoke,coke)
-        );
-        cokeEqn.relax();
-        fvOptions.constrain(cokeEqn);
-
-        cokeEqn.solve();
-        fvOptions.correct(coke);
-        coke=max(min(coke,1.0),0.0);
-
-        Info<<"updating the porous medium and related fields"<<endl;
-        eps=1-coke-rock;
-        rEps=1.0/(eps+SMALL);
-        rEpsf=fvc::interpolate(rEps);
-        phiByEpsf=phi*rEpsf;
-
-        forAll(eps,celli)
-        {
-            if(eps[celli]>0.99)
-            {
-                solid[celli]=0.0;
-            }
-            else
-            {
-                solid[celli]=1.0;
-            }
-        }
-        volScalarField::Boundary& epsBf = eps.boundaryFieldRef();
-        volScalarField::Boundary& solidBf=solid.boundaryFieldRef();
-        forAll(epsBf,patchi)
-        {
-            forAll(epsBf[patchi],facei)
-            {
-                if(epsBf[patchi][facei]>0.99)
-                {
-                    solidBf[patchi][facei]=0.0;
-                }
-                else
-                {
-                    solidBf[patchi][facei]=1.0;
-                }
-            }
-        }
-
-        rK=rK0*(1.0-eps)*(1.0-eps)/max((eps*eps*eps),SMALL);
-        drag=fvc::average(mu*rK);
-        forAll(drag,celli)
-        {
-            if(solid[celli]<small) //==0
-            {
-                drag[celli]=0.0;
-            }
-        }
+        #include "cokeEqn.H"
 
         #include "rhoEqn.H"
    
@@ -155,61 +88,8 @@ int main(int argc, char *argv[])
 
             #include "YEqn.H"
 
-            //     #include "EEqn.H"
-            {
-                volScalarField& he = thermo.he();
-
-                cokeRhoCpByCpvf.storeOldTimes();
-                cokeRhoCpByCpvf=cokeThermo.density*cokeThermo.Cp/thermo.Cpv();
-                
-                rockRhoCpByCpvf.storeOldTimes();
-                rockRhoCpByCpvf=rockThermo.density*rockThermo.Cp/thermo.Cpv();
-
-                tmp<volScalarField> talphaEff = eps * thermo.alphahe()
-                                              + coke* cokeThermo.kappa/thermo.Cpv()
-                                              + rock* rockThermo.kappa/thermo.Cpv();
-                const volScalarField& alphaEff = talphaEff();    
-                
-                //only suitable for the const cpv    
-                fvScalarMatrix EEqn
-                (
-                      fvm::ddt(eps, rho,            he) 
-                    + fvm::ddt(coke,cokeRhoCpByCpvf,he)
-                    + fvm::ddt(rock,rockRhoCpByCpvf,he)
-                    + mvConvection->fvmDiv(phi, he)
-                    + fvc::ddt(rho, K) + fvc::div(phi, K)
-                    + (
-                          he.name() == "e"
-                        ? fvc::div
-                            (
-                                fvc::absolute(phi/fvc::interpolate(rho), U),
-                                p,
-                                "div(phiv,p)"
-                            )
-                        : -dpdt
-                      )
-                    - fvm::laplacian(alphaEff, he)
-                  ==
-                      rho*(U&g)
-                    + fvm::Su(reaction.Qdot(),he)
-                    + fvOptions(rho, he)
-                );   
-
-                EEqn.relax();
-
-                fvOptions.constrain(EEqn);
-
-                EEqn.solve();
-
-                fvOptions.correct(he);
-
-                thermo.correct();
-
-                const volScalarField& T=thermo.T();
-
-                Info<< "min/max(T) = "
-                    << min(T).value() << ", " << max(T).value() << endl;    
-            }
+            #include "EEqn.H"
+        
         }
                 
         rho = thermo.rho();
@@ -222,7 +102,42 @@ int main(int argc, char *argv[])
             << nl << endl;
     }
 
+
     Info<< "End\n" << endl;
 
+
+    
+    const volScalarField& T=thermo.T();
+    scalar maxT=gMax(T);
+
+    const volScalarField& YO2= Y[O2Index];
+    scalar minO2=gMin(YO2);
+
+    scalar maxUx=gMax(U.component(0)->field());
+
+    volScalarField tempCoke("tempCoke",coke);
+    forAll(solid,celli)
+    {
+        if(solid[celli]<1.0) // in the solid region
+        {
+            tempCoke[celli]=great;
+        }
+    }
+    scalar minCoke=gMin(tempCoke);
+
+    scalar endTimeSeconds=runTime.endTime().value();
+    Info<<"endTime: "<<endTimeSeconds<<endl;
+    
+    Info<<"Final Time step: "<<runTime.deltaT().value()<<endl;
+    Info<<"Max T in solid region: "<<maxT<<endl;
+    Info<<"Min O2 in fluid region: "<<minO2<<endl;
+    Info<<"Max Ux in fluid region: "<<maxUx<<endl;
+
+    Info<<"Min coke in solid region: "<<minCoke<<endl;
+    scalar maxBurningRate=(1-minCoke/0.8);
+    Info<<"Max coke burning rate: "<<maxBurningRate*100<<"%"<<endl;
+    Info<<"Max coke burning rate in one second: "<<1.0/endTimeSeconds*maxBurningRate*100<<"%"<<endl;
+
+    
     return 0;
 }

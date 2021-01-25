@@ -46,19 +46,19 @@ volScalarField Qdot
 );
 
 
-const tmp<volScalarField>& trRhoCoke=1.0/rhoCoke;
-const volScalarField& rRhoCoke=trRhoCoke.ref();
+// const tmp<volScalarField>& trRhoCoke=1.0/rhoCoke;
+// const volScalarField& rRhoCoke=trRhoCoke.ref();
 
-volScalarField RRg
-(
-    IOobject
-    (
-        "RRg",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
-);
+// volScalarField RRg
+// (
+//     IOobject
+//     (
+//         "RRg",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::NO_WRITE
+//     ),
+//     mesh,
+//     dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
+// );
