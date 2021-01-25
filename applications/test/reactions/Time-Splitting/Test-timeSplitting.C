@@ -130,13 +130,19 @@ int main(int argc, char *argv[]) {
     Info<<"coke fraction: "<<coke.field()<<", rock fraction: "<<rock.field()<<endl;
 
     cokeCombustion combustion(mesh,thermo,cokeThermo,rockThermo);
+    // scalar minLatestChemicalTimeStep=min(combustion.deltaTChem().field());
+    Info<<"latest chemical time step before correct: "<<min(combustion.deltaTChem().field())<<endl;
+    Info<<"chemical time coeff: "<<combustion.chemicalTimeCoeff()<<endl;
     combustion.correct();
+
 
     Info<<"Test the RR..."<<endl;
     Info<<"Time-splitting RR O2: "<<combustion.RRO2().field()<<endl;
     Info<<"Time-splitting RR CO2: "<<combustion.RRCO2().field()<<endl;
     Info<<"Time-splitting RR coke: "<<combustion.RRCoke().field()<<endl;
     Info<<"Normal RR O2: "<<combustion.calculateTransientRRO2()().field()<<endl;
+
+    Info<<"latest chemical time step: "<<combustion.deltaTChem().field()<<endl;
 
     
     
