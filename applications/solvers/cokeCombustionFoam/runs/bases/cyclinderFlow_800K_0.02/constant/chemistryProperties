@@ -9,39 +9,16 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    location    "0";
-    object      CO2;
+    class       dictionary;
+    location    "constant";
+    object      chemistryProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0;
-
-boundaryField
-{
-    inlet
-    {
-        type            fixedValue;
-        value           uniform 0;
-    }
-    outlet
-    {
-        type            inletOutlet;
-        inletValue      uniform 0;
-        value           uniform 0;
-
-    }
-    fixedWalls
-    {
-        type            zeroGradient;
-    }
-    frontAndBack
-    {
-        type            empty;
-    }
-}
-
+chemistry           on;
+chemicalTimeCoeff   0.02;
+initialChemicalTimeStep 1e-07;
+maxChemicalTimeStep     1e-2;
 
 // ************************************************************************* //

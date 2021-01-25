@@ -26,10 +26,6 @@ boundaryField
     //     type            fixedValue;
     //     value           uniform (0.001 0 0); //Re~0.01
     // }
-    // outlet
-    // {
-    //     type            zeroGradient;
-    // }
 
     inlet
     {
@@ -71,8 +67,8 @@ boundaryField
 
                 const scalar pi = constant::mathematical::pi;
                 const scalar U_0   = 1e-3;	//max vel //Re~0.1
-		        const scalar p_ctr = 25.;	//patch center
-                const scalar p_r   = 25.;	//patch radius
+		        const scalar p_ctr = 2.5e-5;	//patch center
+                const scalar p_r   = 2.5e-5;	//patch radius
 
                 forAll(U, i)
                 {
@@ -98,8 +94,7 @@ boundaryField
 
     outlet
     {
-        type            pressureInletOutletVelocity;
-        value           $internalField;
+        type            zeroGradient;
     }
 
     fixedWalls

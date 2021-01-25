@@ -35,15 +35,6 @@ solvers
         relTol          0.01;
     }
 
-    // p_rgh
-    // {
-    //     solver          GAMG;
-    //     smoother        DIC;
-    //     tolerance       1e-6;
-    //     relTol          0.01;
-    //     maxIter          20;
-    // }
-
     p_rghFinal
     {
         $p_rgh;
@@ -51,25 +42,9 @@ solvers
         relTol          0;
     }
 
-    // "(U|h|e|Y.*)"
-    // {
-    //     solver          PBiCGStab;
-    //     preconditioner  DILU;
-    //     tolerance       1e-6;
-    //     relTol          0.01;
-    // }
-
-    // "(U|h|e|Y.*)Final"
-    // {
-    //     $U;
-    //     tolerance       1e-8;
-    //     relTol          0;
-    // }
 
     "(h|e)"
     {
-        // solver          PCG;
-        // preconditioner  DIC;
         solver          PBiCGStab;
         preconditioner  DILU;
         tolerance       1e-6;
@@ -89,6 +64,7 @@ solvers
         preconditioner  DILU;
         tolerance       1e-6;
         relTol          0.01;
+        relTol          0;
     }
 
     "(U||Y.*|O2|CO2)Final"
@@ -100,18 +76,13 @@ solvers
 
 }
 
-// PIMPLE
-// {
-//     nNonOrthogonalCorrectors 0;
-//     nCorrectors         2;
-// }
 
 PIMPLE
 {
     momentumPredictor yes;
     nNonOrthogonalCorrectors 0;
     nCorrectors       2;
-    nOuterCorrectors  100;
+    nOuterCorrectors  4;
 
     outerCorrectorResidualControl
     {
@@ -129,14 +100,12 @@ PIMPLE
 
         p_rgh      
         {
-            tolerance  5e-4;
+            tolerance  1e-4;
             relTol     0;
         }
         
     }
 
-    // p_rghRefCell          (2e-4 0 0); //the right bottome
-    // p_rghRefValue         0;
 }
 
 relaxationFactors

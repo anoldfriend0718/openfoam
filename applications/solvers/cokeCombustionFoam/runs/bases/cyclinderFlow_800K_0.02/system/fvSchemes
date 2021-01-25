@@ -27,7 +27,7 @@ gradSchemes
 
 divSchemes
 {
-    default         none;
+    default         none;;
 
     div(phiByEpsf,U)    Gauss linearUpwind grad(U);
     
@@ -37,6 +37,10 @@ divSchemes
     div(phi,K)          bounded Gauss limitedLinear 1;
 
     div(phi,Yi_h)       Gauss limitedLinear01 1;
+    
+    // div(phi,Yi_h)       Gauss upwind;
+
+
 
 }
 
