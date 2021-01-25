@@ -10,15 +10,14 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      chemistryProperties;
+    object      porousTransportProperties;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 
-chemistry           on;
-chemicalTimeCoeff   0.1;
-initialChemicalTimeStep 1e-07;
-maxChemicalTimeStep     1e-2;
+//permeability K0
+K0              [0 2 0 0 0 0 0] 1e-12;
+
 
 // ************************************************************************* //

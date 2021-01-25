@@ -9,39 +9,16 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    location    "0";
-    object      coke;
+    class       dictionary;
+    location    "constant";
+    object      chemistryProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0.80;
-
-boundaryField
-{
-    inlet
-    {
-        type            fixedValue;
-        value           uniform 0;
-    }
-    outlet
-    {
-        type            fixedValue;
-        value           uniform 0.80; //fakee for coke grad
-
-    }
-    fixedWalls
-    {
-        type            fixedValue;
-        value           uniform 0;
-    }
-    frontAndBack
-    {
-        type            empty;
-    }
-}
-
+chemistry           on;
+chemicalTimeCoeff   0.02;
+initialChemicalTimeStep 1e-07;
+maxChemicalTimeStep     1e-2;
 
 // ************************************************************************* //

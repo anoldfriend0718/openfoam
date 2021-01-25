@@ -9,38 +9,26 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    location    "0";
-    object      coke;
+    class       dictionary;
+    location    "constant";
+    object      thermo.Solid;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
-
-internalField   uniform 0.80;
-
-boundaryField
+coke
 {
-    inlet
-    {
-        type            fixedValue;
-        value           uniform 0;
-    }
-    outlet
-    {
-        type            fixedValue;
-        value           uniform 0.80; //fakee for coke grad
+    molWeight 12.0; // kg/kmol
+    density   1110; //mass density, kg/m3
+    kappa     0.27; //thermal conductivity, W/m/K
+    cp        1000; //heat cpacity J/kg/K
+}
 
-    }
-    fixedWalls
-    {
-        type            fixedValue;
-        value           uniform 0;
-    }
-    frontAndBack
-    {
-        type            empty;
-    }
+rock
+{
+    molWeight 100; // kg/kmol, no meaningful
+    density   2500; //mass density, kg/m3
+    kappa     2.443; //thermal conductivity, W/m/K
+    cp        723.5; //heat cpacity J/kg/K
 }
 
 

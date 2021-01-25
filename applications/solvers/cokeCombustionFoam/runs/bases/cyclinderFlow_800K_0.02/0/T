@@ -10,38 +10,44 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    location    "0";
-    object      coke;
+    object      T;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
+dimensions      [0 0 0 1 0 0 0];
 
-internalField   uniform 0.80;
+internalField   uniform 800;
 
 boundaryField
 {
     inlet
     {
         type            fixedValue;
-        value           uniform 0;
+        value           $internalField;
     }
+
+    // outlet
+    // {
+    //     type            inletOutlet;
+    //     inletValue      $internalField;
+    //     value           $internalField;
+    // }
+
     outlet
     {
-        type            fixedValue;
-        value           uniform 0.80; //fakee for coke grad
-
+        type            zeroGradient;
     }
+
     fixedWalls
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
+
     frontAndBack
     {
         type            empty;
     }
+    
 }
-
 
 // ************************************************************************* //

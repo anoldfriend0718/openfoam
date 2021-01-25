@@ -16,30 +16,22 @@
             "-Wno-unused-parameter",
             "-Wno-invalid-offsetof",
             "-Wno-attributes",
-            "-O0",
-            "-fdefault-inline",
-            "-ggdb3",
-            "-DFULLDEBUG",
+            "-O3",
             "-DNoRepository",
             "-ftemplate-depth-100",
             "-I.",
-            "-I/home/anoldfriend/OpenFOAM/anoldfriend-7/src/reactions/lnInclude",
             "-I/home/anoldfriend/Workspace/MyRepo/openfoamWorkspace/OpenFOAM-7/src/finiteVolume/lnInclude",
             "-I/home/anoldfriend/Workspace/MyRepo/openfoamWorkspace/OpenFOAM-7/src/meshTools/lnInclude",
-            "-I/home/anoldfriend/Workspace/MyRepo/openfoamWorkspace/OpenFOAM-7/src/thermophysicalModels/specie/lnInclude",
-            "-I/home/anoldfriend/Workspace/MyRepo/openfoamWorkspace/OpenFOAM-7/src/thermophysicalModels/reactionThermo/lnInclude",
-            "-I/home/anoldfriend/Workspace/MyRepo/openfoamWorkspace/OpenFOAM-7/src/transportModels/compressible/lnInclude",
-            "-I/home/anoldfriend/Workspace/MyRepo/openfoamWorkspace/OpenFOAM-7/src/thermophysicalModels/basic/lnInclude",
             "-IlnInclude",
             "-I.",
             "-I/home/anoldfriend/Workspace/MyRepo/openfoamWorkspace/OpenFOAM-7/src/OpenFOAM/lnInclude",
             "-I/home/anoldfriend/Workspace/MyRepo/openfoamWorkspace/OpenFOAM-7/src/OSspecific/POSIX/lnInclude",
             "-fPIC",
             "-o",
-            "Make/linux64GccDPInt32Debug/Test-timeSplitting.o",
-            "Test-timeSplitting.C"
+            "Make/linux64GccDPInt32Opt/Test-SpecificSurfaceArea.o",
+            "Test-SpecificSurfaceArea.C"
         ],
-        "directory": "/home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactions/Time-Splitting",
-        "file": "Test-timeSplitting.C"
+        "directory": "/home/anoldfriend/OpenFOAM/anoldfriend-7/applications/test/reactions/specificSurfaceArea",
+        "file": "Test-SpecificSurfaceArea.C"
     }
 ]

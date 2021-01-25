@@ -49,6 +49,9 @@ class cokeCombustion:
 {
     private:
         const Switch chemistry_;
+
+        const scalar chemicalTimeCoeff_;
+
         //- Initial chemical time step
         const scalar deltaTChemIni_;
 
@@ -150,6 +153,16 @@ class cokeCombustion:
         }
 
         void solve(const scalar deltaTValue);
+
+        scalar chemicalTimeCoeff() const 
+        {
+            return chemicalTimeCoeff_;
+        }
+        
+        const volScalarField::Internal& deltaTChem() const 
+        {
+            return deltaTChem_;
+        }
 
         tmp<fvScalarMatrix> R(volScalarField& Y) const;
 

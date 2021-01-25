@@ -4,21 +4,15 @@
    \\    /   O peration     | Website:  https://openfoam.org
     \\  /    A nd           | Version:  7
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+Description
+    Writes out the minimum and maximum values, by component for non-scalar
+    fields, and the locations where they occur.
+
 \*---------------------------------------------------------------------------*/
-FoamFile
-{
-    version     2.0;
-    format      ascii;
-    class       dictionary;
-    location    "constant";
-    object      chemistryProperties;
-}
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#includeEtc "caseDicts/postProcessing/minMax/minMaxComponents.cfg"
 
-chemistry           on;
-chemicalTimeCoeff   0.1;
-initialChemicalTimeStep 1e-07;
-maxChemicalTimeStep     1e-2;
+fields (U p T coke);
 
 // ************************************************************************* //

@@ -11,31 +11,34 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      coke;
+    object      O2;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0.80;
+internalField   uniform 0.23;
 
 boundaryField
 {
     inlet
     {
         type            fixedValue;
-        value           uniform 0;
+        value           uniform 0.23;
     }
+    // outlet
+    // {
+    //     type            inletOutlet;
+    //     inletValue      uniform 0;
+    //     value           uniform 0;
+    // }
     outlet
     {
-        type            fixedValue;
-        value           uniform 0.80; //fakee for coke grad
-
+        type            zeroGradient;
     }
     fixedWalls
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
     frontAndBack
     {
