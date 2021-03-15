@@ -1,0 +1,2 @@
+Test-MyDictionary.C
+EXE=$(FOAM_USER_APPBIN)/Test-MyDictionary
