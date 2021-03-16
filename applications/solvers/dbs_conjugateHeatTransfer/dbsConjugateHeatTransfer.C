@@ -31,9 +31,8 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
-#include "rhoReactionThermo.H"
+#include "rhoThermo.H"
 #include "constSolidThermo.H"
-#include "cokeCombustion.H"
 #include "pimpleControl.H"
 #include "fvOptions.H"
 
@@ -71,8 +70,6 @@ int main(int argc, char *argv[])
         
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        #include "cokeEqn.H"
-
         #include "rhoEqn.H"
    
         // --- Pressure-velocity PIMPLE corrector loop
@@ -80,16 +77,13 @@ int main(int argc, char *argv[])
         { 
             #include "UEqn.H"
 
+            #include "EEqn.H"
+
             // --- Pressure corrector loop
             while (pimple.correct())
             {
                #include "pEqn.H"
             }
-
-            #include "YEqn.H"
-
-            #include "EEqn.H"
-        
         }
                 
         rho = thermo.rho();
@@ -104,40 +98,5 @@ int main(int argc, char *argv[])
 
 
     Info<< "End\n" << endl;
-
-
-    
-    const volScalarField& T=thermo.T();
-    scalar maxT=gMax(T);
-
-    const volScalarField& YO2= Y[O2Index];
-    scalar minO2=gMin(YO2);
-
-    scalar maxUx=gMax(U.component(0)->field());
-
-    volScalarField tempCoke("tempCoke",coke);
-    forAll(solid,celli)
-    {
-        if(solid[celli]<1.0) // in the solid region
-        {
-            tempCoke[celli]=great;
-        }
-    }
-    scalar minCoke=gMin(tempCoke);
-
-    scalar endTimeSeconds=runTime.endTime().value();
-    Info<<"endTime: "<<endTimeSeconds<<endl;
-    
-    Info<<"Final Time step: "<<runTime.deltaT().value()<<endl;
-    Info<<"Max T in solid region: "<<maxT<<endl;
-    Info<<"Min O2 in fluid region: "<<minO2<<endl;
-    Info<<"Max Ux in fluid region: "<<maxUx<<endl;
-
-    Info<<"Min coke in solid region: "<<minCoke<<endl;
-    scalar maxBurningRate=(1-minCoke/0.8);
-    Info<<"Max coke burning rate: "<<maxBurningRate*100<<"%"<<endl;
-    Info<<"Max coke burning rate in one second: "<<1.0/endTimeSeconds*maxBurningRate*100<<"%"<<endl;
-
-    
     return 0;
 }

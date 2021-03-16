@@ -1,4 +1,4 @@
-Info<<"Reading the porosity and coke fraction"<<nl<<endl;
+Info<<"Reading the porosity"<<nl<<endl;
 volScalarField eps
 (
     IOobject
@@ -11,18 +11,7 @@ volScalarField eps
     ),
     mesh
 );
-volScalarField coke
-(
-    IOobject
-    (
-        "coke",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+
 volScalarField rock
 (
     IOobject
@@ -33,7 +22,7 @@ volScalarField rock
         IOobject::NO_READ,
         IOobject::NO_WRITE
     ),
-    1-eps-coke
+    1-eps
 );
 
 Info<< "Reading porous medium transportProperties"<< nl << endl;
@@ -48,6 +37,7 @@ IOdictionary porousTransportProperties
         IOobject::NO_WRITE
     )
 );
+
 dimensionedScalar K0
 {
     "K0",

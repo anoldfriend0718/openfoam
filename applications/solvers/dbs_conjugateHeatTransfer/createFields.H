@@ -1,61 +1,7 @@
-Info<<"Reading the species transport properties"<< nl <<endl;
-IOdictionary transportProperties
-(
-    IOobject
-    (
-        "transportProperties",
-        runTime.constant(),
-        mesh,
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
-    )
-);
-
-dimensionedScalar DO2(transportProperties.lookup("DO2"));
-dimensionedScalar DCO2(transportProperties.lookup("DCO2"));
-Info<<"O2 molecular diffusivity: "<<DO2.value()<< nl <<endl;
-Info<<"CO2 molecular diffusivity: "<<DCO2.value()<< nl <<endl;
-
-
 Info<< "Reading gas thermophysical properties" <<nl<< endl;
-autoPtr<rhoReactionThermo> pThermo(rhoReactionThermo::New(mesh));
-rhoReactionThermo& thermo = pThermo();
+autoPtr<rhoThermo> pThermo(rhoThermo::New(mesh));
+rhoThermo& thermo = pThermo();
 thermo.validate(args.executable(), "h", "e");
-
-
-Info<< "Reading species" <<nl<< endl;
-basicSpecieMixture& composition = thermo.composition();
-PtrList<volScalarField>& Y = composition.Y();
-multivariateSurfaceInterpolationScheme<scalar>::fieldTable fields;
-forAll(Y, i)
-{
-    fields.add(Y[i]);
-}
-fields.add(thermo.he());
-
-label O2Index=-1;
-label CO2Index=-1;
-label N2Index=-1;
-forAll(Y, i)
-{
-    if(Y[i].name()=="O2")
-    {
-        O2Index=i;
-    }
-    else if(Y[i].name()=="CO2")
-    {
-        CO2Index=i;
-    }
-    else if(Y[i].name()=="N2")
-    {
-        N2Index=i;
-    }
-}
-if(O2Index==-1 || CO2Index==-1 || N2Index==-1)
-{
-    FatalErrorInFunction<<"No O2/CO2/N2 in species"
-    <<exit(FatalError);
-}
 
 
 Info<< "Reading solid thermophysical properties"<<nl << endl;
@@ -71,9 +17,7 @@ IOdictionary thermoSolid
     )
 );
 
-const constSolidThermo cokeThermo(thermoSolid.subDict("coke"));
 const constSolidThermo rockThermo(thermoSolid.subDict("rock"));
-Info<<"coke thermo: "<<cokeThermo<<nl<<endl;
 Info<<"rock thermo: "<<rockThermo<<nl<<endl;
 
 Info<<"Reading Field U"<<nl<<endl;
@@ -117,23 +61,7 @@ surfaceScalarField phi
     linearInterpolate(rho*U) & mesh.Sf()
 );
 
-Info<<"Reading cokeRhoCpByCpvf and rockRhoCpByCpvf"<<nl<<endl;
-volScalarField cokeRhoCpByCpvf
-(
-    IOobject
-    (
-        "cokeRhoCpByCpvf",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    cokeThermo.density*cokeThermo.Cp/thermo.Cpv()
-);
-
-//create the oldTime data, field0Ptr_, for the later ddt computation
-cokeRhoCpByCpvf.oldTime();
-
+Info<<"Reading  rockRhoCpByCpvf"<<nl<<endl;
 volScalarField rockRhoCpByCpvf
 (
     IOobject
@@ -214,20 +142,8 @@ dimensionedScalar totalVolume = sum(mesh.V());
 
 #include "createPorousMediumFields.H"
 
-#include "initReactionModel.H"
-
 #include "createFvOptions.H"
 
-Info<< "Reading mvConvection "<< nl <<endl;
-tmp<fv::convectionScheme<scalar>> mvConvection
-(
-    fv::convectionScheme<scalar>::New
-    (
-        mesh,
-        fields,
-        phi,
-        mesh.divScheme("div(phi,Yi_h)")
-    )
-);
+
 
 

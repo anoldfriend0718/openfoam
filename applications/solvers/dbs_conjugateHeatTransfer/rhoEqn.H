@@ -31,36 +31,18 @@ Description
 
 {
     // //Solve fluid contunity equation
-    // const tmp<volScalarField>& deltarRho=1./rho-1.0/rhoCoke;
-    // const tmp<volScalarField>& tRRg=(-deltarRho*rho*reaction.Rs(coke))&coke; //note signs
 
-    // fvScalarMatrix rhoEqn
-    // (
-    //     eps*fvm::ddt(rho)
-    //   + fvc::div(phi)
-    //  ==
-    //     fvm::Su(tRRg,rho)
-    //   + fvOptions(rho)
-    // );
-
-    const tmp<volScalarField>& tmdotCoke=reaction.Rs(coke)&coke;
-    const volScalarField& mdotCoke=tmdotCoke.ref();
-    
     fvScalarMatrix rhoEqn
     (
         fvm::ddt(eps,rho)
       + fvc::div(phi)
      ==
-        fvm::Su(-mdotCoke,rho)
-      + fvOptions(rho)
+       fvOptions(rho)
     );
 
     fvOptions.constrain(rhoEqn);
     rhoEqn.solve();
     fvOptions.correct(rho);
-
-    // //update the RRg in this iteraction step with the rho solved by rhoEqn
-    // RRg=-mdotCoke+mdotCoke*rho*rRhoCoke;
 
 }
 
