@@ -1,0 +1,3 @@
+dbsConjugateHeatTransfer.C
+
+EXE = $(FOAM_USER_APPBIN)/dbsConjugateHeatTransfer
