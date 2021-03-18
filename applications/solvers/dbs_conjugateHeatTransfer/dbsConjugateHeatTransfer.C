@@ -36,6 +36,7 @@ Description
 #include "pimpleControl.H"
 #include "fvOptions.H"
 
+#include "scalar.H"
 #include "surfaceFieldsFwd.H"
 #include "volFieldsFwd.H"
 
@@ -90,7 +91,28 @@ int main(int argc, char *argv[])
         rhoByEps=rho*rEps;
 
         runTime.write();
-        
+
+        // const volScalarField& Ux=U.component(0);
+        // const volScalarField& UxResidual=(U.component(0)-U.oldTime().component(0)).ref();
+        tmp<volVectorField> tUResidual(U-U.oldTime());
+        const volVectorField& UResidual=tUResidual.ref();
+        const Foam::Vector<scalar> normUResidual=gSumCmptProd(UResidual,UResidual);
+        const Foam::Vector<scalar> normU=gSumCmptProd(U,U);
+        Foam::Vector<scalar> relativeUResidual;
+        for (direction cmpt=0; cmpt < normU.size(); cmpt++)
+        {
+            relativeUResidual[cmpt] = Foam::sqrt(normUResidual[cmpt]/(normU[cmpt]+SMALL));
+        }
+        Info<<"relative error Ux: "<<relativeUResidual[0]<<" Uy: "<<relativeUResidual[1]<<endl;
+
+        const volScalarField& T=thermo.T();
+        tmp<volScalarField> tTResidual(T-T.oldTime());
+        const volScalarField& TResidual=tTResidual.ref();
+        const scalar normT=gSumProd(T, T);
+        const scalar normTResidual=gSumProd(TResidual, TResidual);
+        const scalar relativeTResidual=Foam::sqrt(normTResidual/(normT+SMALL));
+        Info<<"relative error T: "<<relativeTResidual<<endl;
+
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;

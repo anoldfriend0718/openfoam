@@ -43,7 +43,7 @@ divSchemes
 laplacianSchemes
 {
     default             Gauss linear orthogonal;
-   // laplacian(alphaEff,h) Gauss harmonic orthogonal;
+    laplacian(alphaEff,h) Gauss harmonic orthogonal;
 }
 
 interpolationSchemes

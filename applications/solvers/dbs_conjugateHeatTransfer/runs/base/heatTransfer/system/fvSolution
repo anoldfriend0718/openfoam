@@ -35,7 +35,7 @@ solvers
         solver          GAMG;
         smoother        GaussSeidel;
         tolerance       1e-6;
-        relTol          0.1;
+        relTol          0.01;
     }
 
     p_rghFinal
@@ -82,10 +82,10 @@ solvers
 
 PIMPLE
 {
-    momentumPredictor yes;
+    momentumPredictor no;
     nNonOrthogonalCorrectors 0;
     nCorrectors       2;
-    nOuterCorrectors  4;
+    nOuterCorrectors  1;
 
     outerCorrectorResidualControl
     {
@@ -97,7 +97,7 @@ PIMPLE
 
         p_rgh      
         {
-            tolerance  1e-4;
+            tolerance  1e-5;
             relTol     0;
         }
         

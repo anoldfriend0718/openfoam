@@ -17,7 +17,7 @@ sample_size=100
 # m_residuals=[["h"],["Ux","Uy",pressure_name]]
 # m_residuals=[["h"],["Ux",pressure_name]]
 # m_residuals=[["h","CO2"],["O2",pressure_name]]
-m_residuals=[["Ux",pressure_name]]
+m_residuals=[[pressure_name]]
 m_thresholds=[[1e-1,1e-4,1e-5,1e-6,1e-7],[1e-1,1e-2,1e-4,1e-6,1e-7,1e-8]]
 m_save_files=["residuals1.jpg","residuals2.jpg"]
 
