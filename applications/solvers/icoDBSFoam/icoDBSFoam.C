@@ -49,6 +49,9 @@ int main(int argc, char *argv[])
 
     #include "createFields.H"
     #include "initContinuityErrs.H"
+    #include "createTimeControls.H"
+    #include "CourantNo.H"
+    #include "setInitialDeltaT.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     
@@ -57,8 +60,10 @@ int main(int argc, char *argv[])
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
-
+        
+        #include "readTimeControls.H"
         #include "CourantNo.H"
+        #include "setDeltaT.H"
 
         // Momentum predictor
 
@@ -88,7 +93,8 @@ int main(int argc, char *argv[])
             (
                 "phiHbyA",
                 fvc::flux(HbyA)
-              + fvc::interpolate(rAU)*fvc::ddtCorr(rEps,U, phiByEpsf)
+                // + fvc::interpolate(rAU)*fvc::ddtCorr(U, phi)
+                + fvc::interpolate(rAU)*fvc::ddtCorr(rEps,U, phiByEpsf)
             );
 
             adjustPhi(phiHbyA, U, p);
@@ -128,6 +134,18 @@ int main(int argc, char *argv[])
         }
 
         runTime.write();
+
+        tmp<volVectorField> tUResidual(U-U.oldTime());
+        const volVectorField& UResidual=tUResidual.ref();
+        const Foam::Vector<scalar> normUResidual=gSumCmptProd(UResidual,UResidual);
+        const Foam::Vector<scalar> normU=gSumCmptProd(U,U);
+        Foam::Vector<scalar> relativeUResidual;
+        for (direction cmpt=0; cmpt < normU.size(); cmpt++)
+        {
+            relativeUResidual[cmpt] = Foam::sqrt(normUResidual[cmpt]/(normU[cmpt]+SMALL));
+        }
+        Info<<"relative error: Ux: "<<relativeUResidual[0]<<" Uy: "<<relativeUResidual[1]<<endl;
+
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
