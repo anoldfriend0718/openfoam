@@ -11,5 +11,6 @@ postProcessing
 *.jpg
 dynamicCode
 structures
+**/tmp
 # Except this file
 !.gitignore

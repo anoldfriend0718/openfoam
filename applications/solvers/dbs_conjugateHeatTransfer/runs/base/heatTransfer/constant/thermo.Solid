@@ -20,7 +20,7 @@ rock
 {
     molWeight 100; // kg/kmol, no meaningful
     density   1000; //mass density, kg/m3
-    kappa     0.15; //thermal conductivity, W/m/K
+    kappa     20; //thermal conductivity, W/m/K
     cp        1000; //heat cpacity J/kg/K
 }
 

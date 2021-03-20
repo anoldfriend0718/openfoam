@@ -36,20 +36,20 @@ stopAt          endTime;
 // // writeInterval   1;
 // writeInterval   0.01;
 
-endTime        0.15;
+endTime         60;
 
-deltaT          1e-4;
+deltaT          1e-2;
 
 writeControl    adjustableRunTime;
 
-writeInterval   0.05;
+writeInterval   10;
 
 
 purgeWrite      0;
 
 writeFormat     ascii;
 
-writePrecision  6;
+writePrecision  9;
 
 writeCompression off;
 
@@ -62,9 +62,9 @@ runTimeModifiable yes;
 adjustTimeStep  yes;
 // adjustTimeStep  off;
 
-maxCo           0.90;
+maxCo           10000.90;
 
-maxDeltaT       0.1;
+maxDeltaT       1;
 
 // functions
 // {
