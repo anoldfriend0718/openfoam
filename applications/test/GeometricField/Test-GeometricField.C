@@ -1,5 +1,7 @@
 #include "fvCFD.H"
 #include "dimensionSets.H"
+#include "linear.H"
+#include "surfaceInterpolation.H"
 #include "volFieldsFwd.H"
 
 using namespace Foam;
@@ -11,44 +13,125 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
 
-    volScalarField eps
+
+    // //Test operator *
+    // volScalarField eps
+    // (
+    //     IOobject(
+    //         "eps",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::NO_WRITE
+    //     ),
+    //     mesh,
+    //     dimensionedScalar(dimless,0.0)
+    // );
+
+    // forAll(eps, i)
+    // {
+    //     eps[i]=min(i*0.1,1.0);
+    // }
+
+    // volScalarField tEps(max(eps,0.001));
+    // // eps=tEps;
+
+    // // Info<<"eps: "<<eps<<endl;
+
+    // volScalarField rho
+    // (
+    //     IOobject(
+    //         "rho",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::NO_WRITE
+    //     ),
+    //     mesh,
+    //     dimensionedScalar(dimDensity,1.0)
+    // );
+
+    // volScalarField rhoEps("rhoEpsEps",rho*tEps*tEps);
+    // Info<<"rho*eps*eps: "<<rhoEps<<endl;
+
+    // //Test operator gSumProd
+    // volScalarField Yi
+    // (
+    //     IOobject(
+    //         "Yi",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::NO_WRITE
+    //     ),
+    //     mesh,
+    //     dimensionedScalar(dimDensity,2.0)
+    // );
+
+    // Info<<"gSumProd Yi: "<<gSumProd(Yi,Yi)<<endl;
+
+    // volVectorField U
+    // (
+    //     IOobject(
+    //         "U",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::NO_WRITE
+    //     ),
+    //     mesh,
+    //     dimensionedVector(dimVelocity,vector(2.0,1.0,0))
+    // );
+
+    // Info<<"gSumCompProd U: "<<gSumCmptProd(U,U)<<endl;
+
+
+
+    //Test faceInterpolated
+
+    volScalarField T
     (
         IOobject(
-            "eps",
+            "T",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar(dimless,0.0)
+        dimensionedScalar(dimTemperature,Zero)
     );
 
-    forAll(eps, i)
+    forAll(T, i)
     {
-        eps[i]=min(i*0.1,1.0);
+        T[i]=i;
     }
 
-    volScalarField tEps(max(eps,0.001));
-    // eps=tEps;
-
-    // Info<<"eps: "<<eps<<endl;
-
-    volScalarField rho
+    surfaceScalarField surfT
     (
-        IOobject(
-            "rho",
+        IOobject
+        (
+            "surfT",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        mesh,
-        dimensionedScalar(dimDensity,1.0)
+        linearInterpolate(T)
     );
 
-    volScalarField rhoEps("rhoEpsEps",rho*tEps*tEps);
-    Info<<"rho*eps*eps: "<<rhoEps<<endl;
+    // T.write();
+    // surfT.write();
+    Info<<"T: "<<endl;
+    Info<<T<<endl;
+
+    IOobject::writeDivider(Info);
+    Info<<"surfT: "<<endl;
+    Info<<surfT<<endl;
+
+
+
+
 
 
     return 0;
