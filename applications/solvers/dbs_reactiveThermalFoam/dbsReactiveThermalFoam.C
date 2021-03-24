@@ -51,8 +51,6 @@ int main(int argc, char *argv[])
     #include "createMesh.H"
     #include "createControl.H"
     #include "createFields.H"
-    #include "createFieldRefs.H"
-    #include "initContinuityErrs.H"
     #include "createTimeControls.H"
     #include "compressibleCourantNo.H"
     #include "setInitialDeltaT.H"
@@ -64,37 +62,20 @@ int main(int argc, char *argv[])
     while (runTime.run())
     {
         #include "readTimeControls.H"
-        #include "compressibleCourantNo.H"
         #include "setDeltaT.H"
 
         runTime++;
         
         Info<< "Time = " << runTime.timeName() << nl << endl;
-
-        #include "cokeEqn.H"
-
-        #include "rhoEqn.H"
    
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         { 
-            #include "UEqn.H"
-
-            // --- Pressure corrector loop
-            while (pimple.correct())
-            {
-               #include "pEqn.H"
-            }
-
             #include "YEqn.H"
 
             #include "EEqn.H"
-        
         }
                 
-        rho = thermo.rho();
-        rhoByEps=rho*rEps;
-
         runTime.write();
         
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
@@ -105,38 +86,18 @@ int main(int argc, char *argv[])
 
     Info<< "End\n" << endl;
 
+    scalar endTimeSeconds=runTime.endTime().value();
+    Info<<"endTime: "<<endTimeSeconds<<endl;
+    Info<<"Final Time step: "<<runTime.deltaT().value()<<endl;
 
-    
     const volScalarField& T=thermo.T();
     scalar maxT=gMax(T);
+    Info<<"Max T in solid region: "<<maxT<<endl;
 
     const volScalarField& YO2= Y[O2Index];
     scalar minO2=gMin(YO2);
-
-    scalar maxUx=gMax(U.component(0)->field());
-
-    volScalarField tempCoke("tempCoke",coke);
-    forAll(solid,celli)
-    {
-        if(solid[celli]<1.0) // in the solid region
-        {
-            tempCoke[celli]=great;
-        }
-    }
-    scalar minCoke=gMin(tempCoke);
-
-    scalar endTimeSeconds=runTime.endTime().value();
-    Info<<"endTime: "<<endTimeSeconds<<endl;
-    
-    Info<<"Final Time step: "<<runTime.deltaT().value()<<endl;
-    Info<<"Max T in solid region: "<<maxT<<endl;
     Info<<"Min O2 in fluid region: "<<minO2<<endl;
-    Info<<"Max Ux in fluid region: "<<maxUx<<endl;
 
-    Info<<"Min coke in solid region: "<<minCoke<<endl;
-    scalar maxBurningRate=(1-minCoke/0.8);
-    Info<<"Max coke burning rate: "<<maxBurningRate*100<<"%"<<endl;
-    Info<<"Max coke burning rate in one second: "<<1.0/endTimeSeconds*maxBurningRate*100<<"%"<<endl;
 
     
     return 0;

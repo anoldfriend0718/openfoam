@@ -208,10 +208,6 @@ volScalarField dpdt
 Info<< "Creating field kinetic energy K"<<nl << endl;
 volScalarField K("K", 0.5*magSqr(U));
 
-Info<< "Calculating the inital mass and total volume"<< nl <<endl;
-dimensionedScalar initialMass = fvc::domainIntegrate(rho);
-dimensionedScalar totalVolume = sum(mesh.V());
-
 #include "createPorousMediumFields.H"
 
 #include "initReactionModel.H"
