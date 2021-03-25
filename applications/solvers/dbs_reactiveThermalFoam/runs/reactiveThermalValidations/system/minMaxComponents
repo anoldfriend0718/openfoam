@@ -13,6 +13,6 @@ Description
 
 #includeEtc "caseDicts/postProcessing/minMax/minMaxComponents.cfg"
 
-fields (U p T coke);
+fields (T);
 
 // ************************************************************************* //

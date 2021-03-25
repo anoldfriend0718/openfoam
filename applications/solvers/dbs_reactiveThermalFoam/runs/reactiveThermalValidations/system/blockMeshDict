@@ -15,10 +15,10 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 convertToMeters 1e-6;
-lx 200;
-ly 50;
-Nx 200;
-Ny 50;
+lx 420;
+ly 80;
+Nx 420;
+Ny 80;
 vertices        
 (
     (0 0 0)

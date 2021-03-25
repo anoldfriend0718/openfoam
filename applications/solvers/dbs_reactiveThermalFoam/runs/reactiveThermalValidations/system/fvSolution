@@ -17,30 +17,25 @@ FoamFile
 
 solvers
 {
-    "rho.*"
-    {
-        solver          diagonal;
-    }
+    // "rho.*"
+    // {
+    //     solver          diagonal;
+    // }
 
-    "coke.*"
-    {
-        solver          diagonal;
-    }
+    // p_rgh
+    // {
+    //     solver          PCG;
+    //     preconditioner  DIC;
+    //     tolerance       1e-6;
+    //     relTol          0.01;
+    // }
 
-    p_rgh
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-6;
-        relTol          0.01;
-    }
-
-    p_rghFinal
-    {
-        $p_rgh;
-        tolerance       1e-8;
-        relTol          0;
-    }
+    // p_rghFinal
+    // {
+    //     $p_rgh;
+    //     tolerance       1e-8;
+    //     relTol          0;
+    // }
 
 
     "(h|e)"
@@ -79,10 +74,10 @@ solvers
 
 PIMPLE
 {
-    momentumPredictor yes;
+    momentumPredictor no;
     nNonOrthogonalCorrectors 0;
-    nCorrectors       2;
-    nOuterCorrectors  4;
+    nCorrectors       1;
+    nOuterCorrectors  1;
 
     outerCorrectorResidualControl
     {
@@ -95,12 +90,6 @@ PIMPLE
         "(Y.*|O2|CO2)"    
         {
             tolerance  1e-6;
-            relTol     0;
-        }
-
-        p_rgh      
-        {
-            tolerance  1e-4;
             relTol     0;
         }
         

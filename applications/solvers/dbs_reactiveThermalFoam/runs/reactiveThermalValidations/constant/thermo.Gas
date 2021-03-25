@@ -19,17 +19,21 @@ O2
 {
     specie
     {
-        molWeight       32.0;
+        molWeight       28.88;
+    }
+    equationOfState
+    {
+        rho            4.4908;
     }
     thermodynamics
     {
-        Cp              1070.2;
+        Cp              1093.9;
         Hf              0;
     }
     transport
     {
-        mu              4.498e-05;
-        Pr              0.747;
+        mu              3.65861E-05;
+        Pr              0.716;
     }
 }
 
@@ -39,17 +43,21 @@ N2
 {
     specie
     {
-        molWeight       28.0;
+        molWeight       28.88;
+    }
+    equationOfState
+    {
+        rho            4.4908;
     }
     thermodynamics
     {
-        Cp              1110.6;
+        Cp              1093.9;
         Hf              0;
     }
     transport
     {
-        mu              3.746e-05;
-        Pr              0.723;
+        mu              3.65861E-05;
+        Pr              0.716;
     }
 }
 
@@ -57,19 +65,24 @@ CO2
 {
     specie
     {
-        molWeight       44.00;
+        molWeight       28.88;
+    }
+    equationOfState
+    {
+        rho            4.4908;
     }
     thermodynamics
     {
-        Cp              929.69;
+        Cp              1093.9;
         Hf              0;
     }
     transport
     {
-        mu              3.804e-05;
-        Pr              0.732;
+        mu              3.65861E-05;
+        Pr              0.716;
     }
 }
+
 
 
 // ************************************************************************* //

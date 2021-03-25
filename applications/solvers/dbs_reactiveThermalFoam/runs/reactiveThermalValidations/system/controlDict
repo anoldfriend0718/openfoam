@@ -36,13 +36,13 @@ stopAt          endTime;
 // // writeInterval   1;
 // writeInterval   0.01;
 
-endTime        1e-3;
+endTime        6e-6;
 
 deltaT          1e-6;
 
 writeControl    adjustableRunTime;
 
-writeInterval   1e-4;
+writeInterval   1e-3;
 
 
 purgeWrite      0;

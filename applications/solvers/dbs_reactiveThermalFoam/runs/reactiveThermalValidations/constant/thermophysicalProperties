@@ -22,7 +22,7 @@ thermoType
     transport       const;
     thermo          hConst;
     energy          sensibleEnthalpy;
-    equationOfState perfectGas;
+    equationOfState rhoConst;
     specie          specie;
 }
 

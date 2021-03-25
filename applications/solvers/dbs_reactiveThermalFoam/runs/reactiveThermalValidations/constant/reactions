@@ -37,6 +37,7 @@ reactions
 
 }
 
+
 customizedReactions
 {
     cokeCombustion
@@ -44,8 +45,8 @@ customizedReactions
         type     irreversibleArrheniusReaction;
         odeSolver "4thRKFull";//4thRKFull,4thRK, 2ndRK,EulerImplicit
         reaction "coke + O2 = CO2";
-        A        9.717e6; //m/s
-        Ta       15767;
+        A        9.72e8; //m/s // trick: x100 to reduce the effect of eps to match maintain
+        Ta       15767.38032;
         hr       3.885e8; //J/kmol
     }
 
