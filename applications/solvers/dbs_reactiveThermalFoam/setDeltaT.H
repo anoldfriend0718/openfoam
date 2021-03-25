@@ -34,6 +34,8 @@ Description
 if (adjustTimeStep)
 {
     scalar minLatestChemicalTimeStep=gMin(reaction.deltaTChem().field());
+    Info<< "minLatestChemicalTimeStep = " << minLatestChemicalTimeStep << endl;
+    
     scalar chemicalTime=reaction.chemicalTimeCoeff()*minLatestChemicalTimeStep;
     scalar maxDeltaTFact = maxCo/(CoNum + small);
     scalar deltaTFact = min(min(maxDeltaTFact, 1.0 + 0.1*maxDeltaTFact), 1.2);

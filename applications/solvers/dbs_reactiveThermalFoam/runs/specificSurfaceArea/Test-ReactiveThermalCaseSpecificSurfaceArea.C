@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     volScalarField speciesSurfaceArea
     {
         "speciesSurfaceArea",
-        2*mag(fvc::grad(eps))*(1-eps*eps)
+        2*mag(fvc::grad(1-eps))*(1-eps*eps)
     };
 
     volScalarField surfaceArea

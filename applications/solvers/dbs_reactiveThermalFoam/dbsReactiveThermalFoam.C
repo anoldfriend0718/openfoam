@@ -68,6 +68,11 @@ int main(int argc, char *argv[])
         
         Info<< "Time = " << runTime.timeName() << nl << endl;
    
+        Info<< "solving reaction model"<<endl;
+        reaction.correct();
+        cokeRectionRate=reaction.Rs(coke) & coke;
+        Qdot=reaction.Qdot().ref();
+
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         { 
