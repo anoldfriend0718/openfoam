@@ -253,7 +253,7 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
 
     // Calculate the chemical source terms
         label nChemicalTimeStep=0;
-        while (timeLeft > small)
+        while (timeLeft > small) //2.22045e-16
         {
             if(debug>1)
             {
@@ -314,7 +314,8 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     const scalar filterDepth=(1-(1-cokei)*(1-cokei)); //either coke or eps in one cell
     const scalar effssi=2.0*cokeGradi*filterDepth; // need a factor of 2 to correct the species surface area
     const scalar ak=effssi*A_*std::exp(-Ta_/Ti);
-    const scalar cokeReactionRate=ak*c[O2Index_];
+    const scalar epsi=(1-cokei);
+    const scalar cokeReactionRate=ak*(c[O2Index_]/epsi); //use the bulk oxygen concentration
     if(debug>1)
     {
         Info<<"coke reaction rate: "<<cokeReactionRate<<endl;
@@ -346,19 +347,19 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     scalar c_O2_new=small;
     if(odeSolver_=="EulerImplicit") 
     {
-        c_O2_new=solveODEByEulerImplicit(ak,c[O2Index_],dt);
+        c_O2_new=solveODEByEulerImplicit(ak,c[O2Index_],dt,epsi);
     }
     else if(odeSolver_=="2ndRK")
     {
-        c_O2_new=solveODEBy2ndRK(ak,c[O2Index_],dt);
+        c_O2_new=solveODEBy2ndRK(ak,c[O2Index_],dt,epsi);
     }
     else if(odeSolver_=="4thRK")
     {
-        c_O2_new=solveODEBy4thRK(ak,c[O2Index_],dt);
+        c_O2_new=solveODEBy4thRK(ak,c[O2Index_],dt,epsi);
     }
     else 
     {
-        c_O2_new=solveODEBy4thRKFull(effssi,Ti,c[O2Index_],Cps,Cpf,dt);
+        c_O2_new=solveODEBy4thRKFull(effssi,Ti,c[O2Index_],Cps,Cpf,dt,epsi);
     }
     
     scalar deltaC_O2=c_O2_new-c[O2Index_];
@@ -404,36 +405,36 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     
 }
 
-inline Foam::scalar Foam::cokeCombustion::solveODEByEulerImplicit(const scalar ak,const scalar ci,const scalar dt) const
+inline Foam::scalar Foam::cokeCombustion::solveODEByEulerImplicit(const scalar ak,const scalar ci,const scalar dt,const scalar epsi) const
 {
-    scalar c_O2_new=(ci/dt)/(ak+1/dt);
+    scalar c_O2_new=(ci/dt)/(ak/epsi+1/dt);
     return c_O2_new;
 }
 
-inline Foam::scalar Foam::cokeCombustion::solveODEBy2ndRK(const scalar ak,const scalar ci,const scalar dt) const
+inline Foam::scalar Foam::cokeCombustion::solveODEBy2ndRK(const scalar ak,const scalar ci,const scalar dt,const scalar epsi) const
 {
-    scalar f1=-ak*ci;
-    scalar f2=-ak*(ci+dt*f1);
+    scalar f1=-ak*(ci/epsi);
+    scalar f2=-ak*((ci+dt*f1)/epsi);
     scalar c_O2_new=ci+0.5*dt*(f1+f2);
     return c_O2_new;
 }
 
-inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRK(const scalar ak,const scalar ci,const scalar dt) const
+inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRK(const scalar ak,const scalar ci,const scalar dt,const scalar epsi) const
 {
-    scalar f1=-ak*ci;
-    scalar f2=-ak*(ci+dt/2.0*f1);
-    scalar f3=-ak*(ci+dt/2.0*f2);
-    scalar f4=-ak*(ci+dt*f3);
+    scalar f1=-ak*(ci/epsi);
+    scalar f2=-ak*((ci+dt/2.0*f1)/epsi);
+    scalar f3=-ak*((ci+dt/2.0*f2)/epsi);
+    scalar f4=-ak*((ci+dt*f3)/epsi);
     scalar c_O2_new=ci+dt/6.0*(f1+2.0*f2+2.0*f3+f4);
     return c_O2_new;
 }
 
 inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRKFull(const scalar effssi,const scalar Ti0,const scalar ci0,
     const scalar Cps0,const scalar Cpf0,
-    const scalar dt) const
+    const scalar dt,const scalar epsi) const
 {
     scalar ak1=effssi*A_*exp(-Ta_/Ti0);
-    scalar f1=-ak1*ci0;
+    scalar f1=-ak1*(ci0/epsi);
     if(debug>1)
     {
         Info<<"4th RK full method [1]: "
@@ -445,7 +446,7 @@ inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRKFull(const scalar effss
 
     scalar Ti2=Ti0-(hr_*f1*dt/2.0)/(Cps0+Cpf0);
     scalar ak2=effssi*A_*exp(-Ta_/Ti2);
-    scalar f2=-ak2*(ci0+dt/2.0*f1);
+    scalar f2=-ak2*((ci0+dt/2.0*f1)/epsi);
     if(debug>1)
     {
         Info<<"4th RK full method [2]: "
@@ -457,7 +458,7 @@ inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRKFull(const scalar effss
 
     scalar Ti3=Ti0-(hr_*f2*dt/2.0)/(Cps0+Cpf0);
     scalar ak3=effssi*A_*exp(-Ta_/Ti3);
-    scalar f3=-ak3*(ci0+dt/2.0*f2);
+    scalar f3=-ak3*((ci0+dt/2.0*f2)/epsi);
     if(debug>1)
     {
         Info<<"4th RK full method [3]: "
@@ -469,7 +470,7 @@ inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRKFull(const scalar effss
 
     scalar Ti4=Ti0-(hr_*f3*dt)/(Cps0+Cpf0);
     scalar ak4=effssi*A_*exp(-Ta_/Ti4);
-    scalar f4=-ak4*(ci0+dt*f3);
+    scalar f4=-ak4*((ci0+dt*f3)/epsi);
     if(debug>1)
     {
         Info<<"4th RK full method [4]: "
@@ -581,10 +582,11 @@ Foam::tmp<Foam::volScalarField::Internal> Foam::cokeCombustion::calculateTransie
     forAll(T, celli)
     {
         const scalar rhoi = rho[celli];  
-        const scalar epsi = eps_[celli];
+        // const scalar epsi = eps_[celli];
         for(label i=0;i<nGasSpecies_;i++)
         {
-            c0_[i]=epsi*rhoi*Y_[i][celli]/compositions_.Wi(i);
+            // c0_[i]=epsi*rhoi*Y_[i][celli]/compositions_.Wi(i);
+            c0_[i]=rhoi*Y_[i][celli]/compositions_.Wi(i);
         }
         aki=ssArea[celli]*A_*std::exp(-Ta_/T[celli]);
         RRO2[celli]=-aki*c0_[O2Index_]*compositions_.Wi(O2Index_);
