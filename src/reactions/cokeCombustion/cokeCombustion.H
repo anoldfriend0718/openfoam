@@ -34,6 +34,7 @@ SourceFiles
 #define cokeCombustion_H
 
 #include "IOdictionary.H"
+#include "Switch.H"
 #include "volFieldsFwd.H"
 #include "fvMatricesFwd.H"
 #include "fvMesh.H"
@@ -49,6 +50,8 @@ class cokeCombustion:
 {
     private:
         const Switch chemistry_;
+
+        const bool integrateReactionRate_;
 
         const scalar chemicalTimeCoeff_;
 
@@ -126,32 +129,7 @@ class cokeCombustion:
         cokeCombustion(const fvMesh& mesh, const rhoReactionThermo& thermo, const constSolidThermo& cokeThermo,
                        const constSolidThermo& rockThermo);
           
-        inline void correct()
-        {
-            const Time& runtime=mesh_.time();
-            scalar flowDeltaT=runtime.deltaTValue();
-
-            if(debug)
-            {
-                Info<<endl;
-                Info<<"@@@@@@@@@@@@@@@@@ TimeIndex="<<runtime.timeIndex()<<" @@@@@@@@@@@@@@@@@"<<endl;
-                Info<<"about to solve coke combustion at Time "
-                    <<runtime.timeName()
-                    <<", with time step: "
-                    <<flowDeltaT
-                    <<endl;
-            }
-            
-            this->solve(flowDeltaT);
-
-            if(debug)
-            {
-                Info<<"complete solve coke combustion at Time "
-                    <<runtime.timeName()<<endl;
-                Info<<"$$$$$$$$$$$$$$$$$ TimeIndex="<<runtime.timeIndex()<<" $$$$$$$$$$$$$$$$$"<<endl;
-                Info<<endl;
-            }
-        }
+        void correct();
 
         void solve(const scalar deltaTValue);
 
@@ -159,7 +137,8 @@ class cokeCombustion:
         {
             return chemicalTimeCoeff_;
         }
-        
+
+       
         const volScalarField::Internal& deltaTChem() const 
         {
             return deltaTChem_;
@@ -171,7 +150,7 @@ class cokeCombustion:
 
         tmp<volScalarField> Qdot() const;
      
-        tmp<volScalarField::Internal> calculateTransientRRO2() const;
+        void calculate();
 
         inline const volScalarField::Internal& RRO2() const
         {

@@ -51,6 +51,7 @@ Foam::cokeCombustion::cokeCombustion(const Foam::fvMesh& mesh,
         )
     ),
     chemistry_(lookup("chemistry")),
+    integrateReactionRate_(lookupOrDefault("integrateReactionRate", true)),
     chemicalTimeCoeff_(lookupOrDefault("chemicalTimeCoeff", 1.0)),
     deltaTChemIni_(readScalar(lookup("initialChemicalTimeStep"))),
     deltaTChemMax_(lookupOrDefault("maxChemicalTimeStep", great)),
@@ -101,7 +102,7 @@ Foam::cokeCombustion::cokeCombustion(const Foam::fvMesh& mesh,
     A_(readScalar(cokeCombustionDict_.lookup("A"))),
     Ta_(readScalar(cokeCombustionDict_.lookup("Ta"))),
     hr_(readScalar(cokeCombustionDict_.lookup("hr"))),
-    odeSolver_(cokeCombustionDict_.lookup("odeSolver")),
+    odeSolver_(cokeCombustionDict_.lookupOrDefault("odeSolver",word("4thRKFull"))),
     RRO2_
     (
         IOobject
@@ -144,7 +145,17 @@ Foam::cokeCombustion::cokeCombustion(const Foam::fvMesh& mesh,
 {
     init();
     Info<<"chemistry on/off: "<<chemistry_<<endl;
-    Info<<"coke combustion ode solver: "<<odeSolver_<<endl;
+    if (integrateReactionRate_)
+    {
+        Info<< "using integrated reaction rate" << endl;
+        Info<<"coke combustion ode solver: "<<odeSolver_<<endl;
+        Info<<"chemical time coefficient: "<<chemicalTimeCoeff_<<endl;
+    }
+    else
+    {
+        Info<< "using instantaneous reaction rate" << endl;
+    } 
+    
 }
 
 void Foam::cokeCombustion::init()
@@ -182,6 +193,40 @@ void Foam::cokeCombustion::sortIndex()
     }
     reactantIndexs_.append(O2Index_);
     reactantIndexs_.append(cokeIndex_);
+}
+
+void Foam::cokeCombustion::correct()
+{
+    const Time& runtime=mesh_.time();
+    scalar flowDeltaT=runtime.deltaTValue();
+
+    if(debug)
+    {
+        Info<<endl;
+        Info<<"@@@@@@@@@@@@@@@@@ TimeIndex="<<runtime.timeIndex()<<" @@@@@@@@@@@@@@@@@"<<endl;
+        Info<<"about to correct coke combustion at Time "
+            <<runtime.timeName()
+            <<", with time step: "
+            <<flowDeltaT
+            <<endl;
+    }
+    
+    if(integrateReactionRate_)
+    {
+        this->solve(flowDeltaT);
+    }
+    else
+    {
+        this->calculate();
+    }
+    
+    if(debug)
+    {
+        Info<<"complete correct coke combustion at Time "
+            <<runtime.timeName()<<endl;
+        Info<<"$$$$$$$$$$$$$$$$$ TimeIndex="<<runtime.timeIndex()<<" $$$$$$$$$$$$$$$$$"<<endl;
+        Info<<endl;
+    }
 }
 
 void Foam::cokeCombustion::solve(const scalar deltaTValue)
@@ -542,6 +587,7 @@ Foam::tmp<Foam::volScalarField> Foam::cokeCombustion::Qdot() const
     {
         return tQdot;
     }
+
     scalarField& Qdot = tQdot.ref();
 
     forAll(Qdot, celli)
@@ -552,29 +598,22 @@ Foam::tmp<Foam::volScalarField> Foam::cokeCombustion::Qdot() const
     return tQdot;
 }
 
-Foam::tmp<Foam::volScalarField::Internal> Foam::cokeCombustion::calculateTransientRRO2() const
-{
-    tmp<volScalarField::Internal> tRRO2
-    (
-        volScalarField::Internal::New
-        (
-            "tR_CO2",
-            mesh_,
-            dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
-        )
-    );
-    
+void Foam::cokeCombustion::calculate() 
+{    
     if (!this->chemistry_)
     {
-        return tRRO2;
+        return ;
     }
 
-    volScalarField::Internal& RRO2 = tRRO2.ref();
     volScalarField ssArea
     (
         "ssArea",
-        mag(fvc::grad(coke_))*(4.0*coke_*(1-coke_))
+        2.0*mag(fvc::grad(coke_))*(1-(1-coke_)*(1-coke_))
     );
+
+    // Info<<"mag(fvc::grad(coke_)): "<<mag(fvc::grad(coke_))->field()<<endl;
+    // Info<<"ssArea: "<<ssArea.field()<<endl;
+
     const scalarField& T=thermo_.T();
     const scalarField& rho=thermo_.rho();
 
@@ -589,8 +628,10 @@ Foam::tmp<Foam::volScalarField::Internal> Foam::cokeCombustion::calculateTransie
             c0_[i]=rhoi*Y_[i][celli]/compositions_.Wi(i);
         }
         aki=ssArea[celli]*A_*std::exp(-Ta_/T[celli]);
-        RRO2[celli]=-aki*c0_[O2Index_]*compositions_.Wi(O2Index_);
+        scalar dcdt=aki*c0_[O2Index_];
+        RRO2_[celli]=-dcdt*compositions_.Wi(O2Index_);
+        RRCO2_[celli]=dcdt*compositions_.Wi(CO2Index_);
+        RRCoke_[celli]=-dcdt*cokeThermo_.molWeight.value();        
     }
-    return tRRO2;
 }
 

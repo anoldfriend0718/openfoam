@@ -135,7 +135,6 @@ int main(int argc, char *argv[]) {
     Info<<"Time-splitting RR O2: "<<combustion.RRO2().field()<<endl;
     Info<<"Time-splitting RR CO2: "<<combustion.RRCO2().field()<<endl;
     Info<<"Time-splitting RR coke: "<<combustion.RRCoke().field()<<endl;
-    Info<<"Normal RR O2: "<<combustion.calculateTransientRRO2()().field()<<endl;
 
     Info<<"Test the su matrix..."<<endl;
     volScalarField YO2=thermo.composition().Y(0);

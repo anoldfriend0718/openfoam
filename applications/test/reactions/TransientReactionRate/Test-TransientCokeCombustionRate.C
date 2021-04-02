@@ -3,6 +3,7 @@
 #include "Time.H"
 #include "argList.H"
 #include "fvMesh.H"
+#include "fvmSup.H"
 #include "rhoReactionThermo.H"
 #include "thermo.H"
 #include "volFieldsFwd.H"
@@ -73,6 +74,7 @@ int main(int argc, char *argv[]) {
         ),
         thermo.rho()
     );
+    Info<<"fluid rho: "<<rhof.field()<<endl;
 
     surfaceScalarField phi
     (
@@ -125,76 +127,29 @@ int main(int argc, char *argv[]) {
         ),
         1-eps-coke
     );
-    Info<<"fluid porosity: "<<coke.field()<<", solid fraction: "<<(1-eps)->field()<<endl;
+    Info<<"fluid porosity: "<<eps.field()<<", solid fraction: "<<(1-eps)->field()<<endl;
     Info<<"coke fraction: "<<coke.field()<<", rock fraction: "<<rock.field()<<endl;
 
     cokeCombustion combustion(mesh,thermo,cokeThermo,rockThermo);
-
-    for(label i=0;i<2;i++)
-    {
-        Info<<endl<<"new step..."<<endl;
-        combustion.correct();
-
-        Info<<"Test the RR..."<<endl;
-        Info<<"Time-splitting RR O2: "<<combustion.RRO2().field()<<endl;
-        Info<<"Time-splitting RR CO2: "<<combustion.RRCO2().field()<<endl;
-        Info<<"Time-splitting RR coke: "<<combustion.RRCoke().field()<<endl;
-
-        Info<<"Test the su matrix..."<<endl;
-        volScalarField& YO2=thermo.composition().Y(0);
-        volScalarField& YCO2=thermo.composition().Y(2);
-        Info<<"R O2: "<<(combustion.R(YO2)&YO2)->field()<<endl;
-        Info<<"R CO2: "<<(combustion.R(YCO2)&YCO2)->field()<<endl;
-        Info<<"R coke: "<<(combustion.Rs(coke)&coke)->field()<<endl;
-
-        Info<<"Test Qdot..."<<endl;
-        Info<<"Qdot: "<<combustion.Qdot()->field()<<endl;
-
-        runTime++;
-
-        Info<<"simulate solving solid equation by update the eps and coke..."<<endl;
-        eps+=0.1;
-        coke-=0.1;
-
-        Info<<"simulate solving energy equation by update the enthalpy..."<<endl;
-        // Info<<"Cp: "<<thermo.Cp()<<endl;
-        volScalarField& he=thermo.he();
-        scalar he1=1200000;
-        forAll(he, celli)
-        {
-            he[celli]=he1;
-        }
-
-        volScalarField::Boundary& heBf = he.boundaryFieldRef();
-        forAll(heBf, patchi)
-        {
-            scalarField& hep=heBf[patchi];
-            forAll(hep,facei)
-            {
-                hep[facei]=he1;
-            }
-        }
-
+    combustion.correct();
     
-        thermo.correct();
-
-        
-       Info<<"simulate solving pressure equation by update the pressure..."<<endl;
-       volScalarField& p=thermo.p();
-       p*=1.05;
-
-       Info<<"simulate solving the species equations by updating Y..."<<endl;
-       YO2-=0.03;
-       YCO2 +=0.03;
+    Info<<"Test the RR..."<<endl;
+    Info<<"RR O2: "<<combustion.RRO2().field()<<endl;
+    Info<<"RR CO2: "<<combustion.RRCO2().field()<<endl;
+    Info<<"RR coke: "<<combustion.RRCoke().field()<<endl;
 
 
+    IOobject::writeDivider(Info);
+    Info<<"Test the su matrix..."<<endl;
 
-        
+    volScalarField YO2=thermo.composition().Y(0);
+    volScalarField YCO2=thermo.composition().Y(2);
+    Info<<"R O2 source term: "<<combustion.R(YO2)->source()<<endl;
+    Info<<"R O2: "<<(combustion.R(YO2)&YO2)->field()<<endl;
 
-        
-    }
-
-
+    IOobject::writeDivider(Info);
+    Info<<"Test Qdot..."<<endl;
+    Info<<"Qdot: "<<combustion.Qdot()->field()<<endl;
 
     return 0;
 }
