@@ -66,10 +66,11 @@ maxCo           0.90;
 
 maxDeltaT       0.001;
 
-// functions
-// {
-//     #includeFunc  residuals
-//     #includeFunc  minMaxComponents
-// }
+functions
+{
+    // #includeFunc  residuals
+    // #includeFunc  minMaxComponents
+    #includeFunc singleGraph
+}
 
 // ************************************************************************* //
