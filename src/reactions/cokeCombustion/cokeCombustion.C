@@ -226,12 +226,15 @@ void Foam::cokeCombustion::correct()
             <<endl;
     }
     
+    
     if(integrateReactionRate_)
     {
+        Info<< "solving reaction model using integrated reaction rate"<<endl;
         this->solve(flowDeltaT);
     }
     else
     {
+        Info<< "solving reaction model using instantaneous reaction rate"<<endl;
         this->calculate();
     }
     

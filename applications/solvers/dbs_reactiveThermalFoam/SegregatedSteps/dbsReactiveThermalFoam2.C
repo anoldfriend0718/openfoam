@@ -71,10 +71,7 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         { 
-            Info<< "solving reaction model"<<endl;
             reaction.correct();
-            cokeRectionRate=reaction.Rs(coke) & coke;
-            Qdot=reaction.Qdot().ref();
 
             #include "YEqn.H"
 

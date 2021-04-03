@@ -57,6 +57,14 @@ if(O2Index==-1 || CO2Index==-1 || N2Index==-1)
     <<exit(FatalError);
 }
 
+if(O2Index !=0)
+{
+    //because we need to first  solve the O2 eqn using implict source term
+    //then update the reaction source term for CO2 eqn and T eqn
+    FatalErrorInFunction<<"O2 should be the first species"
+    <<exit(FatalError); 
+}
+
 
 Info<< "Reading solid thermophysical properties"<<nl << endl;
 IOdictionary thermoSolid
