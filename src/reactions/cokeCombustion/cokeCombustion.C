@@ -29,6 +29,8 @@ License
 #include "dictionary.H"
 #include "fvc.H"
 #include "addToRunTimeSelectionTable.H"
+#include "fvmSup.H"
+#include "volFieldsFwd.H"
 
 namespace Foam
 {
@@ -141,6 +143,19 @@ Foam::cokeCombustion::cokeCombustion(const Foam::fvMesh& mesh,
         ),
         mesh,
         dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
+    ),
+    ak_
+    (
+        IOobject
+        (
+        "ReactionRateConstant",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("Rc", dimensionSet(0, 0, -1, 0, 0, 0, 0), 0) 
     )
 {
     init();
@@ -530,9 +545,6 @@ inline Foam::scalar Foam::cokeCombustion::solveODEBy4thRKFull(const scalar effss
     return c_O2_new;
 }
 
-
-
-
 Foam::tmp<Foam::fvScalarMatrix> Foam::cokeCombustion::R(volScalarField& Y) const
 {
     tmp<fvScalarMatrix> tSu(new fvScalarMatrix(Y, dimMass/dimTime));
@@ -540,7 +552,19 @@ Foam::tmp<Foam::fvScalarMatrix> Foam::cokeCombustion::R(volScalarField& Y) const
     const word speciesName=Y.name();
     if(speciesName=="O2")
     {
-        Su+=RRO2_;
+        if(integrateReactionRate_)
+        {
+            Su+=RRO2_;
+        }
+        else
+        {
+            //Implicit scheme for the O2 source term
+            const volScalarField& rho=thermo_.rho();
+            const volScalarField& YO2=Y_[O2Index_];
+            
+            Su += fvm::Sp(-ak_*rho,YO2);
+        }
+        
     }
     else if(speciesName=="CO2")
     {
@@ -617,7 +641,6 @@ void Foam::cokeCombustion::calculate()
     const scalarField& T=thermo_.T();
     const scalarField& rho=thermo_.rho();
 
-    scalar aki=0;
     forAll(T, celli)
     {
         const scalar rhoi = rho[celli];  
@@ -627,8 +650,8 @@ void Foam::cokeCombustion::calculate()
             // c0_[i]=epsi*rhoi*Y_[i][celli]/compositions_.Wi(i);
             c0_[i]=rhoi*Y_[i][celli]/compositions_.Wi(i);
         }
-        aki=ssArea[celli]*A_*std::exp(-Ta_/T[celli]);
-        scalar dcdt=aki*c0_[O2Index_];
+        ak_[celli]=ssArea[celli]*A_*std::exp(-Ta_/T[celli]);
+        scalar dcdt=ak_[celli]*c0_[O2Index_];
         RRO2_[celli]=-dcdt*compositions_.Wi(O2Index_);
         RRCO2_[celli]=dcdt*compositions_.Wi(CO2Index_);
         RRCoke_[celli]=-dcdt*cokeThermo_.molWeight.value();        

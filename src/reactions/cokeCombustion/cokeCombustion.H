@@ -101,6 +101,7 @@ class cokeCombustion:
         volScalarField::Internal RRO2_;
         volScalarField::Internal RRCO2_;
         volScalarField::Internal RRCoke_;
+        volScalarField::Internal ak_;
 
         void init();
 
