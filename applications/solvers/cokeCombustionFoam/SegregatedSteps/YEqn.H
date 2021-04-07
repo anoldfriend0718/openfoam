@@ -35,6 +35,15 @@
             Yi.min(1.0);
 
             Yt += Yi;
+
+            if(Y[i].name()=="O2")
+            {
+                // Info<<"update the reaction rate after solving O2 transfer equation"<<endl;
+                reaction.correct();
+                cokeRectionRate=reaction.Rs(coke) & coke;
+                Qdot=reaction.Qdot().ref();
+            }
+
         }
     }
 

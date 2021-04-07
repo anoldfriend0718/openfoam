@@ -50,12 +50,6 @@
 
     const volScalarField& T=thermo.T();
 
-    // Info<< "min/max fvm::ddt(eps, rho,            he)  = "
-    //     << min(fvm::ddt(eps, rho,            he)&he).value() << ", " << max(fvm::ddt(eps, rho,            he)&he).value() << endl;    
-
-    // Info<< "min/max Qdot = "
-    //     << min(reaction.Qdot()).value() << ", " << max(reaction.Qdot()).value() << endl;    
-
     Info<< "min/max(T) = "
         << min(T).value() << ", " << max(T).value() << endl;    
 }

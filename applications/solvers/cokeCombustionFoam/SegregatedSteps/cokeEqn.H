@@ -1,7 +1,3 @@
-Info<< "solving reaction model"<<endl;
-reaction.correct();
-cokeRectionRate=reaction.Rs(coke) & coke;
-Qdot=reaction.Qdot().ref();
 
 //solving coke volume evolution equation
 fvScalarMatrix cokeEqn

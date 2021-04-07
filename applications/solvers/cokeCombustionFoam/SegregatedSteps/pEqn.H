@@ -45,7 +45,7 @@
     const tmp<volScalarField>& tRRg=(-deltarRho*rho*reaction.Rs(coke))&coke; //note signs
     fvScalarMatrix p_rghDDtEqn
     (
-        eps*fvc::ddt(rho) 
+          eps*fvc::ddt(rho) 
         + eps*psi*correction(fvm::ddt(p_rgh))
         + fvc::div(phiHbyA)
       ==
