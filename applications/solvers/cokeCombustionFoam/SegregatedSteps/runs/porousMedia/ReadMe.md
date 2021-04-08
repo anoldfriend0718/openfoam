@@ -11,8 +11,8 @@
 
 ### To Develop
 1. Switch to consider if considering the gas production when solving NS equation 
-2. report the residual coke
-3. complete loop when the residual coke reached a specified target 
+2. [Done] report the residual coke
+3. [Done] complete loop when the residual coke reached a specified target 
 
 ### To Test
 1. High temperature when the combustion in convection-limited regime with high Pe

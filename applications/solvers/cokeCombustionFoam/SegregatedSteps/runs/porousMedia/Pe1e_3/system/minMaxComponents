@@ -13,6 +13,8 @@ Description
 
 #includeEtc "caseDicts/postProcessing/minMax/minMaxComponents.cfg"
 
+// writeControl    writeTime;
+
 fields (T);
 
 // ************************************************************************* //

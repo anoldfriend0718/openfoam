@@ -31,6 +31,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "fvcVolumeIntegrate.H"
 #include "rhoReactionThermo.H"
 #include "constSolidThermo.H"
 #include "cokeCombustion.H"
@@ -56,13 +57,15 @@ int main(int argc, char *argv[])
     #include "createTimeControls.H"
     #include "compressibleCourantNo.H"
     #include "setInitialDeltaT.H"
+    #include "createCombustionControl.H"
 
      // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
 
-    while (runTime.run())
+    while (runTime.run() && residualCokeFrac>targetResidualCokeFraction)
     {
+        #include "readCombustionControl.H"
         #include "readTimeControls.H"
         #include "compressibleCourantNo.H"
         #include "setDeltaT.H"
@@ -99,7 +102,10 @@ int main(int argc, char *argv[])
         rhoByEps=rho*rEps;
 
         runTime.write();
-        
+
+        residualCokeFrac=(fvc::domainIntegrate(coke)/gSum(mesh.V())).value();
+        Info<<"Residual coke fraction: "<< residualCokeFrac<<endl;
+
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
@@ -107,8 +113,17 @@ int main(int argc, char *argv[])
 
 
     Info<< "End\n" << endl;
-    scalar endTimeSeconds=runTime.endTime().value();
-    Info<<"endTime: "<<endTimeSeconds<<endl;
+
+    Info<<"Target residual coke fraction: "<<targetResidualCokeFraction<<endl;
+    Info<<"Residual coke fraction: "<<residualCokeFrac<<endl;
+    if(residualCokeFrac<=targetResidualCokeFraction)
+    {
+        Info<<"Residual coke fraction reached the target!"<<endl;
+    }
+    else
+    {
+        Info<<"Residual coke fraction did not reach the target!"<<endl;
+    }
     
     const volScalarField& T=thermo.T();
     scalar maxT=gMax(T);
