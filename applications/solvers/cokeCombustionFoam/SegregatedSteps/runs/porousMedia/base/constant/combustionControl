@@ -17,6 +17,7 @@ FoamFile
 
 
 targetResidualCokeFraction        0.0;
+involveGasProductionInNSEqn       false;
 
 
 // ************************************************************************* //

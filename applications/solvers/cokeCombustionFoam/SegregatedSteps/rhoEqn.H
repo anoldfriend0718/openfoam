@@ -29,6 +29,7 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
+#include "volFieldsFwd.H"
 {
     // //Solve fluid contunity equation
     // const tmp<volScalarField>& deltarRho=1./rho-1.0/rhoCoke;
@@ -43,9 +44,20 @@ Description
     //   + fvOptions(rho)
     // );
 
-    const tmp<volScalarField>& tmdotCoke=reaction.Rs(coke)&coke;
+    tmp<volScalarField> tmdotCoke=volScalarField::New
+    (
+        "zeroMDotCoke",
+        mesh,
+        dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
+    );
+  
+    if(involveGasProduction)
+    {
+        tmdotCoke=reaction.Rs(coke)&coke;
+    }
+
     const volScalarField& mdotCoke=tmdotCoke.ref();
-    
+
     fvScalarMatrix rhoEqn
     (
         fvm::ddt(eps,rho)

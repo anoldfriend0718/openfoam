@@ -36,7 +36,7 @@ stopAt          endTime;
 // // writeInterval   1;
 // writeInterval   0.01;
 
-endTime         10;
+endTime         2;
 
 deltaT          1e-6;
 

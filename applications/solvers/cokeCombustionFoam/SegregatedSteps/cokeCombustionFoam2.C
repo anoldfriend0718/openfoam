@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
         Info<< "solving reaction model"<<endl;
         reaction.correct();
-
+           
         #include "rhoEqn.H"
    
         // --- Pressure-velocity PIMPLE corrector loop

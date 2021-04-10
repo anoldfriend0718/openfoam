@@ -15,3 +15,8 @@ scalar targetResidualCokeFraction=combustionControl.lookupOrDefault("targetResid
 scalar residualCokeFrac=(fvc::domainIntegrate(coke)/gSum(mesh.V())).value();
 Info<<"Target residual coke fraction: "<<targetResidualCokeFraction<<endl;
 Info<<"Initial coke fraction: "<<residualCokeFrac<<endl;
+
+
+bool involveGasProduction=combustionControl.lookupOrDefault("involveGasProductionInNSEqn", true);
+Info<<"Involve Gas Production Into N-S Eqn: "<<involveGasProduction<<endl;
+
