@@ -113,7 +113,7 @@ Foam::cokeCombustion::cokeCombustion(const Foam::fvMesh& mesh,
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
@@ -126,7 +126,7 @@ Foam::cokeCombustion::cokeCombustion(const Foam::fvMesh& mesh,
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
@@ -139,7 +139,7 @@ Foam::cokeCombustion::cokeCombustion(const Foam::fvMesh& mesh,
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar("Ri", dimensionSet(1, -3, -1, 0, 0, 0, 0), 0)
@@ -152,11 +152,12 @@ Foam::cokeCombustion::cokeCombustion(const Foam::fvMesh& mesh,
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar("Rc", dimensionSet(0, 0, -1, 0, 0, 0, 0), 0) 
-    )
+    ),
+    surfaceArea(mesh)
 {
     init();
     Info<<"chemistry on/off: "<<chemistry_<<endl;
@@ -214,6 +215,7 @@ void Foam::cokeCombustion::correct()
 {
     const Time& runtime=mesh_.time();
     scalar flowDeltaT=runtime.deltaTValue();
+    surfaceArea.correct();
 
     if(debug)
     {
@@ -260,11 +262,7 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
     const scalarField& rho=thermo_.rho()();
     const scalarField& T=thermo_.T();
     const scalarField& p=thermo_.p();
-    volScalarField epsGrad //without filter depth
-    (
-        "epsGrad",
-        mag(fvc::grad(eps_))
-    );
+    const scalarField& SS=surfaceArea.SS();
 
     if(debug>1)
     {
@@ -274,10 +272,6 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
         Info<<"Y O2: "<<Y_[O2Index_].field()<<endl;
         Info<<"eps: "<<eps_.field()<<endl;
         Info<<"coke: "<<coke_.field()<<endl;
-        Info<<"eps gradient: "
-            <<epsGrad.field()<<endl;
-        // Info<<"filter depth: "
-        //     <<(4*coke_*(1-coke_))->field()<<endl;
     }
     
     forAll(rho,celli)
@@ -292,7 +286,7 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
 
         const scalar rhoi = rho[celli];  
         const scalar pi=p[celli];
-        const scalar epsGradi=epsGrad[celli];
+        const scalar ssi=SS[celli];
         const scalar epsi = eps_[celli];
         for(label i=0;i<nGasSpecies_;i++)
         {
@@ -330,7 +324,7 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
             }
 
             scalar dt = timeLeft;
-            solvei(c_, Ti, cokei, pi, epsGradi, dt, subDeltaT);
+            solvei(c_, Ti, cokei,pi,ssi, dt, subDeltaT);
             timeLeft -= dt;
             
             if(debug>1)
@@ -356,7 +350,7 @@ void Foam::cokeCombustion::solve(const scalar deltaTValue)
 
 
 void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
-                                const scalar pi, const scalar epsGradi,
+                                const scalar pi, const scalar ssi,
                                 scalar& dt,scalar& subDeltaT)
 {
     scalar Cpf=c[0]*compositions_.Wi(0)*compositions_.Cp(0, pi, Ti);
@@ -373,10 +367,7 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
         Info<<"Cpf: "<<Cpf<<", Cps: "<<Cps<<", Ti: "<<Ti<<", Ha: "<<ha<<endl;
     }
 
-    // const scalar filterDepth=4.0*cokei*(1-cokei);
-    const scalar filterDepth=(1-(1-cokei)*(1-cokei)); //either coke or eps in one cell
-    const scalar effssi=2.0*epsGradi*filterDepth; // need a factor of 2 to correct the species surface area
-    const scalar ak=effssi*A_*std::exp(-Ta_/Ti);
+    const scalar ak=ssi*A_*std::exp(-Ta_/Ti);
     const scalar epsi=(1-cokei);
     const scalar cokeReactionRate=ak*(c[O2Index_]/epsi); //use the bulk oxygen concentration
     if(debug>1)
@@ -422,7 +413,7 @@ void Foam::cokeCombustion::solvei(scalarField& c,scalar& Ti,scalar& cokei,
     }
     else 
     {
-        c_O2_new=solveODEBy4thRKFull(effssi,Ti,c[O2Index_],Cps,Cpf,dt,epsi);
+        c_O2_new=solveODEBy4thRKFull(ssi,Ti,c[O2Index_],Cps,Cpf,dt,epsi);
     }
     
     scalar deltaC_O2=c_O2_new-c[O2Index_];
@@ -632,17 +623,9 @@ void Foam::cokeCombustion::calculate()
         return ;
     }
 
-    volScalarField ssArea
-    (
-        "ssArea",
-        2.0*mag(fvc::grad(eps_))*(1-(1-coke_)*(1-coke_))
-    );
-
-    // Info<<"mag(fvc::grad(coke_)): "<<mag(fvc::grad(coke_))->field()<<endl;
-    // Info<<"ssArea: "<<ssArea.field()<<endl;
-
     const scalarField& T=thermo_.T();
     const scalarField& rho=thermo_.rho();
+    const scalarField& SS=surfaceArea.SS();
 
     forAll(T, celli)
     {
@@ -653,7 +636,7 @@ void Foam::cokeCombustion::calculate()
             // c0_[i]=epsi*rhoi*Y_[i][celli]/compositions_.Wi(i);
             c0_[i]=rhoi*Y_[i][celli]/compositions_.Wi(i);
         }
-        ak_[celli]=ssArea[celli]*A_*std::exp(-Ta_/T[celli]);
+        ak_[celli]=SS[celli]*A_*std::exp(-Ta_/T[celli]);
         scalar dcdt=ak_[celli]*c0_[O2Index_];
         RRO2_[celli]=-dcdt*compositions_.Wi(O2Index_);
         RRCO2_[celli]=dcdt*compositions_.Wi(CO2Index_);

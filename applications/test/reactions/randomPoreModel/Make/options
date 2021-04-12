@@ -1,0 +1,14 @@
+EXE_INC = \
+    -I. \
+    -I$(WM_PROJECT_USER_DIR)/src/reactions/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude 
+
+
+
+EXE_LIBS = \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lmeshTools \
+    -L$(FOAM_USER_LIBBIN) \
+    -lcokeCombustion 

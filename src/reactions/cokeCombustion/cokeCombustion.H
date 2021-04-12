@@ -39,6 +39,7 @@ SourceFiles
 #include "fvMatricesFwd.H"
 #include "fvMesh.H"
 #include "rhoReactionThermo.H"
+#include "specialSurfaceArea.H"
 
 
 namespace Foam
@@ -102,6 +103,8 @@ class cokeCombustion:
         volScalarField::Internal RRCO2_;
         volScalarField::Internal RRCoke_;
         volScalarField::Internal ak_;
+
+        specialSurfaceArea surfaceArea;
 
         void init();
 
