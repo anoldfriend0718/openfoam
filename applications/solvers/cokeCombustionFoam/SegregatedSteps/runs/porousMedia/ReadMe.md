@@ -10,7 +10,7 @@
 6. The mass equation is different. DBS count the produced gas into the fluid, leading to that the increasing velocity when rho is constant, independent of the temperature
 
 ### To Develop
-1. Switch to consider if considering the gas production when solving NS equation 
+1. [Done] Switch to consider if considering the gas production when solving NS equation 
 2. [Done] report the residual coke
 3. [Done] complete loop when the residual coke reached a specified target 
 
@@ -18,5 +18,5 @@
 1. High temperature when the combustion in convection-limited regime with high Pe
 
 ## To investigate 
-1. the surface area
+1. [Done] the surface area
 2. the diffusivity
