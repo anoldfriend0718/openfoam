@@ -55,8 +55,8 @@ namespace Foam
             const volScalarField& coke_;
             const volScalarField& eps_;
 
-            volScalarField::Internal cokeRegion_;
-            volScalarField::Internal specialSurfaceArea_;
+            volScalarField  cokeRegion_;
+            volScalarField  specialSurfaceArea_;
 
             void updateCokeRegion();
   
@@ -68,7 +68,7 @@ namespace Foam
 
             void correct();
 
-            inline const volScalarField::Internal& SS() const
+            inline const volScalarField& SS() const
             {
                 return specialSurfaceArea_;
             };        

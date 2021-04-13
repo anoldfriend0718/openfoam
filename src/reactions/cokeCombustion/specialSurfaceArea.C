@@ -22,6 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+#include "scalar.H"
 #include "specialSurfaceArea.H"
 // #include "fvMesh.H"
 
@@ -67,7 +68,7 @@ Foam::specialSurfaceArea::specialSurfaceArea(const Foam::fvMesh& mesh):
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         mesh,
         dimensionedScalar("SSi",dimless/dimLength,Zero)
@@ -114,28 +115,23 @@ void Foam::specialSurfaceArea::correct()
     if(model_=="external")
     {
         specialSurfaceArea_=2.0*mag(fvc::grad(eps_))*(1-(1-coke_)*(1-coke_));
+        return;
     }
 
     updateCokeRegion();
     if(model_=="RPM")
     {
-        scalar threshold=1-small;
         forAll(cokeRegion_,i)
         {
             if(cokeRegion_[i]==1.0) // in the coke region
             {
                 scalar conversion=1-coke_[i]/coke0_;
-                if(conversion<threshold)
-                {
-                    specialSurfaceArea_[i]=
-                        initialSpecialSurfArea_*pow(1-conversion,n_)
-                            *Foam::sqrt(1-psi_*(Foam::log(1-conversion)));
-                }
-                else
-                {
-                    specialSurfaceArea_[i]=0.0;
-                }
-                
+                specialSurfaceArea_[i]=initialSpecialSurfArea_*pow(1-conversion,n_)
+                    *Foam::sqrt(1-psi_*(Foam::log(1-conversion)));
+            }
+            else
+            {
+                specialSurfaceArea_[i]=0.0;
             }
         }
     }
@@ -148,6 +144,10 @@ void Foam::specialSurfaceArea::correct()
                 scalar residual=coke_[i]/coke0_;
                 specialSurfaceArea_[i]=initialSpecialSurfArea_*residual;  
             }
+            else
+            {
+                specialSurfaceArea_[i]=0.0;
+            }
         }
     }
     else if(model_=="URCM")
@@ -159,15 +159,19 @@ void Foam::specialSurfaceArea::correct()
                 scalar residual=coke_[i]/coke0_;
                 specialSurfaceArea_[i]=initialSpecialSurfArea_*pow(residual,2.0/3.0);  
             }
+            else
+            {
+                specialSurfaceArea_[i]=0.0;
+            }
         }
     }
 }
       
 void Foam::specialSurfaceArea::updateCokeRegion()
 {
-    forAll(eps_,celli)
+    forAll(coke_,celli)
     {
-        if(coke_[celli]>small)
+        if(coke_[celli]>1e-6)
         {
             cokeRegion_[celli]=1.0;
         }
