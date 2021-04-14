@@ -11,5 +11,6 @@ postProcessing
 *.jpg
 dynamicCode
 **/tmp/
+**/animations/**/*.png
 # Except this file
 !.gitignoreapp

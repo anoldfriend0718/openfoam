@@ -1,0 +1,6 @@
+cd ./convectionLimited/
+./parallelRun.sh & 
+wait 10
+
+cd ../kineticsLimited/
+./parallelRun.sh 
