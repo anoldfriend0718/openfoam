@@ -31,8 +31,11 @@ solvers
     {
         solver          GAMG;
         smoother        GaussSeidel;
+        // solver          PCG;
+        // preconditioner  DIC;
         tolerance       1e-6;
-        relTol          0.001;
+        relTol          0.01;
+        // relTol          0;
     }
 
     p_rghFinal
@@ -58,7 +61,7 @@ solvers
         relTol          0;
     }
 
-    "(U|Y.*|O2|CO2)"
+    "(U|Yi)"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
@@ -67,7 +70,7 @@ solvers
         // relTol          0;
     }
 
-    "(U||Y.*|O2|CO2)Final"
+    "(U||Yi)Final"
     {
         $U;
         tolerance       1e-8;

@@ -14,6 +14,15 @@ cokeEqn.solve();
 fvOptions.correct(coke);
 coke=max(min(coke,1.0),0.0);
 
+forAll(coke,celli)
+{
+    //remove the residual coke,the threshold 1e-6 defined in the specialSurfaceArea class
+    if(coke[celli]<=1e-6) 
+    {
+        coke[celli]=0.0;
+    }
+}
+
 Info<<"updating the porous medium and related fields"<<endl;
 eps=1-coke-rock;
 eps.max(0.0);
