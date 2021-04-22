@@ -27,6 +27,9 @@ def read_residuals(log_file,line_offset,pressure_name,nCorrectors,sample_size):
     execution_time_term="ExecutionTime = "
     courant_number_term="Courant Number mean:"
     deltaT_number_term="deltaT = "
+    minMax_temp_term="min/max\(T\) = "
+    residual_coke_term="Residual coke fraction"
+
     objs=set()
     residuals=dict()
     physical_times=list()
@@ -34,6 +37,10 @@ def read_residuals(log_file,line_offset,pressure_name,nCorrectors,sample_size):
     meanCos=list()
     maxCos=list()
     deleta_times=list()
+    minTs=list()
+    maxTs=list()
+    cokes=list()
+
     for line in content:
         if re.search(solver_term, line):
             elements=line.split(" ")
@@ -59,7 +66,14 @@ def read_residuals(log_file,line_offset,pressure_name,nCorrectors,sample_size):
             elements=line.split(" ")
             meanCos.append(elements[3])
             maxCos.append(elements[5])
-        
+        elif re.search(minMax_temp_term, line):
+            elements=line.split(" ")
+            minTs.append(elements[2].rstrip(','))
+            maxTs.append(elements[3])
+        elif re.search(residual_coke_term, line):
+            elements=line.split(" ")
+            cokes.append(elements[3])
+
     info={}   
     if len(residuals.keys())==0:
         print("Error Message: no residual was read...")
@@ -102,7 +116,14 @@ def read_residuals(log_file,line_offset,pressure_name,nCorrectors,sample_size):
 
     if len(meanCos)>0:
         info["meanCo"]=meanCos[-1]
-    
+
+    if len(minTs)>0:
+        info["minT"]=minTs[-1]
+        info["maxT"]=maxTs[-1]
+
+    if len(cokes)>0:
+        info["coke"]=cokes[-1]
+
     return df_sample,line_offset,iterations,info
 
 
@@ -130,14 +151,14 @@ def plot_residuals(df_sample,iterations_offset,residual_objects,thresholds,title
         ax.set_ylabel("Residuals")
         ax.set_title(title)
 
-        ax.text(right*1.1, 0.4 * (bottom + top), text,
+        ax.text(right*1.1, 0.35 * (bottom + top), text,
             horizontalalignment='left',
             verticalalignment='center',
             transform=ax.transAxes)
 
         threshold_names=[str(value) for value in thresholds]
         legends=np.concatenate([np.array(residual_objects),threshold_names])
-        ax.legend(legends,loc="upper left",bbox_to_anchor=((1.1,0.9)))
+        ax.legend(legends,loc="upper left",bbox_to_anchor=((1.1,1.0)))
 
         fig.savefig(save_file, bbox_inches='tight')
         plt.clf()
