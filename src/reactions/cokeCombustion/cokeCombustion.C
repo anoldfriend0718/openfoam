@@ -637,6 +637,16 @@ void Foam::cokeCombustion::calculate()
             c0_[i]=rhoi*Y_[i][celli]/compositions_.Wi(i);
         }
         ak_[celli]=SS[celli]*A_*std::exp(-Ta_/T[celli]);
+        if(ak_[celli]>0)
+        {
+            deltaTChem_[celli]=1.0/ak_[celli];
+            deltaTChem_[celli] =min(deltaTChem_[celli], deltaTChemMax_);
+        }
+        else
+        {
+            deltaTChem_[celli] = deltaTChemMax_;
+        }
+
         scalar dcdt=ak_[celli]*c0_[O2Index_];
         RRO2_[celli]=-dcdt*compositions_.Wi(O2Index_);
         RRCO2_[celli]=dcdt*compositions_.Wi(CO2Index_);

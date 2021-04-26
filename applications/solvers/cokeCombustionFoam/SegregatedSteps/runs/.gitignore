@@ -14,3 +14,5 @@ dynamicCode
 **/animations/**/*.png
 # Except this file
 !.gitignoreapp
+**/newTimes
+**/oldTimes
