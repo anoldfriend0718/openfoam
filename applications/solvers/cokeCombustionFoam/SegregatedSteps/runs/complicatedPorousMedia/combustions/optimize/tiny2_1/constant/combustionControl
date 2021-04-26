@@ -10,52 +10,14 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      controlDict;
+    location    "constant";
+    object      combustionControl;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pimpleFoam;
 
-// startFrom       startTime;
-startFrom       latestTime;
+targetResidualCokeFraction        1e-6;
+involveGasProductionInNSEqn       true;
 
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1e-2;
-
-deltaT          1e-10;
-
-writeControl    adjustableRunTime;
-
-writeInterval   1e-2;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           0.9;
-
-maxDeltaT       1e-5;
-
-functions
-{
-    #includeFunc  residuals
-    // #includeFunc  minMaxComponents
-}
 
 // ************************************************************************* //

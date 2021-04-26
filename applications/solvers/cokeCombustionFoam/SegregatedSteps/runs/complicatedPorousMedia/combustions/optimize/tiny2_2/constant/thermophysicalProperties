@@ -10,52 +10,31 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      controlDict;
+    location    "constant";
+    object      thermophysicalProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pimpleFoam;
-
-// startFrom       startTime;
-startFrom       latestTime;
-
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1e-2;
-
-deltaT          1e-10;
-
-writeControl    adjustableRunTime;
-
-writeInterval   1e-2;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           0.9;
-
-maxDeltaT       1e-5;
-
-functions
+thermoType
 {
-    #includeFunc  residuals
-    // #includeFunc  minMaxComponents
+    type            heRhoThermo;
+    mixture         reactingMixture;
+    transport       const;
+    thermo          hConst;
+    energy          sensibleEnthalpy;
+    equationOfState perfectGas;
+    specie          specie;
 }
+
+dpdt off;
+
+inertSpecie N2;
+
+chemistryReader foamChemistryReader;
+
+foamChemistryFile "$FOAM_CASE/constant/reactions";
+
+foamChemistryThermoFile "$FOAM_CASE/constant/thermo.Gas";
+
 
 // ************************************************************************* //

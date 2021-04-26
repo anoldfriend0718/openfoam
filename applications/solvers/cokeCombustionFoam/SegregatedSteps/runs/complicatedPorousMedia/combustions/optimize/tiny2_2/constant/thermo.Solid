@@ -10,52 +10,26 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      controlDict;
+    location    "constant";
+    object      thermo.Solid;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pimpleFoam;
-
-// startFrom       startTime;
-startFrom       latestTime;
-
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1e-2;
-
-deltaT          1e-10;
-
-writeControl    adjustableRunTime;
-
-writeInterval   1e-2;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           0.9;
-
-maxDeltaT       1e-5;
-
-functions
+coke
 {
-    #includeFunc  residuals
-    // #includeFunc  minMaxComponents
+    molWeight 12.0; // kg/kmol
+    density   1110; //mass density, kg/m3
+    kappa     0.27; //thermal conductivity, W/m/K
+    cp        1000; //heat cpacity J/kg/K
 }
+
+rock
+{
+    molWeight 100; // kg/kmol, no meaningful
+    density   2500; //mass density, kg/m3
+    kappa     2.466607273; //thermal conductivity, W/m/K, trick: for match the effective kappa
+    cp        723.5; //heat cpacity J/kg/K
+}
+
 
 // ************************************************************************* //

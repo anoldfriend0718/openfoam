@@ -19,18 +19,31 @@ application     pimpleFoam;
 
 // startFrom       startTime;
 startFrom       latestTime;
-
 startTime       0;
 
 stopAt          endTime;
 
-endTime         1e-2;
+// endTime         5;
 
-deltaT          1e-10;
+// endTime         0.1;
+// // endTime         20;
+
+// deltaT          1e-5;
+
+// //writeControl    adjustableRunTime;
+// writeControl    adjustableRunTime;
+
+// // writeInterval   1;
+// writeInterval   0.01;
+
+endTime         10e-2;
+
+deltaT          1e-9;
 
 writeControl    adjustableRunTime;
 
 writeInterval   1e-2;
+
 
 purgeWrite      0;
 
@@ -42,20 +55,22 @@ writeCompression off;
 
 timeFormat      general;
 
-timePrecision   6;
+timePrecision   7;
 
 runTimeModifiable yes;
 
 adjustTimeStep  yes;
+// adjustTimeStep  off;
 
-maxCo           0.9;
+maxCo           100.98;
 
-maxDeltaT       1e-5;
+maxDeltaT       4e-5;
 
 functions
 {
-    #includeFunc  residuals
-    // #includeFunc  minMaxComponents
+    // #includeFunc  residuals
+    #includeFunc  minMaxComponents
+    // #includeFunc singleGraph
 }
 
 // ************************************************************************* //

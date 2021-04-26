@@ -10,52 +10,14 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      controlDict;
+    location    "constant";
+    object      transportProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pimpleFoam;
+DO2              DO2   [0 2 -1 0 0 0 0] 7.63596e-6;
+DCO2             DCO2  [0 2 -1 0 0 0 0] 6.94178e-6;
 
-// startFrom       startTime;
-startFrom       latestTime;
 
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1e-2;
-
-deltaT          1e-10;
-
-writeControl    adjustableRunTime;
-
-writeInterval   1e-2;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           0.9;
-
-maxDeltaT       1e-5;
-
-functions
-{
-    #includeFunc  residuals
-    // #includeFunc  minMaxComponents
-}
 
 // ************************************************************************* //
