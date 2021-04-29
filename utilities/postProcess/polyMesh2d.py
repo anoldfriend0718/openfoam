@@ -371,10 +371,22 @@ def readField_(caseDir,timeName,fieldName,regionName='internalField'):
                 continue
             end=i
     # read coordinates
-    for i in range(start, end):
-        values=alldata[i].replace('(','').replace(')','').split()
+    #TODO: cannot process uniform vector (potential bug)
+    if "internalField   uniform" in  alldata[start_region]:
+        # print(alldata[start_region])
+        values=alldata[start_region].replace(" ","").replace("internalField","") \
+                                .replace("uniform","").replace(";","") \
+                                .replace('(','').replace(')','').split()
+        # print(values)
         for i in range(0,len(values)):
+            # print(values[i])
             field['%s_%.0f'%(fieldName,i)].append(values[i])
+    else:
+        for i in range(start, end):
+            values=alldata[i].replace('(','').replace(')','').split()
+            for i in range(0,len(values)):
+                field['%s_%.0f'%(fieldName,i)].append(values[i])
+    
     keys=list(field.keys())
     for i in range(0,len(keys)):
         key=keys[i]
@@ -388,6 +400,7 @@ def readField_(caseDir,timeName,fieldName,regionName='internalField'):
         field[fieldName]=field[keys[0]]
         del field[keys[0]]
     return field
+
 def readField(caseDir,timeName,fieldName,regionName='internalField'):
     field=readField_(caseDir,timeName,fieldName,regionName)
     # convert field to array
@@ -468,7 +481,11 @@ def readCellData_to_pointData(caseDir, timename, fieldNames,MeshData):
             celldata = vtk.vtkFloatArray()
             celldata.SetNumberOfValues(MeshData['triangles'].shape[0])
             celldata.SetName(dataName)
-            cellData[dataName]=field[dataName][validCells_index] # only extract field values associated with polygons
+            if field[dataName].shape[0]==1:
+                num=validCells_index.shape[0]
+                cellData[dataName]=np.repeat(field[dataName],num)
+            else:
+                cellData[dataName]=field[dataName][validCells_index] # only extract field values associated with polygons
             # print(cellData.keys())
             index_cell=0
             for i in range(0,len(cellData[dataName])):

@@ -166,6 +166,7 @@ if __name__ == "__main__":
     timeNames=args.time_names
 
     fieldNames=json.loads(fieldNameTexts)
+    print(f"overwrite: {overWrite}")
     if timeNames=="all":
         reconstruct_all(caseDir,fieldNames,worker=workerNum,
                         saveFolder=saveFolder,sampleRate=sampleRate,
