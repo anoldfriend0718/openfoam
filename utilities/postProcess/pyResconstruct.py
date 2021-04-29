@@ -49,17 +49,22 @@ def getTimes(caseDir):
 
 def reconstruct_impl(procDirs,timeName, fieldNames,patchName="frontAndBack"):
     dfProcGroup=[]
-    for procDir in procDirs:
-        meshData=mesh2d.getMesh(procDir, patchName)
-        xProcs=meshData["x"]
-        yProcs=meshData["y"]
-
-        fields=mesh2d.readCellData_to_pointData(procDir, timeName, fieldNames, meshData)
-        fields["pointData"]["x"]=xProcs
-        fields["pointData"]["y"]=yProcs
-        dfProc=pd.DataFrame(fields["pointData"])
-        dfProcGroup.append(dfProc)
+    futures=[]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        for procDir in procDirs:
+            meshData=mesh2d.getMesh(procDir, patchName)
+            xProcs=meshData["x"]
+            yProcs=meshData["y"]
+            future=executor.submit(mesh2d.readCellData_to_pointData,procDir, timeName, fieldNames, meshData)
+            futures.append(future)
         
+        for future in futures:
+            fields=future.result()
+            fields["pointData"]["x"]=fields["x"]
+            fields["pointData"]["y"]=fields["y"]
+            dfProc=pd.DataFrame(fields["pointData"])
+            dfProcGroup.append(dfProc)
+            
     df=pd.concat(dfProcGroup) 
     df=df.drop_duplicates(subset=["x","y"], keep="first")
     df=df.reset_index(drop=True)

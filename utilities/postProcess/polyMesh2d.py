@@ -499,7 +499,7 @@ def readCellData_to_pointData(caseDir, timename, fieldNames,MeshData):
     pointdata={}
     for dataName in dataNames:
         pointdata[dataName]=VN.vtk_to_numpy(c2p.GetOutput().GetPointData().GetArray(dataName))
-    return {'pointData':pointdata,'cellData':cellData}
+    return {'pointData':pointdata,'cellData':cellData,"x":MeshData["x"],"y":MeshData["y"]}
 def getTimes(caseDir):
     times=os.listdir(caseDir)
     timeDirs=[]
