@@ -33,7 +33,7 @@ def get_processor_dirs(caseDir):
         procDirs.append(path)
     return procDirs
 
-def getTimes(caseDir):
+def get_times(caseDir):
     times=os.listdir(caseDir)
     timeDirs=[]
     for t in times:
@@ -138,7 +138,7 @@ def reconstruct_all(caseDir,fieldNames,worker=8,saveFolder="postProcess",sampleR
         print("Error: no processor dir exists!")
         return ""
 
-    allTimeNames,_=getTimes(processor0Dir)
+    allTimeNames,_=get_times(processor0Dir)
     allTimeNames=allTimeNames[allTimeNames!='0']
     indexs=np.arange(0,allTimeNames.shape[0])
     sampleTimeNames=allTimeNames[indexs%sampleRate==0]
