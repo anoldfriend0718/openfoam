@@ -1,0 +1,46 @@
+# Cases Information
+
+## case1
+
+### Physical Properties
+
+- Pe: 0.1
+- Characteristic: 150 um
+
+### cases
+
+#### full1
+
+- time Step
+  1. 0~0.08s, 1e-5s
+  2. ~1.7s,1e-3s
+  3. ~4.1s, 1e-4s
+  3. ~ends, 5e-4s
+
+#### full1_1
+
+- time Step
+  1. 0~0.07s, 1e-5s
+  2. ~1s,1e-4s
+
+#### full1_2
+
+- time Step
+  1. 0~0.1s, 2e-6s
+
+#### Result comparison 
+
+- full1_1 vs full1_2: almost the same 
+
+## case2
+
+### Physical Properties
+
+- Pe: 0.1
+- Characteristic: 30 um
+
+#### full2_1
+
+- time Step
+  1. 0~0.1s, 2e-6s
+  2. ~1s, about 0.5e-4s, max co =1000
