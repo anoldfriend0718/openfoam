@@ -2,8 +2,8 @@
 #SBATCH -p amd_256
 #SBATCH -N 1
 #SBATCH -n 64
-#SBATCH -o run1.log
-#SBATCH -e err1.log
+#SBATCH -o run2.log
+#SBATCH -e err2.log
 
 cpu=64
 srun -n $cpu $FOAM_USER_APPBIN/cokeCombustionFoam2 -parallel

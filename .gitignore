@@ -4,7 +4,7 @@ run/*
 !run/cokeCombustion/
 
 run/**/postProcess*/
-
+**/*.log
 **/VTK
 **/compile_commands.json
 **/run*.log

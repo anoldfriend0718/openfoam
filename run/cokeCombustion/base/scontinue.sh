@@ -2,8 +2,8 @@
 #SBATCH -p amd_256
 #SBATCH -N 1
 #SBATCH -n 64
-#SBATCH -o continue.log
-#SBATCH -e err_continue.log
+#SBATCH -o run1.log
+#SBATCH -e err1.log
 
 echo working directory: `pwd`
 
