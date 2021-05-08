@@ -15,6 +15,9 @@ import proplot as pplot # there are some nice colormaps in the proplot package
 import concurrent.futures
 import argparse
 import json
+import math
+import traceback
+import tracemalloc
 
 
 
@@ -89,8 +92,7 @@ def figsize_cm(w_cm,x,y,w_offset_cm=0.0):
 
 def plot_contourf_Impl(X,Y,Z,title,label,cmap=pplot.Colormap('CoolWarm'),levels=250,figwidth=20,vmin=0,vmax=0):
     figsize=figsize_cm(figwidth,X,Y)
-    fig=plt.figure(figsize=figsize)
-    ax=plt.gca()
+    fig, ax = plt.subplots(figsize=figsize)
     # ax.axis('scaled')
     ax.set_xlim(X.min(),X.max())
     ax.set_ylim(Y.min(),Y.max())
@@ -107,8 +109,10 @@ def plot_contourf_Impl(X,Y,Z,title,label,cmap=pplot.Colormap('CoolWarm'),levels=
         vmax=np.max(Z)
     CS=ax.contourf(Xi,Yi,Z, cmap=cmap, levels=levels,vmin=vmin,vmax=vmax)
     ax_cb = ax.inset_axes([1.04, 0, 0.02,1])
-    plt.colorbar(CS,cax=ax_cb,label=label)
-    plt.tight_layout()
+    
+    fig.colorbar(CS,cax=ax_cb,label=label)
+    fig.tight_layout()
+    return fig,ax
 
 # def plot_contourf(dfpivot,label,cmap=pplot.Colormap('CoolWarm'),levels=250):
 #     X=dfpivot.columns.values
@@ -121,17 +125,25 @@ def plot_contourf(df,fieldName,title,label,cmap=pplot.Colormap('CoolWarm'),level
     X=dfpivot.columns.values
     Y=dfpivot.index.values
     Z=dfpivot.values
-    plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=0,vmax=0)
+    fig,ax=plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=0,vmax=0)
+    return fig,ax
 
 def plot_contourf_save(df,fieldName,title,label,folder_path,cmap=pplot.Colormap('CoolWarm'),levels=250,figwidth=20,vmin=0,vmax=0,dpi=600):
     dfpivot=df.pivot("y", "x", fieldName)
     X=dfpivot.columns.values
     Y=dfpivot.index.values
     Z=dfpivot.values
-    plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=0,vmax=0)
+    fig,_=plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=0,vmax=0)
     if not os.path.exists(folder_path):
         os.mkdir(folder_path)
-    plt.savefig(f"{folder_path}/{title}.jpg".replace(" ",""),dpi=dpi)
+    plt.savefig(f"{folder_path}/{title}.jpg".replace(" ","-"),dpi=dpi)
+    plt.close(fig)
+
+    # snapshot = tracemalloc.take_snapshot()
+    # top_stats = snapshot.statistics('lineno')  # lineno,逐行统计；filename，统计整个文件内存
+    # print(top_stats[0])
+    # for stat in top_stats[:1]:
+       
 
 def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
     if "eps" in fields:
@@ -184,19 +196,33 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
             vmax=0
         plot_contourf_save(df,"Qdot",Qdot_title,label='Reaction Heat Rate (J/(m$^3\cdot$s))',folder_path=save_folder,vmin=vmin,vmax=vmax)
 
-def read_plot_multiple_contourf_save(data_folder,fields,time_instant,save_folder,xranges={}):
+def read_plot_multiple_field_contourf_save(data_folder,fields,time_instant,save_folder,xranges={}):
     df=read_data_and_process(data_folder,time_instant)
     plot_multiple_contourf_save(df,fields,float(time_instant),save_folder,xranges)
 
 
+
+def read_plot_multiple_field_contourf_save_for_multiple_times(data_folder,fields,time_instants,save_folder,xranges={}):
+    if len(time_instants)==0:
+        return
+    for time in time_instants:
+        read_plot_multiple_field_contourf_save(data_folder,fields,time,save_folder,xranges)
+
 def plot_multiple_contourf_save_all_time(fields,data_folder,save_folder,xranges={},time_names=[],worker_num=10):
     if(len(time_names)==0):
         time_names=get_times_from_data_folder(data_folder)
+
     futures=[]
+    chunk_size=math.ceil(len(time_names)/worker_num)
+    time_name_chunks=[time_names[x:x+chunk_size] for x in range(0, len(time_names), chunk_size)]
+    print(f"time_name_chunks size: {len(time_name_chunks)}")
+    print(f"time_name_chunks: {time_name_chunks}")
     with concurrent.futures.ProcessPoolExecutor(max_workers=worker_num) as executor:
-        for time in time_names:
-            future=executor.submit(read_plot_multiple_contourf_save,data_folder,fields,time,save_folder,xranges)
+        for chunk in time_name_chunks:
+            future=executor.submit(read_plot_multiple_field_contourf_save_for_multiple_times,data_folder,fields,\
+                chunk,save_folder,xranges)
             futures.append(future)
+
         for _, future in enumerate(futures):
             future.result()
         
@@ -219,6 +245,7 @@ def plot_temperature_and_coke_evolution(dataFolder,timeNames=[],workerNum=10):
         for timeName in timeNames:
             future=executor.submit(read_postProcess_csv_data,dataFolder,timeName)
             futures.append(future)
+
         for _, future in enumerate(futures):
             df=future.result()
             maxTemperatures.append(np.max(df["T"]))
@@ -280,28 +307,37 @@ def plot_max_temperature(file_path,sampling_rate):
     plt.tight_layout()
 
 if __name__ == "__main__":
-    parser=argparse.ArgumentParser(description="pyResconstruct")
-    parser.add_argument("-f",dest='field_names',required=True,help='specify the field names')
-    parser.add_argument("-d",dest='data_folder',required=True,help='specify the data folder')
-    parser.add_argument("-s",dest='save_folder',required=True,help="specify the save folder")
-    parser.add_argument("-x",dest='xranges',default="{}",help='specify the color bar ranges')
-    parser.add_argument("-t",dest='time_names',default="all",help='specify the time names')
-    parser.add_argument("-n",dest='worker_num',default=8,type=int,help='specify the worker num')
-    
-    args=parser.parse_args()
-    data_folder=args.data_folder
-    field_names_texts=args.field_names
-    field_names=json.loads(field_names_texts)
-    xranges_texts=args.xranges
-    xranges=json.loads(xranges_texts)
-    worker_num=args.worker_num
-    save_folder=args.save_folder
-    time_names=args.time_names
-    if time_names=="all":
-        plot_multiple_contourf_save_all_time(field_names,data_folder,save_folder,xranges,time_names=[],worker_num=worker_num)
-    else:
-        print(f"specified time names: {time_names}")
-        time_names=json.loads(time_names)
-        plot_multiple_contourf_save_all_time(field_names,data_folder,save_folder,xranges,time_names,worker_num=worker_num)
 
-    print("succeed to plot images")
+    # tracemalloc.start() # 开始跟踪内存分配
+    try:
+        parser=argparse.ArgumentParser(description="pyResconstruct")
+        parser.add_argument("-f",dest='field_names',required=True,help='specify the field names')
+        parser.add_argument("-d",dest='data_folder',required=True,help='specify the data folder')
+        parser.add_argument("-s",dest='save_folder',required=True,help="specify the save folder")
+        parser.add_argument("-x",dest='xranges',default="{}",help='specify the color bar ranges')
+        parser.add_argument("-t",dest='time_names',default="all",help='specify the time names')
+        parser.add_argument("-n",dest='worker_num',default=8,type=int,help='specify the worker num')
+        
+        args=parser.parse_args()
+        data_folder=args.data_folder
+        field_names_texts=args.field_names
+        field_names=json.loads(field_names_texts)
+        xranges_texts=args.xranges
+        xranges=json.loads(xranges_texts)
+        worker_num=args.worker_num
+        save_folder=args.save_folder
+        time_names=args.time_names
+
+        if time_names=="all":
+            plot_multiple_contourf_save_all_time(field_names,data_folder,save_folder,xranges,time_names=[],worker_num=worker_num)
+        else:
+            print(f"specified time names: {time_names}")
+            time_names=json.loads(time_names)
+            plot_multiple_contourf_save_all_time(field_names,data_folder,save_folder,xranges,time_names,worker_num=worker_num)
+
+        print("succeed to plot images")
+    except Exception as e:
+        errmsg=f"Unhandled exception happened: {e} with stack trace {traceback.format_exc()}\n"
+        print(errmsg)
+
+
