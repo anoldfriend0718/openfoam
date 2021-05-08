@@ -1,0 +1,116 @@
+
+function runCokeCombustionFoam()
+{
+    cpu=$1
+    srun -n $cpu $FOAM_USER_APPBIN/cokeCombustionFoam2 -parallel
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete computations"
+    else
+        echo "something wrong in computations"
+    fi
+}
+
+function reconstruct()
+{
+    workerNum=$1
+    caseDir=$2
+    sampleRate=$3
+
+    fieldNames='["U","T","p","rho","O2","CO2","eps","coke","cokeRectionRate","Qdot"]'
+    timeNames=all
+    overWrite=false
+    dataFolder=postProcess
+
+    echo "start to reconstruct..."
+    source $WM_PROJECT_USER_DIR/.venv/bin/activate
+    pyscipt=$WM_PROJECT_USER_DIR/utilities/postProcess/pyResconstruct.py
+
+    if $overWrite; then
+        python  $pyscipt -c $caseDir -t $timeNames -f $fieldNames -n $workerNum -r $sampleRate -s $dataFolder -w
+    else
+        python  $pyscipt -c $caseDir -t $timeNames -f $fieldNames -n $workerNum -r $sampleRate -s $dataFolder
+    fi
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete reconstructting "
+    else
+        echo "something wrong in reconstructting"
+    fi
+
+}
+
+function plotImages()
+{
+    workerNum=$1
+    data_folder=$2
+    image_folder=$3
+
+    fields='["eps","UNorm","O2Conc","Qdot","T"]'
+    times='all'
+    script=${WM_PROJECT_USER_DIR}/utilities/postProcess/pyFigure.py
+    
+    source $WM_PROJECT_USER_DIR/.venv/bin/activate
+    echo "start to plot images"
+    python $script -f $fields -d $data_folder -s $image_folder -t $times -n $workerNum
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete plotting "
+    else
+        echo "something wrong in plotting"
+    fi
+}
+
+
+function makeAnimation()
+{
+    animation_folder=$1
+    if [ -e $animation_folder ]; then
+        echo "Animation path exists: $animation_folder"
+    else
+        echo "Create animation path: $animation_folder"
+        mkdir $animation_folder
+    fi
+
+    ls $2 | sort -t '-' -k $3 -n | sed 's:\ :\\\ :g'| sed 's/^/file /'  > $4.txt
+    # ffmpeg -y -r 10 -safe 0 -f concat  -i $4.txt -r 10 -vcodec libx264  -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"  $animation_folder/$4.mp4
+    ffmpeg  -y  -r 1 -safe 0 -f concat  -i $4.txt -r 1  $animation_folder/$4.gif
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete making animation of $4"
+    else
+        echo "something wrong in making animation of $4"
+    fi
+    
+    rm $4.txt
+
+
+}
+
+function runWorkflow()
+{
+    cpu=$1
+
+    runCokeCombustionFoam $cpu
+    [ $? -ne 0  ] && exit 1
+
+    workerNum=$2
+    caseDir=$3
+    sampleRate=$4
+    reconstruct $workerNum $caseDir $sampleRate
+    [ $? -ne 0  ] && exit 2
+
+    dataFolder=$5
+    imageFolder=$6
+    plotImages $workerNum $dataFolder $imageFolder
+    [ $? -ne 0  ] && exit 3
+
+    cd $image_folder
+    animation_folder=../animations #relative to image_folder
+    makeAnimation $animation_folder 'Temperature*.jpg'             4 temperature &
+    makeAnimation $animation_folder 'porosity*.jpg'                4 porosity &
+    makeAnimation $animation_folder 'O\$_2\$*.jpg'                 5 O2Conc &
+    makeAnimation $animation_folder 'velocity-magnitude*.jpg '     5 velocityMagnitude &
+    makeAnimation $animation_folder 'Reaction-Heat-Rate*.jpg '     6 heatRate &
+    wait 
+    [ $? -ne 0  ] && exit 4
+}

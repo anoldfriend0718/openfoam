@@ -23,13 +23,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         80e-2;
+endTime         1e-4;
 
 deltaT          1e-9;
 
 writeControl    adjustableRunTime;
 
-writeInterval   1e-2;
+writeInterval   1e-4;
 
 
 purgeWrite      0;
@@ -59,7 +59,7 @@ stableStageStartTime              0.01;
 
 stableStageMaxDeltaT              5e-4;
 
-chemicalTimeStepMagnification     100.0;
+chemicalTimeStepMagnification     70.0;
 
 functions
 {
