@@ -8,9 +8,9 @@ syncFolderPath=$runspace/$foldername
 
 echo "sync folder path on HPC: $syncFolderPath"
 
-papp_cloud rsync $caseDir/0          bscc-a3:$syncFolderPath 
-papp_cloud rsync $caseDir/constant   bscc-a3:$syncFolderPath
-papp_cloud rsync $caseDir/system     bscc-a3:$syncFolderPath
+# papp_cloud rsync $caseDir/0          bscc-a3:$syncFolderPath 
+# papp_cloud rsync $caseDir/constant   bscc-a3:$syncFolderPath
+# papp_cloud rsync $caseDir/system     bscc-a3:$syncFolderPath
 papp_cloud rsync $caseDir/s*.sh      bscc-a3:$syncFolderPath
 papp_cloud rsync $caseDir/*.py       bscc-a3:$syncFolderPath
 

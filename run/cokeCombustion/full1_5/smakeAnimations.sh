@@ -20,9 +20,6 @@ makeAnimation $animation_folder 'Reaction-Heat-Rate*.jpg '     6 heatRate &
 
 wait 
 
-
-[ $? -ne 0  ] && exit 4
-
 # ls Temperature*.jpg | sort -t '-' -k 4  -n | sed 's:\ :\\\ :g'| sed 's/^/file /'  > temperature.txt
  
 # ffmpeg -y -r 1 -safe 0 -f concat  -i temperature.txt  -r 5 -vcodec libx264  -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"  ../animations/temperature.mp4

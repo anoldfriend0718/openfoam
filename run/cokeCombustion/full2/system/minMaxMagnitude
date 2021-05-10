@@ -13,6 +13,6 @@ Description
 
 #includeEtc "caseDicts/postProcessing/minMax/fieldMinMax.cfg"
 
-fields (U p);
+fields (U);
 
 // ************************************************************************* //

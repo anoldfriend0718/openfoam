@@ -10,6 +10,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 from matplotlib.ticker import FormatStrFormatter
+import matplotlib.gridspec as gridspec
 from colored import fg, attr
 import proplot as pplot # there are some nice colormaps in the proplot package
 import concurrent.futures
@@ -164,7 +165,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
         else:
             vmin=0
             vmax=0
-        plot_contourf_save(df,"UNorm",unorm_title,label='velocity magnitude',folder_path=save_folder,vmin=vmin,vmax=vmax)
+        plot_contourf_save(df,"UNorm",unorm_title,label='velocity magnitude (m/s)',folder_path=save_folder,vmin=vmin,vmax=vmax)
 
     if "O2Conc" in fields:
         O2Conc_title=f"O$_{2}$ concentration contour at {time_str(time_instant)}"
@@ -278,7 +279,7 @@ def plot_temperature_and_coke_evolution(dataFolder,timeNames=[],workerNum=10):
         ax2.autoscale(tight=True)
 
 
-def read_field_min_max_file(file_path,sampling_rate):
+def read_field_min_max_file(file_path):
     with open(file_path,"r") as fp:
         comment=fp.readline()
         header=fp.readline()
@@ -292,19 +293,170 @@ def read_field_min_max_file(file_path,sampling_rate):
     data=pd.read_csv(file_path,comment='#', sep='\t',header=None)
     data=data.drop(indexs_processor,axis=1)
     data.rename(columns=lambda x:header[x],inplace=True)
-    data_sampling=data[data.index%sampling_rate==0]
-    return data_sampling
+    return data
 
-def plot_max_temperature(file_path,sampling_rate):
-    data_sampling=read_field_min_max_file(file_path,sampling_rate)
+def read_min_max_field(file_path,sampling_rate,field):
+    data=read_field_min_max_file(file_path)
+    
+    df=data[data["field"].str.contains(field)]
+    df.reset_index(inplace=True,drop=True)
+
+    df_sampling=df[df.index%sampling_rate==0]
+    df_sampling.reset_index(inplace=True,drop=True)
+    return df_sampling
+
+def plot_min_max_field(file_path,sampling_rate,field,label,yscale="linear"):
+    data_sampling=read_min_max_field(file_path,sampling_rate,f'^{field}')
     fig, ax = plt.subplots()
-    ax.plot(data_sampling["Time"],data_sampling["max"],label="max temperature")
+    ax.plot(data_sampling["Time"],data_sampling["max"],label=f"max {field}")
+    ax.plot(data_sampling["Time"],data_sampling["min"],label=f"min {field}")
     ax.set_xlabel(f"Time (s)")
-    ax.set_ylabel("Temperature  ($^{\circ}$C)")
-    ax.set_title("Temporal Evolution of Minimum/Maximum Temperature")
+    ax.set_ylabel(label)
+    ax.set_yscale(yscale)
+    ax.set_title(f"Temporal Evolution of Max/Min {field}")
     ax.legend()
     ax.autoscale(tight=True)
-    plt.tight_layout()
+    fig.tight_layout()
+    return fig,ax,data_sampling
+    # plt.close(fig)
+
+def plot_transverse_averages(transverse_data_folder,time):
+    df_transverse=pd.read_csv(os.path.join(transverse_data_folder,f"{time}.csv"))
+    fig,ax=plt.subplots()
+    c1 = pplot.scale_luminance('cerulean', 0.5)
+    c2 = pplot.scale_luminance('red', 0.5)
+    ax.plot(df_transverse["x"],df_transverse["O2Conc"],color=c1)
+    ax.set_xlabel("X (m)")
+    ax.set_ylabel("Tranversely Averaged O$_2$ mole concentration (mol/m$^3$)",color=c1)
+    ax.tick_params(axis='y', colors=c1)
+
+    ax2 = ax.twinx()
+    ax2.plot(df_transverse["x"],df_transverse["T"],color=c2)
+    ax2.set_ylabel("Tranversely Averaged Temperature ($^{\circ}$C)",color=c2)
+    ax2.tick_params(axis='y', colors=c2)
+
+    fig.tight_layout()
+    return ax,ax2,fig
+
+def plot_transverse_averages_of_multiple_times(transverse_data_folder,times):
+    formatter=tickformatter()
+    lines=["-",":","--","-.",(0,(0.01,2))]
+    colors=["k","b","g","r"]
+
+    transverse_data={}
+    for time in times:
+        df=pd.read_csv(f"{transverse_data_folder}/{time}.csv")
+        transverse_data[time]=df
+
+    fig = plt.figure(figsize=(9,10))
+    outer = gridspec.GridSpec(2, 2, wspace=0.2, hspace=0.2)
+
+    inner00=gridspec.GridSpecFromSubplotSpec(1,1,subplot_spec=outer[0])
+    ax = plt.Subplot(fig, inner00[0])
+    for i,time in enumerate(transverse_data.keys()):
+        df=transverse_data[time]
+        ax.plot(df["x"],df["O2Conc"],label=fr"$\mathit{{t}}\ $ = {time} s",linestyle=lines[i],color=colors[i])
+        
+    ax.set_xlabel("X (m)")
+    ax.xaxis.set_major_formatter(formatter) 
+    ax.set_ylabel("O$_2$ mole concentration (mol/m$^3$)")
+    # ax.legend(loc='best', shadow=True, fancybox=True)
+    fig.add_subplot(ax)
+    ax0=ax
+
+
+    inner01=gridspec.GridSpecFromSubplotSpec(1,1,subplot_spec=outer[1], hspace=0)
+    ax = plt.Subplot(fig, inner01[0])
+    for i,time in enumerate(transverse_data.keys()):
+        df=transverse_data[time]
+        ax.plot(df["x"],df["T"],label=fr"$\mathit{{t}}\ $ = {time} s",linestyle=lines[i],color=colors[i])
+    ax.set_xlabel("X (m)")
+    ax.xaxis.set_major_formatter(formatter) 
+    ax.set_ylabel("Temperature ($^{\circ}$C)")
+    fig.add_subplot(ax)
+
+    axes = np.empty(shape=(4, 1), dtype=object)
+    inner10=gridspec.GridSpecFromSubplotSpec(4,1,subplot_spec=outer[2],wspace=0, hspace=0)
+    for i,time in enumerate(transverse_data.keys()):
+        ax=plt.Subplot(fig, inner10[i])
+        df=transverse_data[time]
+        ax.plot(df["x"],df["coke"],label=fr"$\mathit{{t}}\ $ = {time} s",linestyle=lines[i],color=colors[i])
+        # ax.legend(loc="upper right")
+        fig.add_subplot(ax)
+        axes[i, 0] = ax
+        if ax.is_last_row():
+            ax.xaxis.set_major_formatter(formatter) 
+            ax.set_xlabel("X (m)")
+        else:
+            plt.setp(ax.get_xticklabels(), visible=False)
+    plt.setp(axes[2,0], ylabel='coke fraction')
+
+
+    axes = np.empty(shape=(4, 1), dtype=object)
+    inner11=gridspec.GridSpecFromSubplotSpec(4,1,subplot_spec=outer[3],wspace=0, hspace=0)
+
+    for i,time in enumerate(transverse_data.keys()):
+        ax=plt.Subplot(fig, inner11[i],sharex=axes[0, 0], sharey=axes[0, 0])
+        df=transverse_data[time]
+        ax.plot(df["x"],df["Qdot"],label=fr"$\mathit{{t}}\ $ = {time} s",linestyle=lines[i],color=colors[i])
+        # ax.legend(loc="upper right")
+        # ax.set_ylim([-1e4,maxQdotOfAll*1.2])
+        fig.add_subplot(ax)
+        axes[i, 0] = ax
+        if ax.is_last_row():
+            ax.xaxis.set_major_formatter(formatter) 
+            ax.set_xlabel("X (m)")
+        else:
+            plt.setp(ax.get_xticklabels(), visible=False)
+    plt.setp(axes[2,0], ylabel='Reaction Heat Rate (J/(m$^3\cdot$s))')
+
+
+    handles, labels = ax0.get_legend_handles_labels()
+    fig.legend(handles, labels, loc=(0.2,0.92), shadow=True, fancybox=True,ncol=4,fontsize=12)
+    return fig
+
+def Plot_MaxTemperature_OutletO2ConcHistory(df_combined):
+    fig,ax=plt.subplots()
+    c1 = pplot.scale_luminance('cerulean', 0.5)
+    c2 = pplot.scale_luminance('red', 0.5)
+
+    lns1=ax.plot(df_combined["Time"],df_combined["max"],color=c1,label="Max Point Temperature",linestyle="-")
+    lns2=ax.plot(df_combined["Time"],df_combined["Transverse_Tmax"],color=c1,label="Max Transversely Averaged Temperature",linestyle="--")
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Temperature ($^{\circ}$C)",color=c1)
+    ax.tick_params(axis='y', colors=c1)
+
+    ax2 = ax.twinx()
+    lns3= ax2.plot(df_combined["Time"],df_combined["O2ConcAtOutlet"],color=c2,linestyle="-.",label="O$_2$ Molar Concentration at outlet")
+    ax2.set_ylabel("Tranversely Averaged O$_2$ mole concentration At Outlet (mol/m$^3$)",color=c2)
+    ax2.tick_params(axis='y', colors=c2)
+
+    lns = lns1+lns2+lns3
+    labs = [l.get_label() for l in lns]
+    ax.legend(lns, labs, loc="upper center",shadow=True, fancybox=True)
+
+    # fig.legend(loc="upper right" ,shadow=True, fancybox=True)
+
+    fig.tight_layout()
+    return ax,ax2,fig
+
+def plot_reaction_rate_burning_rate(df_rate):
+    fig,ax=plt.subplots()
+    c1 = pplot.scale_luminance('cerulean', 0.5)
+    c2 = pplot.scale_luminance('red', 0.5)
+    ax.plot(df_rate["time"],df_rate["reaction_rate"],color=c1)
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Volume-Averaged coke reaction rate (kg/m$^3$/s)",color=c1)
+    ax.tick_params(axis='y', colors=c1)
+
+    ax2 = ax.twinx()
+    ax2.plot(df_rate["time"],df_rate["burning_fraction"]*100,color=c2)
+    ax2.set_ylabel("Burning rate (%)",color=c2)
+    ax2.tick_params(axis='y', colors=c2)
+    fig.tight_layout()
+
+    return ax,ax2,fig
+
 
 if __name__ == "__main__":
 

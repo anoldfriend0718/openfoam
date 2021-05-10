@@ -12,7 +12,7 @@ do
 
 papp_cloud rsync bscc-a3:$syncFilePath ./
 
-sleep 20
+sleep 10
 
 done
 

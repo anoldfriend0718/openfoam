@@ -10,6 +10,32 @@ function runCokeCombustionFoam()
     fi
 }
 
+function batchPostProcess()
+{
+    
+    data_folder=$1
+    transverse_data_folder=$2
+    cpu=$3
+
+    echo "start to batch post process..."
+    source $WM_PROJECT_USER_DIR/.venv/bin/activate
+    pyComputeScript=$WM_PROJECT_USER_DIR/utilities/postProcess/pyCompute.py
+    python $pyComputeScript -d $data_folder -s $transverse_data_folder -t all -n $cpu &
+    sleep 5
+
+    # # srun -n $cpu postProcess -func "mag(U)" -parallel 
+
+    srun -n $cpu postProcess -func minMaxComponents2 -parallel &
+    sleep 5
+
+    srun -n $cpu postProcess -func minMaxMagnitude -parallel &
+    sleep 5
+    
+    wait
+
+    echo "complete post processing "
+}
+
 function reconstruct()
 {
     workerNum=$1
@@ -73,7 +99,7 @@ function makeAnimation()
 
     ls $2 | sort -t '-' -k $3 -n | sed 's:\ :\\\ :g'| sed 's/^/file /'  > $4.txt
     # ffmpeg -y -r 10 -safe 0 -f concat  -i $4.txt -r 10 -vcodec libx264  -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"  $animation_folder/$4.mp4
-    ffmpeg  -y  -r 1 -safe 0 -f concat  -i $4.txt -r 1  $animation_folder/$4.gif
+    ffmpeg  -y  -r 10 -safe 0 -f concat  -i $4.txt -r 10  $animation_folder/$4.gif
 
     if [ $? -eq 0 ]; then
         echo "succeed to complete making animation of $4"
