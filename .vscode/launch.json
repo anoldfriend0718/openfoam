@@ -4,11 +4,12 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+    
         {
             "name": "OF-Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Debug/bin/Test-eulerImplicitReactionSolver",
+            "program": "/home/anoldfriend/OpenFOAM/anoldfriend-7/platforms/linux64GccDPInt32Debug/bin/cokeCombustionFoam",
             "args": [
                 "-case",
                 "./"
