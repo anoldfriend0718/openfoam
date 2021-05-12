@@ -45,7 +45,7 @@ def read_postProcess_csv_data(postProcessDir,timeName):
     return df
 
 def tickformatter():
-    formatter = ticker.ScalarFormatter(useMathText=True)
+ formatter = ticker.ScalarFormatter(useMathText=True)
     formatter.set_scientific(True) 
     formatter.set_powerlimits((-1,1)) 
     return formatter
@@ -444,18 +444,46 @@ def plot_reaction_rate_burning_rate(df_rate):
     fig,ax=plt.subplots()
     c1 = pplot.scale_luminance('cerulean', 0.5)
     c2 = pplot.scale_luminance('red', 0.5)
-    ax.plot(df_rate["time"],df_rate["reaction_rate"],color=c1)
+    df_rate.sort_values(by="time",inplace=True)
+    ax.plot(df_rate["time"],df_rate["vol_averaged_reaction_rate"],color=c1)
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Volume-Averaged coke reaction rate (kg/m$^3$/s)",color=c1)
+    formatter=tickformatter()
+    ax.yaxis.set_major_formatter(formatter) 
     ax.tick_params(axis='y', colors=c1)
 
     ax2 = ax.twinx()
     ax2.plot(df_rate["time"],df_rate["burning_fraction"]*100,color=c2)
     ax2.set_ylabel("Burning rate (%)",color=c2)
     ax2.tick_params(axis='y', colors=c2)
+    ax2.yaxis.set_major_formatter(formatter) 
     fig.tight_layout()
 
     return ax,ax2,fig
+
+def plot_O2_flux_reaction_rate(df_O2_flux_at_inlet,df_rate,pixelResolution,DO2,sampling_rate=5,ylim=(1e-9, 1e-4)):
+    MCoke=12
+    MO2=32
+    df_O2_flux_at_inlet["diffusive_flux"]=np.array(df_O2_flux_at_inlet["O2_diffusive_Flux_By_DO2"])*DO2
+    df_O2_flux_at_inlet["advective_flux"]=np.array(df_O2_flux_at_inlet["O2_adv_flux_by_deltaX"])*pixelResolution
+    df_O2_flux_at_inlet["total_flux"]=df_O2_flux_at_inlet["diffusive_flux"]+df_O2_flux_at_inlet["advective_flux"]
+
+    c1 = pplot.scale_luminance('cerulean', 0.5)
+    c2 = pplot.scale_luminance('red', 0.5)
+
+    fig, ax = pplot.subplots()
+    ax.format(xlabel="Time (s)",ylim=ylim, yformatter='sci',yscale='log', ylabel="O$_2$ flux at inlet (kg/s)",ycolor=c1)
+    ax.plot(df_O2_flux_at_inlet["time"],df_O2_flux_at_inlet["diffusive_flux"],color=c1,label="Diffusive Flux",linestyle="-.")
+    ax.plot(df_O2_flux_at_inlet["time"],df_O2_flux_at_inlet["advective_flux"],color=c1,label="Advective Flux",linestyle="--")
+    ax.plot(df_O2_flux_at_inlet["time"],df_O2_flux_at_inlet["total_flux"],color=c1,label="Total Flux",linestyle="-")
+
+    ax2 = ax.twinx()
+    df_sampling=df_rate[df_rate.index%sampling_rate==0]
+    ax2.scatter(df_sampling["time"],df_sampling["total_reaction_rate"]/MCoke*MO2*pixelResolution*pixelResolution,label="Total O$_2$ Reaction Rate",color=c2)
+    ax2.format(xlabel="Time (s)",ylim=ylim, yformatter='sci', yscale='log', ylabel='O$_2$ reaction rate within domain (kg/s)',ycolor=c2)
+
+    return ax,ax2,fig
+
 
 
 if __name__ == "__main__":

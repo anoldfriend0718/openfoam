@@ -25,11 +25,11 @@ function batchPostProcess()
 
     # # srun -n $cpu postProcess -func "mag(U)" -parallel 
 
-    srun -n $cpu postProcess -func minMaxComponents2 -parallel &
-    sleep 5
+    # srun -n $cpu postProcess -func minMaxComponents2 -parallel &
+    # sleep 5
 
-    srun -n $cpu postProcess -func minMaxMagnitude -parallel &
-    sleep 5
+    # srun -n $cpu postProcess -func minMaxMagnitude -parallel &
+    # sleep 5
     
     wait
 
@@ -126,9 +126,14 @@ function runWorkflow()
     [ $? -ne 0  ] && exit 2
 
     dataFolder=$5
-    imageFolder=$6
-    plotImages $workerNum $dataFolder $imageFolder
+    transverse_data_folder=$6
+    batchPostProcess $data_folder $transverse_data_folder $cpu
     [ $? -ne 0  ] && exit 3
+
+
+    imageFolder=$7
+    plotImages $workerNum $dataFolder $imageFolder
+    [ $? -ne 0  ] && exit 4
 
     cd $image_folder
     animation_folder=../animations #relative to image_folder
@@ -138,5 +143,7 @@ function runWorkflow()
     makeAnimation $animation_folder 'velocity-magnitude*.jpg '     5 velocityMagnitude &
     makeAnimation $animation_folder 'Reaction-Heat-Rate*.jpg '     6 heatRate &
     wait 
-    [ $? -ne 0  ] && exit 4
+    [ $? -ne 0  ] && exit 5
+
+
 }

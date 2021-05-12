@@ -19,8 +19,10 @@ workerNum=$(($cpu-4)) #postProcessor
 caseDir=./
 sampleRate=10 #postProcessing sampling rate
 dataFolder=./postProcess
+transverse_data_folder=./postProcess/transverseAveragedData/
 imageFolder=./postProcess/images
 
-runWorkflow $cpu $workerNum $caseDir $sampleRate $dataFolder $imageFolder
+runWorkflow $cpu $workerNum $caseDir $sampleRate $dataFolder $transverse_data_folder $imageFolder
+
 
 
