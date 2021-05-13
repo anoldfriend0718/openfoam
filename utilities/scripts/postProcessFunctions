@@ -25,11 +25,11 @@ function batchPostProcess()
 
     # # srun -n $cpu postProcess -func "mag(U)" -parallel 
 
-    # srun -n $cpu postProcess -func minMaxComponents2 -parallel &
-    # sleep 5
+    srun -n $cpu postProcess -func minMaxComponents2 -parallel &
+    sleep 5
 
-    # srun -n $cpu postProcess -func minMaxMagnitude -parallel &
-    # sleep 5
+    srun -n $cpu postProcess -func minMaxMagnitude -parallel &
+    sleep 5
     
     wait
 

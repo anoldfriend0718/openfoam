@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 from matplotlib.ticker import FormatStrFormatter
 import matplotlib.gridspec as gridspec
+from matplotlib.axes._axes import _log as matplotlib_axes_logger
+matplotlib_axes_logger.setLevel('ERROR')
 from colored import fg, attr
 import proplot as pplot # there are some nice colormaps in the proplot package
 import concurrent.futures
@@ -29,6 +31,9 @@ C_RED = fg('red')
 C_BLUE = fg('blue')
 C_DEFAULT = attr('reset')
 
+c1 = pplot.scale_luminance('cerulean', 0.5)
+c2 = pplot.scale_luminance('red', 0.5)
+
 def use_paper_style(mpl, fontsize=9):
     mpl.rcParams['axes.titlesize']  = fontsize
     mpl.rcParams['axes.labelsize']  = fontsize
@@ -45,7 +50,7 @@ def read_postProcess_csv_data(postProcessDir,timeName):
     return df
 
 def tickformatter():
- formatter = ticker.ScalarFormatter(useMathText=True)
+    formatter = ticker.ScalarFormatter(useMathText=True)
     formatter.set_scientific(True) 
     formatter.set_powerlimits((-1,1)) 
     return formatter
@@ -416,48 +421,47 @@ def plot_transverse_averages_of_multiple_times(transverse_data_folder,times):
     return fig
 
 def Plot_MaxTemperature_OutletO2ConcHistory(df_combined):
-    fig,ax=plt.subplots()
-    c1 = pplot.scale_luminance('cerulean', 0.5)
-    c2 = pplot.scale_luminance('red', 0.5)
+    fig, ax = pplot.subplots( aspect=(4, 3), axwidth=4)
 
     lns1=ax.plot(df_combined["Time"],df_combined["max"],color=c1,label="Max Point Temperature",linestyle="-")
     lns2=ax.plot(df_combined["Time"],df_combined["Transverse_Tmax"],color=c1,label="Max Transversely Averaged Temperature",linestyle="--")
-    ax.set_xlabel("Time (s)")
-    ax.set_ylabel("Temperature ($^{\circ}$C)",color=c1)
-    ax.tick_params(axis='y', colors=c1)
+    ax.format(xlabel="Time (s)",ylabel="Temperature ($^{\circ}$C)",
+                ycolor=c1)
 
     ax2 = ax.twinx()
     lns3= ax2.plot(df_combined["Time"],df_combined["O2ConcAtOutlet"],color=c2,linestyle="-.",label="O$_2$ Molar Concentration at outlet")
-    ax2.set_ylabel("Tranversely Averaged O$_2$ mole concentration At Outlet (mol/m$^3$)",color=c2)
-    ax2.tick_params(axis='y', colors=c2)
+    max_O2=df_combined["O2ConcAtOutlet"].max()
+    ax2.format(ylabel="O$_2$ mole concentration At Outlet (mol/m$^3$)",
+                ycolor=c2)
 
     lns = lns1+lns2+lns3
     labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="upper center",shadow=True, fancybox=True)
+    ax.legend(lns, labs, loc="upper right", ncol=1, fancybox=True)
 
-    # fig.legend(loc="upper right" ,shadow=True, fancybox=True)
-
-    fig.tight_layout()
+    # fig.tight_layout()
     return ax,ax2,fig
 
 def plot_reaction_rate_burning_rate(df_rate):
-    fig,ax=plt.subplots()
+    fig, ax = pplot.subplots( aspect=(4, 3), axwidth=4)
     c1 = pplot.scale_luminance('cerulean', 0.5)
     c2 = pplot.scale_luminance('red', 0.5)
     df_rate.sort_values(by="time",inplace=True)
-    ax.plot(df_rate["time"],df_rate["vol_averaged_reaction_rate"],color=c1)
-    ax.set_xlabel("Time (s)")
-    ax.set_ylabel("Volume-Averaged coke reaction rate (kg/m$^3$/s)",color=c1)
-    formatter=tickformatter()
-    ax.yaxis.set_major_formatter(formatter) 
-    ax.tick_params(axis='y', colors=c1)
+    
+    lns1=ax.plot(df_rate["time"],df_rate["vol_averaged_reaction_rate"],color=c1,
+            label="Coke reaction rate")
+    max_rate=df_rate["vol_averaged_reaction_rate"].max()
+    ax.format(xlabel="Time (s)",ylabel="Volume-Averaged coke reaction rate (kg/m$^3$/s)",
+              ycolor=c1,ylim=(-1,max_rate*1.1))
 
     ax2 = ax.twinx()
-    ax2.plot(df_rate["time"],df_rate["burning_fraction"]*100,color=c2)
-    ax2.set_ylabel("Burning rate (%)",color=c2)
-    ax2.tick_params(axis='y', colors=c2)
-    ax2.yaxis.set_major_formatter(formatter) 
-    fig.tight_layout()
+    lns2=ax2.plot(df_rate["time"],df_rate["burning_fraction"]*100,color=c2,
+            linestyle="--",label="Burning rate")
+    ax2.format(xlabel="Time (s)",ylabel="Burning rate (%)",ycolor=c2,
+               ylim=(-1,100))
+    
+    lns = lns1+lns2
+    labs = [l.get_label() for l in lns]
+    ax.legend(lns, labs, loc="upper right", fancybox=True)
 
     return ax,ax2,fig
 
@@ -468,19 +472,39 @@ def plot_O2_flux_reaction_rate(df_O2_flux_at_inlet,df_rate,pixelResolution,DO2,s
     df_O2_flux_at_inlet["advective_flux"]=np.array(df_O2_flux_at_inlet["O2_adv_flux_by_deltaX"])*pixelResolution
     df_O2_flux_at_inlet["total_flux"]=df_O2_flux_at_inlet["diffusive_flux"]+df_O2_flux_at_inlet["advective_flux"]
 
+    df_O2_flux_at_inlet["ratio of diffusion flux"]=df_O2_flux_at_inlet["diffusive_flux"]/df_O2_flux_at_inlet["total_flux"]
+    df_O2_flux_at_inlet["ratio of advection flux"]=df_O2_flux_at_inlet["advective_flux"]/df_O2_flux_at_inlet["total_flux"]
+
+
     c1 = pplot.scale_luminance('cerulean', 0.5)
     c2 = pplot.scale_luminance('red', 0.5)
 
-    fig, ax = pplot.subplots()
-    ax.format(xlabel="Time (s)",ylim=ylim, yformatter='sci',yscale='log', ylabel="O$_2$ flux at inlet (kg/s)",ycolor=c1)
+    fig, axs = pplot.subplots(ncols=1, nrows=2, aspect=(4, 3), \
+        axwidth=4,hspace=(0),sharey=0,sharex=3)
+    
+    ax=axs[0]
+    
     ax.plot(df_O2_flux_at_inlet["time"],df_O2_flux_at_inlet["diffusive_flux"],color=c1,label="Diffusive Flux",linestyle="-.")
     ax.plot(df_O2_flux_at_inlet["time"],df_O2_flux_at_inlet["advective_flux"],color=c1,label="Advective Flux",linestyle="--")
     ax.plot(df_O2_flux_at_inlet["time"],df_O2_flux_at_inlet["total_flux"],color=c1,label="Total Flux",linestyle="-")
-
+    ax.format(xlabel="Time (s)",ylim=ylim, yformatter='sci',yscale='log',
+              ylabel="O$_2$ flux at inlet (kg/s)",ycolor=c1)
+    ax.legend(loc="best", ncols=1, fancybox=True )
     ax2 = ax.twinx()
     df_sampling=df_rate[df_rate.index%sampling_rate==0]
+
     ax2.scatter(df_sampling["time"],df_sampling["total_reaction_rate"]/MCoke*MO2*pixelResolution*pixelResolution,label="Total O$_2$ Reaction Rate",color=c2)
     ax2.format(xlabel="Time (s)",ylim=ylim, yformatter='sci', yscale='log', ylabel='O$_2$ reaction rate within domain (kg/s)',ycolor=c2)
+ 
+    df_sampling=df_O2_flux_at_inlet[df_O2_flux_at_inlet.index%sampling_rate==0]
+    df_sampling.reset_index(drop=True,inplace=True)
+    df_ratios=df_sampling[["ratio of diffusion flux","ratio of advection flux"]]
+    ax3=axs[1]
+    ax3.format(ylim=(0,1.1),ylabel="Ratio of O$_2$ advection/diffusion flux to total")
+    num=df_sampling.shape[0]
+    maxTime=df_sampling["time"].iloc[-1]
+    ax3.bar(df_sampling["time"],df_ratios,stacked=True, cycle='Blues',
+            legend='ur', edgecolor='blue9', width=maxTime/(num*1.2))
 
     return ax,ax2,fig
 
