@@ -32,7 +32,7 @@ Description
 
 #include "fvCFD.H"
 #include "fvmSup.H"
-#include "pisoControl.H"
+#include "simpleControl.H"
 #include "surfaceFieldsFwd.H"
 #include "surfaceInterpolate.H"
 #include "volFieldsFwd.H"
@@ -44,30 +44,22 @@ int main(int argc, char *argv[])
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
-
-    pisoControl piso(mesh);
-
+    #include "createControl.H"
     #include "createFields.H"
     #include "initContinuityErrs.H"
-    #include "createTimeControls.H"
-    #include "CourantNo.H"
-    #include "setInitialDeltaT.H"
+
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     
     Info<< "\nStarting time loop\n" << endl;
 
-    while (runTime.loop())
+     while (simple.loop(runTime))
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
         
-        #include "readTimeControls.H"
-        #include "CourantNo.H"
-        #include "setDeltaT.H"
-
         // Momentum predictor
 
-        fvVectorMatrix UEqn
+        tmp<fvVectorMatrix> tUEqn
         (
             (1./eps)*fvm::ddt(U)
           + (1./eps)*fvm::div(phiByEpsf, U)
@@ -75,63 +67,66 @@ int main(int argc, char *argv[])
           + fvm::SuSp(drag,U)
         );
 
-        if (piso.momentumPredictor())
+        fvVectorMatrix& UEqn = tUEqn.ref();
+
+        UEqn.relax();
+
+        if (simple.momentumPredictor())
         {
-            solve(UEqn == (-fvc::grad(p) + g ));
+            solve(UEqn == (-fvc::grad(p)));
         }
 
-        // --- PISO loop
-        while (piso.correct())
-        {
-            volScalarField rAU(1.0/UEqn.A());
-            //add the phi caused by gravity acceleration 
-            surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU));
-            volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
-            surfaceScalarField phig(rAUf*(g & mesh.Sf()));
+        // --- SIMPLE loop
+    
+        volScalarField rAU(1.0/UEqn.A());
+        //add the phi caused by gravity acceleration 
+        volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
+        surfaceScalarField phiHbyA("phiHbyA",fvc::flux(HbyA));
+        adjustPhi(phiHbyA, U, p);
 
-            surfaceScalarField phiHbyA
+        tmp<volScalarField> rAtU(rAU);
+
+        if (simple.consistent())
+        {
+            rAtU = 1.0/(1.0/rAU - UEqn.H1());
+            phiHbyA +=
+                fvc::interpolate(rAtU() - rAU)*fvc::snGrad(p)*mesh.magSf();
+            HbyA -= (rAU - rAtU())*fvc::grad(p);
+        }
+
+        tUEqn.clear();
+
+        // Update the pressure BCs to ensure flux consistency
+        constrainPressure(p, U, phiHbyA, rAU);
+
+        // Non-orthogonal pressure corrector loop
+        while (simple.correctNonOrthogonal())
+        {
+            // Pressure corrector
+            fvScalarMatrix pEqn
             (
-                "phiHbyA",
-                fvc::flux(HbyA)
-                // + fvc::interpolate(rAU)*fvc::ddtCorr(U, phi)
-                + fvc::interpolate(rAU)*fvc::ddtCorr(rEps,U, phiByEpsf)
+                fvm::laplacian(rAU, p) == fvc::div(phiHbyA)
             );
 
-            adjustPhi(phiHbyA, U, p);
+            pEqn.setReference(pRefCell, pRefValue);
 
-            phiHbyA+=phig;
+            pEqn.solve();
 
-            // Update the pressure BCs to ensure flux consistency
-            constrainPressure(p, U, phiHbyA, rAU);
-
-            // Non-orthogonal pressure corrector loop
-            while (piso.correctNonOrthogonal())
+            if (simple.finalNonOrthogonalIter())
             {
-                // Pressure corrector
-
-                fvScalarMatrix pEqn
-                (
-                    fvm::laplacian(rAU, p) == fvc::div(phiHbyA)
-                );
-
-                pEqn.setReference(pRefCell, pRefValue);
-
-                pEqn.solve();
-
-                if (piso.finalNonOrthogonalIter())
-                {
-                    phi = phiHbyA - pEqn.flux();
-                }
+                phi = phiHbyA - pEqn.flux();
             }
-
-            #include "continuityErrs.H"
-
-
-            U = HbyA - rAU*fvc::grad(p)+rAU*g;
-            U.correctBoundaryConditions();
-
-            phiByEpsf = phi*repsf;
         }
+
+        #include "continuityErrs.H"
+
+        // Explicitly relax pressure for momentum corrector
+        p.relax();
+
+        U = HbyA - rAU*fvc::grad(p);
+        U.correctBoundaryConditions();
+        phiByEpsf = phi*repsf;
+
 
         runTime.write();
 
@@ -145,7 +140,6 @@ int main(int argc, char *argv[])
             relativeUResidual[cmpt] = Foam::sqrt(normUResidual[cmpt]/(normU[cmpt]+SMALL));
         }
         Info<<"relative error: Ux: "<<relativeUResidual[0]<<" Uy: "<<relativeUResidual[1]<<endl;
-
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
