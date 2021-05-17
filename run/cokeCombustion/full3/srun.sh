@@ -25,4 +25,3 @@ imageFolder=./postProcess/images
 runWorkflow $cpu $workerNum $caseDir $sampleRate $dataFolder $transverse_data_folder $imageFolder
 
 
-

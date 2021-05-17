@@ -15,6 +15,6 @@ Description
 
 // writeControl    writeTime;
 
-fields (T Qdot O2 CO2);
+fields (T Qdot);
 
 // ************************************************************************* //

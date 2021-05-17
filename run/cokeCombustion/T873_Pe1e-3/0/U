@@ -1,0 +1,97 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0) ;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           #codeStream
+        {
+            codeInclude
+            #{
+                #include "fvCFD.H"
+            #};
+
+            codeOptions
+            #{
+                -I$(LIB_SRC)/finiteVolume/lnInclude \
+                -I$(LIB_SRC)/meshTools/lnInclude
+            #};
+
+    	    //libs needed to visualize BC in paraview
+    	    codeLibs
+    	    #{
+                -lmeshTools \
+                -lfiniteVolume
+    	    #};
+
+            code
+            #{
+                const IOdictionary& d = static_cast<const IOdictionary&>
+		        (
+                    dict.parent().parent()
+                );
+
+                const fvMesh& mesh = refCast<const fvMesh>(d.db());
+                const label id = mesh.boundary().findPatchID("inlet");
+                const fvPatch& patch = mesh.boundary()[id];
+                
+                //vectorField U(mesh.boundary()[id].size(), vector(0, 0, 0));
+                vectorField U(patch.size(), vector(0, 0, 0));
+                const scalar Pe = 1e-3; //Pelect number
+                const scalar DO2 = 9.16465E-06; //O2 diffusivity
+                const scalar w = 30e-6; // just set as the same with the previous one
+                const scalar U_0   = Pe*DO2/w;	//max vel //Re~0.1
+                const scalar H = 600e-6; //inlet width
+
+                forAll(U, i)
+                {
+                    const scalar y = patch.Cf()[i][1];
+                    const scalar yr = y/H;
+                    U[i] = vector(6*U_0*yr*(1-yr), 0., 0.);
+                }
+
+                writeEntry(os, "", U);
+            #};
+        };
+    }
+    
+    outlet
+    {
+        type            zeroGradient;
+    }
+    top
+    {
+        type            noSlip;
+    }
+    bottom
+    {
+        type            noSlip;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+
+// ************************************************************************* //

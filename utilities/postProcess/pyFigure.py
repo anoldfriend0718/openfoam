@@ -57,18 +57,18 @@ def tickformatter():
 
 def time_str(time_second):
     Scale,name_time=1,'seconds'
-    if(time_second>(86400*365)):
-        Scale = 3.17e-08
-        name_time='years'
-    elif(time_second>86400):
-        Scale = 1.1574074074074073e-05
-        name_time='days'
-    elif(time_second>3600):
-        Scale = 0.0002777777777777778
-        name_time='hours'
-    elif(time_second>60):
-        Scale = 0.016666666666666666
-        name_time='minutes'
+    # if(time_second>(86400*365)):
+    #     Scale = 3.17e-08
+    #     name_time='years'
+    # elif(time_second>86400):
+    #     Scale = 1.1574074074074073e-05
+    #     name_time='days'
+    # elif(time_second>3600):
+    #     Scale = 0.0002777777777777778
+    #     name_time='hours'
+    # elif(time_second>60):
+    #     Scale = 0.016666666666666666
+    #     name_time='minutes'
     str_time=str('%.3f %s'%(time_second*Scale,name_time))
     return str_time
 
@@ -190,7 +190,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
         else:
             vmin=0
             vmax=0
-        plot_contourf_save(df,"T",T_title,label='Temperature ($^{\circ}$C)',folder_path=save_folder,vmin=vmin,vmax=vmax)
+        plot_contourf_save(df,"T",T_title,label='Temperature (K)',folder_path=save_folder,vmin=vmin,vmax=vmax)
 
     if "Qdot" in fields:
         Qdot_title=f"Reaction Heat Rate contour at {time_str(time_instant)}"
@@ -268,7 +268,7 @@ def plot_temperature_and_coke_evolution(dataFolder,timeNames=[],workerNum=10):
         ax.set_title(f"Temporal Evolution of Maximum Temperature and Coke Fraction",color="k")
         times=[float(timeStr) for timeStr in timeNames]
         ax.plot(times,maxTemperatures,linestyle="-",label="Maximum Temperature",color="b")
-        ax.set_ylabel("Maximum combustion Temperature ($^{\circ}$C)",color="b")
+        ax.set_ylabel("Maximum combustion Temperature (K)",color="b")
         ax.tick_params(axis='y', labelcolor="b")
         ax.set_xlim([0,np.max(times)])
     
@@ -337,7 +337,7 @@ def plot_transverse_averages(transverse_data_folder,time):
 
     ax2 = ax.twinx()
     ax2.plot(df_transverse["x"],df_transverse["T"],color=c2)
-    ax2.set_ylabel("Tranversely Averaged Temperature ($^{\circ}$C)",color=c2)
+    ax2.set_ylabel("Tranversely Averaged Temperature (K)",color=c2)
     ax2.tick_params(axis='y', colors=c2)
 
     fig.tight_layout()
@@ -377,24 +377,33 @@ def plot_transverse_averages_of_multiple_times(transverse_data_folder,times):
         ax.plot(df["x"],df["T"],label=fr"$\mathit{{t}}\ $ = {time} s",linestyle=lines[i],color=colors[i])
     ax.set_xlabel("X (m)")
     ax.xaxis.set_major_formatter(formatter) 
-    ax.set_ylabel("Temperature ($^{\circ}$C)")
+    ax.set_ylabel("Temperature (K)")
     fig.add_subplot(ax)
 
     axes = np.empty(shape=(4, 1), dtype=object)
     inner10=gridspec.GridSpecFromSubplotSpec(4,1,subplot_spec=outer[2],wspace=0, hspace=0)
+    global_coke_max=0
+    for i,time in enumerate(transverse_data.keys()):
+        df=transverse_data[time]
+        coke_max=df["coke"].max()
+        if global_coke_max<coke_max:
+            global_coke_max=coke_max
+
     for i,time in enumerate(transverse_data.keys()):
         ax=plt.Subplot(fig, inner10[i])
         df=transverse_data[time]
         ax.plot(df["x"],df["coke"],label=fr"$\mathit{{t}}\ $ = {time} s",linestyle=lines[i],color=colors[i])
         # ax.legend(loc="upper right")
-        fig.add_subplot(ax)
+        ax.set_ylim([-0.001,global_coke_max*1.1])
         axes[i, 0] = ax
         if ax.is_last_row():
             ax.xaxis.set_major_formatter(formatter) 
             ax.set_xlabel("X (m)")
         else:
             plt.setp(ax.get_xticklabels(), visible=False)
+        fig.add_subplot(ax)
     plt.setp(axes[2,0], ylabel='coke fraction')
+
 
 
     axes = np.empty(shape=(4, 1), dtype=object)
@@ -425,7 +434,7 @@ def Plot_MaxTemperature_OutletO2ConcHistory(df_combined):
 
     lns1=ax.plot(df_combined["Time"],df_combined["max"],color=c1,label="Max Point Temperature",linestyle="-")
     lns2=ax.plot(df_combined["Time"],df_combined["Transverse_Tmax"],color=c1,label="Max Transversely Averaged Temperature",linestyle="--")
-    ax.format(xlabel="Time (s)",ylabel="Temperature ($^{\circ}$C)",
+    ax.format(xlabel="Time (s)",ylabel="Temperature (K)",
                 ycolor=c1)
 
     ax2 = ax.twinx()
