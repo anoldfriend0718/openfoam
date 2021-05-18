@@ -48,6 +48,173 @@ int main(int argc, char *argv[])
     pisoControl piso(mesh);
 
     #include "createFields.H"
+
+    Info<< "\nReading structures" << endl;
+    volScalarField solid
+    (
+        IOobject
+        (
+            "solid",
+            runTime.timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh
+    );
+
+    IOdictionary rockProperties
+    (
+        IOobject
+        (
+            "rockProperties",
+            runTime.constant(),
+            mesh,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE
+        )
+    );
+
+    dimensionedScalar rockPorosity
+    (
+        "rockPorosity",
+        dimless,
+        rockProperties.lookup("porosity")
+    );
+
+    dimensionedScalar rockPerm
+    (
+        "rockPerm",
+        dimensionSet(0, 2, 0, 0, 0, 0, 0),
+        rockProperties.lookup("K")
+    );
+
+    volScalarField eps
+    (
+        IOobject
+        (
+            "porosity",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("eps", dimless, 0) 
+    );
+
+    volScalarField rK
+    (
+        IOobject
+        (
+            "rK",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("rk", dimensionSet(0, -2, 0, 0, 0, 0, 0), 0) 
+    );
+
+
+    forAll(solid,celli)
+    {
+        if(solid[celli]==0) //fluid zone 
+        {
+            eps[celli]=1.0;
+            rK[celli]=0.0;
+        }
+        else //rock zone 
+        {
+            eps[celli]=rockPorosity.value();
+            rK[celli]=1.0/(rockPerm.value());
+        }
+    }
+
+    forAll(mesh.boundary(), patchi) 
+    {
+        forAll(solid.boundaryField()[patchi],facei)
+        {
+            if(solid.boundaryField()[patchi][facei]==0)   //fluid zone 
+            {
+                eps.boundaryFieldRef()[patchi][facei]=1.0;
+                rK.boundaryFieldRef()[patchi][facei]=0.0;
+            }
+            else //rock zone 
+            {
+                eps.boundaryFieldRef()[patchi][facei]=rockPorosity.value();
+                rK.boundaryFieldRef()[patchi][facei]=1.0/(rockPerm.value());
+            }
+        }
+    }
+
+    // eps.write();
+    // rK.write();
+
+    //Drag Coefficient Calculation
+    volScalarField drag ("drag", nu*rK);
+
+    forAll(drag,celli)
+    {
+        if (solid[celli]==0)//fluid zone 
+        {
+            drag[celli]= 0;
+        }
+    }
+
+    volScalarField rEps
+    (
+        "rEps",
+        1./eps
+    );
+
+    surfaceScalarField rEpsf
+    (
+        "rEpsf",
+        fvc::interpolate(1/eps)
+    );
+
+    surfaceScalarField phiByEpsf
+    (
+        "phiByEpsf",
+        phi*rEpsf
+    );
+
+
+    const label patchIdInlet = mesh.boundary().findPatchID("inlet");
+    const fvPatch& patchInlet = mesh.boundary()[patchIdInlet];
+    scalarField pInlet(patchInlet.size(),0.0);
+
+    forAll(patchInlet,facei)
+    {
+        pInlet[facei]=p.boundaryFieldRef()[patchIdInlet][facei];
+    }
+    scalar meanPInlet=gAverage(pInlet);
+
+
+    const label patchIdOutlet = mesh.boundary().findPatchID("outlet");
+    const fvPatch& patchOutlet = mesh.boundary()[patchIdOutlet];
+    scalarField pOutlet(patchOutlet.size(),0.0);
+
+    forAll(patchOutlet,facei)
+    {
+        pOutlet[facei]=p.boundaryFieldRef()[patchIdOutlet][facei];
+    }
+    scalar meanPOutlet=gAverage(pOutlet);
+
+
+    Info<<"average pressure at the inlet: "<<meanPInlet
+        <<"; average pressure at the outlet: "<<meanPOutlet
+        <<endl;
+
+    scalar L=0.02;  //need read 
+    scalar gradPressure=(meanPInlet-meanPOutlet)/L;
+    Info<<"gradient of pressure: "<<gradPressure<<endl;
+    scalar perm=0.0;
+    
+
+
     #include "initContinuityErrs.H"
     #include "createTimeControls.H"
     #include "CourantNo.H"
@@ -69,9 +236,9 @@ int main(int argc, char *argv[])
 
         fvVectorMatrix UEqn
         (
-            (1./eps)*fvm::ddt(U)
-          + (1./eps)*fvm::div(phiByEpsf, U)
-          - (1./eps)*fvm::laplacian(nu, U)
+            rEps*fvm::ddt(U)
+          + rEps*fvm::div(phiByEpsf, U)
+          - rEps*fvm::laplacian(nu, U)
           + fvm::SuSp(drag,U)
         );
 
@@ -129,11 +296,22 @@ int main(int argc, char *argv[])
 
             U = HbyA - rAU*fvc::grad(p)+rAU*g;
             U.correctBoundaryConditions();
-
-            phiByEpsf = phi*repsf;
+            phiByEpsf = phi*rEpsf;
         }
 
         runTime.write();
+
+        // gAverage(U.component(0).)
+        tmp<volScalarField> tUx=U.component(0);
+        const volScalarField& Ux=tUx.ref();
+        const scalar meanUx=gAverage(Ux);
+        Info<<"average Ux: "<<meanUx<<endl;
+        perm=meanUx*nu.value()/gradPressure*1e15; //mD
+        Info<<"Permeability: "<<perm<< " mD"<<endl;
+        
+
+
+
 
         tmp<volVectorField> tUResidual(U-U.oldTime());
         const volVectorField& UResidual=tUResidual.ref();
@@ -145,6 +323,7 @@ int main(int argc, char *argv[])
             relativeUResidual[cmpt] = Foam::sqrt(normUResidual[cmpt]/(normU[cmpt]+SMALL));
         }
         Info<<"relative error: Ux: "<<relativeUResidual[0]<<" Uy: "<<relativeUResidual[1]<<endl;
+
 
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
