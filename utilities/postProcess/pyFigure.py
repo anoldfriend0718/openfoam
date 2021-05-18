@@ -24,6 +24,7 @@ import tracemalloc
 
 
 
+
 # mpl.rcParams['font.family'] = 'Helvetica', #default font family
 mpl.rcParams['mathtext.fontset'] = 'cm' #font for math
 C_GREEN = fg('green')
@@ -95,6 +96,34 @@ def figsize_cm(w_cm,x,y,w_offset_cm=0.0):
     w=w+w_offset_cm*cm2inch
     return (w,h)
 
+def clippedcolorbar(CS, **kwargs):
+    from matplotlib.cm import ScalarMappable
+    from numpy import arange, floor, ceil
+    fig = CS.ax.get_figure()
+    vmin = CS.get_clim()[0]
+    vmax = CS.get_clim()[1]
+    m = ScalarMappable(cmap=CS.get_cmap())
+    m.set_array(CS.get_array())
+    m.set_clim(CS.get_clim())
+    step = CS.levels[1] - CS.levels[0]
+    cliplower = CS.zmin<vmin
+    clipupper = CS.zmax>vmax
+    noextend = 'extend' in kwargs.keys() and kwargs['extend']=='neither'
+    # set the colorbar boundaries
+    boundaries = arange((floor(vmin/step)-1+1*(cliplower and noextend))*step, (ceil(vmax/step)+1-1*(clipupper and noextend))*step, step)
+    kwargs['boundaries'] = boundaries
+    # if the z-values are outside the colorbar range, add extend marker(s)
+    # This behavior can be disabled by providing extend='neither' to the function call
+    if not('extend' in kwargs.keys()) or kwargs['extend'] in ['min','max']:
+        extend_min = cliplower or ( 'extend' in kwargs.keys() and kwargs['extend']=='min' )
+        extend_max = clipupper or ( 'extend' in kwargs.keys() and kwargs['extend']=='max' )
+        if extend_min and extend_max:
+            kwargs['extend'] = 'both'
+        elif extend_min:
+            kwargs['extend'] = 'min'
+        elif extend_max:
+            kwargs['extend'] = 'max'
+    return fig.colorbar(m, **kwargs)
 
 def plot_contourf_Impl(X,Y,Z,title,label,cmap=pplot.Colormap('CoolWarm'),levels=250,figwidth=20,vmin=0,vmax=0):
     figsize=figsize_cm(figwidth,X,Y)
@@ -109,14 +138,20 @@ def plot_contourf_Impl(X,Y,Z,title,label,cmap=pplot.Colormap('CoolWarm'),levels=
     ax.xaxis.set_major_formatter(formatter) 
     ax.yaxis.set_major_formatter(formatter) 
     Xi,Yi=np.meshgrid(X, Y)
+
     if vmin==0:
         vmin=np.min(Z)
     if vmax==0:
         vmax=np.max(Z)
+
     CS=ax.contourf(Xi,Yi,Z, cmap=cmap, levels=levels,vmin=vmin,vmax=vmax)
     ax_cb = ax.inset_axes([1.04, 0, 0.02,1])
-    
-    fig.colorbar(CS,cax=ax_cb,label=label)
+    # cbarticks = np.arange(vmin,vmax,(vmax-vmin)/10)
+    # fig.colorbar(CS,cax=ax_cb,ticks=cbarticks,label=label)
+
+
+    clippedcolorbar(CS,cax=ax_cb,label=label, extend='neither')
+
     fig.tight_layout()
     return fig,ax
 
@@ -131,7 +166,7 @@ def plot_contourf(df,fieldName,title,label,cmap=pplot.Colormap('CoolWarm'),level
     X=dfpivot.columns.values
     Y=dfpivot.index.values
     Z=dfpivot.values
-    fig,ax=plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=0,vmax=0)
+    fig,ax=plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=vmin,vmax=vmax)
     return fig,ax
 
 def plot_contourf_save(df,fieldName,title,label,folder_path,cmap=pplot.Colormap('CoolWarm'),levels=250,figwidth=20,vmin=0,vmax=0,dpi=600):
@@ -139,7 +174,7 @@ def plot_contourf_save(df,fieldName,title,label,folder_path,cmap=pplot.Colormap(
     X=dfpivot.columns.values
     Y=dfpivot.index.values
     Z=dfpivot.values
-    fig,_=plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=0,vmax=0)
+    fig,_=plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=vmin,vmax=vmax)
     if not os.path.exists(folder_path):
         os.mkdir(folder_path)
     plt.savefig(f"{folder_path}/{title}.jpg".replace(" ","-"),dpi=dpi)
@@ -190,6 +225,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
         else:
             vmin=0
             vmax=0
+        # print(f"T vmax:{vmax}") 
         plot_contourf_save(df,"T",T_title,label='Temperature (K)',folder_path=save_folder,vmin=vmin,vmax=vmax)
 
     if "Qdot" in fields:
@@ -200,6 +236,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
         else:
             vmin=0
             vmax=0
+        # print(f"Qdot vmax:{vmax}") 
         plot_contourf_save(df,"Qdot",Qdot_title,label='Reaction Heat Rate (J/(m$^3\cdot$s))',folder_path=save_folder,vmin=vmin,vmax=vmax)
 
 def read_plot_multiple_field_contourf_save(data_folder,fields,time_instant,save_folder,xranges={}):
@@ -445,7 +482,7 @@ def Plot_MaxTemperature_OutletO2ConcHistory(df_combined):
 
     lns = lns1+lns2+lns3
     labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="upper right", ncol=1, fancybox=True)
+    ax.legend(lns, labs, loc="upper right", ncol=1, fancybox=False)
 
     # fig.tight_layout()
     return ax,ax2,fig
@@ -470,7 +507,7 @@ def plot_reaction_rate_burning_rate(df_rate):
     
     lns = lns1+lns2
     labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="upper right", fancybox=True)
+    ax.legend(lns, labs, loc="upper right", fancybox=False)
 
     return ax,ax2,fig
 
