@@ -33,9 +33,11 @@ Description
 #include "fvCFD.H"
 #include "fvmSup.H"
 #include "pisoControl.H"
+#include "scalar.H"
 #include "surfaceFieldsFwd.H"
 #include "surfaceInterpolate.H"
 #include "volFieldsFwd.H"
+#include <deque>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -97,7 +99,7 @@ int main(int argc, char *argv[])
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar("eps", dimless, 0) 
@@ -111,7 +113,7 @@ int main(int argc, char *argv[])
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar("rk", dimensionSet(0, -2, 0, 0, 0, 0, 0), 0) 
@@ -208,12 +210,30 @@ int main(int argc, char *argv[])
         <<"; average pressure at the outlet: "<<meanPOutlet
         <<endl;
 
-    scalar L=0.02;  //need read 
+    IOdictionary  blockMesh
+    (
+        IOobject
+        (
+            "blockMeshDict",
+            runTime.system(),
+            mesh,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE
+        )
+    );
+
+    scalar convertToMeters(readScalar(blockMesh.lookup("convertToMeters")));
+    scalar lx(readScalar(blockMesh.lookup("lx")));
+
+    scalar L=lx*convertToMeters;  //need read //need read //need read //need read 
+    Info<<"Lx: "<<L<<" m"<<endl;
     scalar gradPressure=(meanPInlet-meanPOutlet)/L;
     Info<<"gradient of pressure: "<<gradPressure<<endl;
-    scalar perm=0.0;
-    
+    scalar perm=1.0;
+    scalar permOld=1.0;
+    std::deque<scalar> relativeErrors;
 
+    bool converged=false;
 
     #include "initContinuityErrs.H"
     #include "createTimeControls.H"
@@ -224,7 +244,7 @@ int main(int argc, char *argv[])
     
     Info<< "\nStarting time loop\n" << endl;
 
-    while (runTime.loop())
+    while (runTime.loop() && !converged)
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
         
@@ -306,13 +326,33 @@ int main(int argc, char *argv[])
         const volScalarField& Ux=tUx.ref();
         const scalar meanUx=gAverage(Ux);
         Info<<"average Ux: "<<meanUx<<endl;
+
+        permOld=perm;
         perm=meanUx*nu.value()/gradPressure*1e15; //mD
-        Info<<"Permeability: "<<perm<< " mD"<<endl;
-        
+        scalar relativePermError=std::abs(perm-permOld)/perm;
+                
+        Info<<"Permeability: "<<perm<< " mD"
+            <<" with relative error: "<<relativePermError
+            <<endl;
 
+        relativeErrors.push_back(relativePermError);
+        if (static_cast<int> (relativeErrors.size()) <= relativeErrorCount)
+        {
+            converged=false;
+        }
+        else
+        {
+            relativeErrors.erase(relativeErrors.begin());
+            scalar averageRelativePermError=0.0;
+            for (auto it=relativeErrors.begin(); it!=relativeErrors.end(); ++it) {
+                averageRelativePermError +=*it;
+            }
+            averageRelativePermError/=relativeErrors.size();
+            converged=(averageRelativePermError < threshold) && (relativePermError < threshold);
+            // Info<<"Permeability averageRelativePermError: "<<averageRelativePermError<<endl;
+        }
 
-
-
+    
         tmp<volVectorField> tUResidual(U-U.oldTime());
         const volVectorField& UResidual=tUResidual.ref();
         const Foam::Vector<scalar> normUResidual=gSumCmptProd(UResidual,UResidual);
@@ -325,13 +365,26 @@ int main(int argc, char *argv[])
         Info<<"relative error: Ux: "<<relativeUResidual[0]<<" Uy: "<<relativeUResidual[1]<<endl;
 
 
-
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
     }
 
+    runTime.writeNow();
+
     Info<< "End\n" << endl;
+
+    if(converged)
+    {
+        Info<<"Permeability computation is converged to the relative error of "<<threshold<<endl;
+    }
+    else
+    {
+        Info<<"Permeability computation is not converged to the relative error of "
+            <<threshold<<"! Please continue..."<<endl;
+    }
+     Info<<"Permeability: "<<perm<< " mD"<<endl;
+
 
     return 0;
 }

@@ -28,6 +28,10 @@ endTime         0.05;
 
 deltaT          1e-6;
 
+threshold        7.8e-6;
+
+relativeErrorCount  30;
+
 writeControl    adjustableRunTime;
 
 writeInterval   0.01;
