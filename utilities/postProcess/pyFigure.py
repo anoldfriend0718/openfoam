@@ -482,7 +482,7 @@ def Plot_MaxTemperature_OutletO2ConcHistory(df_combined):
 
     lns = lns1+lns2+lns3
     labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="upper right", ncol=1, fancybox=False)
+    ax.legend(lns, labs, loc="upper right", ncol=1, fancybox=True)
 
     # fig.tight_layout()
     return ax,ax2,fig
@@ -507,7 +507,7 @@ def plot_reaction_rate_burning_rate(df_rate):
     
     lns = lns1+lns2
     labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="upper right", fancybox=False)
+    ax.legend(lns, labs, loc="upper right", fancybox=True)
 
     return ax,ax2,fig
 

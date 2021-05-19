@@ -16,7 +16,7 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 
-targetResidualCokeFraction        6e-3;
+targetResidualCokeFraction        8e-3;
 involveGasProductionInNSEqn       true;
 
 
