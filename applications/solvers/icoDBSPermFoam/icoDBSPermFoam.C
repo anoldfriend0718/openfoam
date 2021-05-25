@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         mesh
     );
@@ -223,11 +223,11 @@ int main(int argc, char *argv[])
     );
 
     scalar convertToMeters(readScalar(blockMesh.lookup("convertToMeters")));
-    scalar lx(readScalar(blockMesh.lookup("lx")));
+    scalar Nx(readScalar(blockMesh.lookup("Nx")));
 
-    scalar L=lx*convertToMeters;  //need read //need read //need read //need read 
-    Info<<"Lx: "<<L<<" m"<<endl;
-    scalar gradPressure=(meanPInlet-meanPOutlet)/L;
+    scalar Lx=Nx*convertToMeters;  //need read //need read //need read //need read 
+    Info<<"Lx: "<<Lx<<" m"<<endl;
+    scalar gradPressure=(meanPInlet-meanPOutlet)/Lx;
     Info<<"gradient of pressure: "<<gradPressure<<endl;
     scalar perm=1.0;
     scalar permOld=1.0;

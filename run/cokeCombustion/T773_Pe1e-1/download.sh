@@ -6,12 +6,13 @@ foldername="$(basename  "$(pwd)")"
 syncFolderPath=$runspace/$foldername
 echo "sync folder path: $syncFolderPath"
 
-papp_cloud rsync bscc-a3:$syncFolderPath/err_*.log ./logs/
-papp_cloud rsync bscc-a3:$syncFolderPath/postProcessing ./
-papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/others ./postProcess/
-papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/transverseAveragedData ./postProcess/
-papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/animations ./postProcess/
-# papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/images ./postProcess/
+# papp_cloud rsync bscc-a3:$syncFolderPath/err_*.log ./logs/
+# papp_cloud rsync bscc-a3:$syncFolderPath/postProcessing ./
+# papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/others ./postProcess/
+# papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/transverseAveragedData ./postProcess/
+# papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/animations ./postProcess/
+# papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/images/*1.51* ./postProcess/images/
+papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/1.51.csv ./postProcess/
 
 # papp_cloud rsync bscc-a3:$syncFolderPath/0 ./
 # papp_cloud rsync bscc-a3:$syncFolderPath/constant ./

@@ -11,7 +11,7 @@ papp_cloud rsync bscc-a3:$syncFolderPath/postProcessing ./
 papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/others ./postProcess/
 papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/transverseAveragedData ./postProcess/
 papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/animations ./postProcess/
-papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/images/*61.51* ./postProcess/images/
+papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/images/*40.51* ./postProcess/images/
 
 # papp_cloud rsync bscc-a3:$syncFolderPath/0 ./
 # papp_cloud rsync bscc-a3:$syncFolderPath/constant ./
