@@ -30,15 +30,14 @@ boundaryField
     {
         type            zeroGradient;
     }
-
+    
     "(top|bottom)"
     {
         type            noSlip;
     }
-    
     frontAndBack
     {
-        type            empty;
+        type            noSlip;
     }
 }
 

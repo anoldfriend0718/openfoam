@@ -9,38 +9,15 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volVectorField;
-    location    "0";
-    object      U;
+    class       dictionary;
+    location    "constant";
+    object      rockProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
+porosity         [0 0 0 0 0 0 0] 0.0675;
+K                [0 2 0 0 0 0 0] 1.0e-15;
 
-internalField   uniform (0 0 0);
-
-boundaryField
-{
-    inlet
-    {
-        type            zeroGradient;
-    }
-
-    outlet
-    {
-        type            zeroGradient;
-    }
-
-    "(top|bottom)"
-    {
-        type            noSlip;
-    }
-    
-    frontAndBack
-    {
-        type            empty;
-    }
-}
 
 
 // ************************************************************************* //

@@ -24,17 +24,17 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         6e-3;
+endTime         0.05;
 
-deltaT          1e-7;
+deltaT          1e-6;
 
-threshold        1e-6;
+threshold        7.8e-6;
 
 relativeErrorCount  30;
 
 writeControl    adjustableRunTime;
 
-writeInterval   1e-3;
+writeInterval   0.01;
 
 purgeWrite      0;
 
@@ -52,9 +52,9 @@ runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           0.1;
+maxCo           0.001;
 
-maxDeltaT       0.9;
+maxDeltaT       1e-5;
 
 functions
 {
