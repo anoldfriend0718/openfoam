@@ -186,7 +186,7 @@ def plot_contourf_save(df,fieldName,title,label,folder_path,cmap=pplot.Colormap(
     # for stat in top_stats[:1]:
        
 
-def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
+def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={},dpi=600):
     if "eps" in fields:
         eps_title=f"porosity contour at {time_str(time_instant)}"
         if "eps" in xranges:
@@ -195,7 +195,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
         else:
             vmin=0
             vmax=0
-        plot_contourf_save(df,"eps",eps_title,label='porosity',folder_path=save_folder,vmin=vmin,vmax=vmax)
+        plot_contourf_save(df,"eps",eps_title,label='porosity',folder_path=save_folder,vmin=vmin,vmax=vmax,dpi=dpi)
 
     if "UNorm" in fields:
         unorm_title=f"velocity magnitude contour at {time_str(time_instant)}"
@@ -205,7 +205,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
         else:
             vmin=0
             vmax=0
-        plot_contourf_save(df,"UNorm",unorm_title,label='velocity magnitude (m/s)',folder_path=save_folder,vmin=vmin,vmax=vmax)
+        plot_contourf_save(df,"UNorm",unorm_title,label='velocity magnitude (m/s)',folder_path=save_folder,vmin=vmin,vmax=vmax,dpi=dpi)
 
     if "O2Conc" in fields:
         O2Conc_title=f"O$_{2}$ concentration contour at {time_str(time_instant)}"
@@ -215,7 +215,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
         else:
             vmin=0
             vmax=0
-        plot_contourf_save(df,"O2Conc",O2Conc_title,label='O$_2$ mole concentration (mol/m$^3$)',folder_path=save_folder,vmin=vmin,vmax=vmax)
+        plot_contourf_save(df,"O2Conc",O2Conc_title,label='O$_2$ mole concentration (mol/m$^3$)',folder_path=save_folder,vmin=vmin,vmax=vmax,dpi=dpi)
 
     if "T" in fields:
         T_title=f"Temperature contour at {time_str(time_instant)}"
@@ -226,7 +226,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
             vmin=0
             vmax=0
         # print(f"T vmax:{vmax}") 
-        plot_contourf_save(df,"T",T_title,label='Temperature (K)',folder_path=save_folder,vmin=vmin,vmax=vmax)
+        plot_contourf_save(df,"T",T_title,label='Temperature (K)',folder_path=save_folder,vmin=vmin,vmax=vmax,dpi=dpi)
 
     if "Qdot" in fields:
         Qdot_title=f"Reaction Heat Rate contour at {time_str(time_instant)}"
@@ -237,11 +237,11 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={}):
             vmin=0
             vmax=0
         # print(f"Qdot vmax:{vmax}") 
-        plot_contourf_save(df,"Qdot",Qdot_title,label='Reaction Heat Rate (J/(m$^3\cdot$s))',folder_path=save_folder,vmin=vmin,vmax=vmax)
+        plot_contourf_save(df,"Qdot",Qdot_title,label='Reaction Heat Rate (J/(m$^3\cdot$s))',folder_path=save_folder,vmin=vmin,vmax=vmax,dpi=dpi)
 
-def read_plot_multiple_field_contourf_save(data_folder,fields,time_instant,save_folder,xranges={}):
+def read_plot_multiple_field_contourf_save(data_folder,fields,time_instant,save_folder,xranges={},dpi=600):
     df=read_data_and_process(data_folder,time_instant)
-    plot_multiple_contourf_save(df,fields,float(time_instant),save_folder,xranges)
+    plot_multiple_contourf_save(df,fields,float(time_instant),save_folder,xranges,dpi=dpi)
 
 
 
@@ -494,15 +494,16 @@ def plot_reaction_rate_burning_rate(df_rate):
     df_rate.sort_values(by="time",inplace=True)
     
     lns1=ax.plot(df_rate["time"],df_rate["vol_averaged_reaction_rate"],color=c1,
-            label="Coke reaction rate")
+            label="Reaction rate")
+
     max_rate=df_rate["vol_averaged_reaction_rate"].max()
     ax.format(xlabel="Time (s)",ylabel="Volume-Averaged coke reaction rate (kg/m$^3$/s)",
               ycolor=c1,ylim=(-1,max_rate*1.1))
 
     ax2 = ax.twinx()
     lns2=ax2.plot(df_rate["time"],df_rate["burning_fraction"]*100,color=c2,
-            linestyle="--",label="Burning rate")
-    ax2.format(xlabel="Time (s)",ylabel="Burning rate (%)",ycolor=c2,
+            linestyle="--",label="Conversion")
+    ax2.format(xlabel="Time (s)",ylabel="Conversion (%)",ycolor=c2,
                ylim=(-1,100))
     
     lns = lns1+lns2

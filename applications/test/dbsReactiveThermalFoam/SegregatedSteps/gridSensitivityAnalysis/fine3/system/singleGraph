@@ -19,7 +19,7 @@ libs            ("libsampling.so");
 
 interpolationScheme cellPoint;
 
-fields  (T O2 CO2);
+fields  (T eps O2 CO2);
 
 setFormat   csv;
 

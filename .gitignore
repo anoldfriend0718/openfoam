@@ -1,6 +1,6 @@
 
 run/*
-
+**/tmp*
 !run/cokeCombustion/
 
 run/**/postProcess*/
