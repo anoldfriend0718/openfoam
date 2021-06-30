@@ -1,3 +1,0 @@
-icoDBSPermFoam.C
-
-EXE = $(FOAM_USER_APPBIN)/icoDBSPermFoam

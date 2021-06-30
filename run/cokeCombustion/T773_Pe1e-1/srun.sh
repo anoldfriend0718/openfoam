@@ -22,6 +22,8 @@ dataFolder=./postProcess
 transverse_data_folder=./postProcess/transverseAveragedData/
 imageFolder=./postProcess/images
 
-runWorkflow $cpu $workerNum $caseDir $sampleRate $dataFolder $transverse_data_folder $imageFolder
+animation_rate=10 #data interval 0.1 s
+
+runWorkflow $cpu $workerNum $caseDir $sampleRate $dataFolder $transverse_data_folder $imageFolder $animation_rate
 
 

@@ -229,7 +229,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={},dp
         plot_contourf_save(df,"T",T_title,label='Temperature (K)',folder_path=save_folder,vmin=vmin,vmax=vmax,dpi=dpi)
 
     if "Qdot" in fields:
-        Qdot_title=f"Reaction Heat Rate contour at {time_str(time_instant)}"
+        Qdot_title=f"Reaction heat rate contour at {time_str(time_instant)}"
         if "Qdot" in xranges:
             vmin=xranges["Qdot"]["vmin"]
             vmax=xranges["Qdot"]["vmax"]
@@ -237,7 +237,7 @@ def plot_multiple_contourf_save(df,fields,time_instant,save_folder,xranges={},dp
             vmin=0
             vmax=0
         # print(f"Qdot vmax:{vmax}") 
-        plot_contourf_save(df,"Qdot",Qdot_title,label='Reaction Heat Rate (J/(m$^3\cdot$s))',folder_path=save_folder,vmin=vmin,vmax=vmax,dpi=dpi)
+        plot_contourf_save(df,"Qdot",Qdot_title,label='Reaction heat rate (J/(m$^3\cdot$s))',folder_path=save_folder,vmin=vmin,vmax=vmax,dpi=dpi)
 
 def read_plot_multiple_field_contourf_save(data_folder,fields,time_instant,save_folder,xranges={},dpi=600):
     df=read_data_and_process(data_folder,time_instant)

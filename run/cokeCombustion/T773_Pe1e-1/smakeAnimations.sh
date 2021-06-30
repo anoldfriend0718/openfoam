@@ -12,11 +12,13 @@ image_folder=./postProcess/images
 cd $image_folder
 animation_folder=../animations #relative to image_folder
 
-makeAnimation $animation_folder 'Temperature*.jpg'             4 temperature &
-makeAnimation $animation_folder 'porosity*.jpg'                4 porosity &
-makeAnimation $animation_folder 'O\$_2\$*.jpg'                 5 O2Conc &
-makeAnimation $animation_folder 'velocity-magnitude*.jpg '     5 velocityMagnitude &
-makeAnimation $animation_folder 'Reaction-Heat-Rate*.jpg '     6 heatRate &
+rate=10
+
+makeAnimation $animation_folder 'Temperature*.jpg'             4 temperature $rate &
+makeAnimation $animation_folder 'porosity*.jpg'                4 porosity $rate &
+makeAnimation $animation_folder 'O\$_2\$*.jpg'                 5 O2Conc $rate &
+makeAnimation $animation_folder 'velocity-magnitude*.jpg '     5 velocityMagnitude $rate &
+makeAnimation $animation_folder 'Reaction-heat-rate*.jpg '     6 heatRate $rate &
 
 wait 
 
