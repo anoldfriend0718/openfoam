@@ -2,6 +2,7 @@
 run/*
 **/tmp*
 !run/cokeCombustion/
+.cache/
 
 run/**/postProcess*/
 **/*.log
