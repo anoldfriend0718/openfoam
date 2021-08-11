@@ -6,6 +6,7 @@ foldername="$(basename  "$(pwd)")"
 syncFolderPath=$runspace/$foldername
 echo "sync folder path: $syncFolderPath"
 
+papp_cloud rsync bscc-a3:$syncFolderPath/run*.log ./logs/
 papp_cloud rsync bscc-a3:$syncFolderPath/err_*.log ./logs/
 papp_cloud rsync bscc-a3:$syncFolderPath/postProcessing ./
 papp_cloud rsync bscc-a3:$syncFolderPath/postProcess/others ./postProcess/

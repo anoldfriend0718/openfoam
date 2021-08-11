@@ -1,6 +1,6 @@
 #!/bin/bash
 cd ${0%/*} || exit 1    # Run from this directory
-runspace=/public1/home/sc90898/OpenFOAMWorkspace/sc90898-7/run/cokeCombustion/combustion_in_fracture_martrix/matrix_from_micro_ct/
+runspace=/public1/home/sc90898/OpenFOAMWorkspace/sc90898-7/run/cokeCombustion/combustion_in_fracture_martrix/matrix_from_micro_ct/width=50
 
 foldername="$(basename  "$(pwd)")"
 syncFolderPath=$runspace/$foldername

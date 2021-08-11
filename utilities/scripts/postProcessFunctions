@@ -113,8 +113,41 @@ function makeAnimation()
 
     echo "frame rate :$rate"
     echo "saving animations to folder:  $animation_folder"
+    which ffmpeg
     # ffmpeg -y -r 10 -safe 0 -f concat  -i $4.txt -r 10 -vcodec libx264  -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"  $animation_folder/$4.mp4
     ffmpeg  -y  -r $rate -safe 0 -f concat  -i $4.txt -r $rate  $animation_folder/$4.gif
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete making animation of $4"
+    else
+        echo "something wrong in making animation of $4"
+    fi
+    
+    rm $4.txt
+}
+
+
+function makeAnimationMP4()
+{
+    animation_folder=$1
+    if [ -e $animation_folder ]; then
+        echo "Animation path exists: $animation_folder"
+    else
+        echo "Create animation path: $animation_folder"
+        mkdir $animation_folder
+    fi
+
+    ls $2 | sort -t '-' -k $3 -n | sed 's:\ :\\\ :g'| sed 's/^/file /'  > $4.txt
+    rate=$5
+
+    echo "frame rate :$rate"
+    echo "saving animations to folder:  $animation_folder"
+
+    # source /public1/home/sc90898/Repo/env.sh 
+    which ffmpeg
+
+    ffmpeg -y -r $rate -safe 0 -f concat  -i $4.txt -r $rate -vcodec libx264  -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"  $animation_folder/$4.mp4
+    # ffmpeg  -y  -r $rate -safe 0 -f concat  -i $4.txt -r $rate  $animation_folder/$4.gif
 
     if [ $? -eq 0 ]; then
         echo "succeed to complete making animation of $4"
@@ -155,7 +188,7 @@ function runWorkflow()
     makeAnimation $animation_folder 'porosity*.jpg'                4 porosity $animation_rate &
     makeAnimation $animation_folder 'O\$_2\$*.jpg'                 5 O2Conc $animation_rate &
     makeAnimation $animation_folder 'velocity-magnitude*.jpg '     5 velocityMagnitude $animation_rate &
-    makeAnimation $animation_folder 'Reaction-Heat-Rate*.jpg '     6 heatRate $animation_rate &
+    makeAnimation $animation_folder 'Reaction-heat-rate*.jpg '     6 heatRate $animation_rate &
     wait 
     [ $? -ne 0  ] && exit 5
 
