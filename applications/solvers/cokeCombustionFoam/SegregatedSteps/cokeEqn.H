@@ -25,7 +25,7 @@ forAll(coke,celli)
 
 Info<<"updating the porous medium and related fields"<<endl;
 eps=1-coke-rock;
-eps.max(0.0);
+// eps.max(0.0);
 rEps=1.0/(eps+SMALL);
 rEpsf=fvc::interpolate(rEps);
 phiByEpsf=phi*rEpsf;

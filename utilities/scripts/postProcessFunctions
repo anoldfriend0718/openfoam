@@ -10,6 +10,17 @@ function runCokeCombustionFoam()
     fi
 }
 
+function runCokeCombustionFoam3()
+{
+    cpu=$1
+    srun -n $cpu $FOAM_USER_APPBIN/cokeCombustionFoam3 -parallel
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete computations"
+    else
+        echo "something wrong in computations"
+    fi
+}
+
 function batchPostProcess()
 {
     data_folder=$1
@@ -163,6 +174,43 @@ function runWorkflow()
     cpu=$1
 
     runCokeCombustionFoam $cpu
+    [ $? -ne 0  ] && exit 1
+
+    workerNum=$2
+    caseDir=$3
+    sampleRate=$4
+    reconstruct $workerNum $caseDir $sampleRate
+    [ $? -ne 0  ] && exit 2
+
+    data_folder=$5
+    transverse_data_folder=$6
+    batchPostProcess $data_folder $transverse_data_folder $cpu
+    [ $? -ne 0  ] && exit 3
+
+
+    imageFolder=$7
+    plotImages $workerNum $dataFolder $imageFolder
+    [ $? -ne 0  ] && exit 4
+
+    cd $image_folder
+    animation_folder=../animations #relative to image_folder
+    animation_rate=$8
+    makeAnimation $animation_folder 'Temperature*.jpg'             4 temperature $animation_rate &
+    makeAnimation $animation_folder 'porosity*.jpg'                4 porosity $animation_rate &
+    makeAnimation $animation_folder 'O\$_2\$*.jpg'                 5 O2Conc $animation_rate &
+    makeAnimation $animation_folder 'velocity-magnitude*.jpg '     5 velocityMagnitude $animation_rate &
+    makeAnimation $animation_folder 'Reaction-heat-rate*.jpg '     6 heatRate $animation_rate &
+    wait 
+    [ $? -ne 0  ] && exit 5
+
+
+}
+
+function runWorkflow2()
+{
+    cpu=$1
+
+    runCokeCombustionFoam3 $cpu
     [ $? -ne 0  ] && exit 1
 
     workerNum=$2

@@ -221,20 +221,20 @@ dimensionedScalar totalVolume = sum(mesh.V());
 
 #include "createPorousMediumFields.H"
 
-// #include "initReactionModel.H"
+#include "initReactionModel.H"
 
-// #include "createFvOptions.H"
+#include "createFvOptions.H"
 
-// Info<< "Reading mvConvection "<< nl <<endl;
-// tmp<fv::convectionScheme<scalar>> mvConvection
-// (
-//     fv::convectionScheme<scalar>::New
-//     (
-//         mesh,
-//         fields,
-//         phi,
-//         mesh.divScheme("div(phi,Yi_h)")
-//     )
-// );
+Info<< "Reading mvConvection "<< nl <<endl;
+tmp<fv::convectionScheme<scalar>> mvConvection
+(
+    fv::convectionScheme<scalar>::New
+    (
+        mesh,
+        fields,
+        phi,
+        mesh.divScheme("div(phi,Yi_h)")
+    )
+);
 
 

@@ -51,5 +51,5 @@
     const volScalarField& T=thermo.T();
 
     Info<< "min/max(T) = "
-        << min(T).value() << ", " << max(T).value() << endl;    
+        << gMin(T) << ", " << gMax(T) << endl;    
 }
