@@ -1,20 +1,31 @@
-Info<<"Reading the species transport properties"<< nl <<endl;
-IOdictionary transportProperties
+Info<<"Creating the species transport properties"<< nl <<endl;
+volScalarField DeffO2
 (
     IOobject
     (
-        "transportProperties",
-        runTime.constant(),
+        "Deff_O2",
+        runTime.timeName(),
         mesh,
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
-    )
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimensionSet(0,2,-1,0,0,0,0),0.0)
 );
 
-// dimensionedScalar DO2(transportProperties.lookup("DO2"));
-// dimensionedScalar DCO2(transportProperties.lookup("DCO2"));
-// Info<<"O2 molecular diffusivity: "<<DO2.value()<< nl <<endl;
-// Info<<"CO2 molecular diffusivity: "<<DCO2.value()<< nl <<endl;
+volScalarField DeffCO2
+(
+    IOobject
+    (
+        "Deff_CO2",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimensionSet(0,2,-1,0,0,0,0),0.0)
+);
 
 
 Info<< "Reading gas thermophysical properties" <<nl<< endl;
@@ -64,10 +75,6 @@ if(O2Index !=0)
     FatalErrorInFunction<<"O2 should be the first species"
     <<exit(FatalError); 
 }
-
-const scalar MO2=composition.Wi(O2Index);
-const scalar MCO2=composition.Wi(CO2Index);
-const scalar MN2=composition.Wi(N2Index);
 
 
 Info<< "Reading solid thermophysical properties"<<nl << endl;

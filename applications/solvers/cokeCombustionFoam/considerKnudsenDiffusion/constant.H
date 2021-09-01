@@ -16,3 +16,5 @@
     const scalar sigmaO2CO2=(sigmaO2+sigmaCO2)/2.0;
     const scalar sigmaO2N2=(sigmaO2+sigmaN2)/2.0;
     const scalar sigmaCO2N2=(sigmaCO2+sigmaN2)/2.0;
+
+    const scalar atmpressure=101325;

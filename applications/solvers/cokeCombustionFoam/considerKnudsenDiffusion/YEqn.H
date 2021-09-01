@@ -1,5 +1,6 @@
-#include "volFieldsFwd.H"
+
 {
+    #include "updateDeff.H"
     PtrList<volScalarField> rhoDeffs(Y.size());
     rhoDeffs.set(O2Index,new volScalarField("epsRhoDeffO2",eps*rho*DeffO2));
     rhoDeffs.set(CO2Index,new volScalarField("epsRhoDeffCO2",eps*rho*DeffCO2));

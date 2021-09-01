@@ -1,7 +1,3 @@
-    
-    scalar dp=20e-9; 
-    Info<<"coke pore diameter: "<<dp<<endl;
-    
     Info<<"Reading the porosity and coke fraction"<<nl<<endl;
     volScalarField eps
     (
@@ -78,6 +74,8 @@
 
     Info<< "Createing permeability field"<< nl << endl;
 
+    scalar dp=readScalar(porousTransportProperties.lookup("dp")); 
+    
     dimensionedScalar K0 //rock 
     {
         "K0",
@@ -106,6 +104,9 @@
         (1.0/K1).value()
     };
 
+    Info<<"coke pore diameter: "<<dp<<endl
+        <<"coke permeability factor K0: "<<K1.value()<<endl
+        <<"rock permeability factor K0: "<<K0.value() <<endl;
 
     volScalarField rK
     (
@@ -185,6 +186,9 @@
     {
         const volScalarField& mu=thermo.mu()();
         const volScalarField& T=thermo.T();
+        const scalar MN2=composition.Wi(N2Index);
+        const scalar MCO2=composition.Wi(CO2Index);
+        const scalar M=2*MN2*MCO2/(MN2+MCO2);
                     
         forAll(cokeRegion,i)
         {
@@ -193,7 +197,7 @@
                 scalar mui=mu[i];
                 scalar pi=p[i];
                 scalar Ti=T[i];
-                scalar kni=2*(mui/pi*std::sqrt(PI*Rg1000*Ti/(2*MN2)))/dp;
+                scalar kni=2*(mui/pi*std::sqrt(PI*Rg1000*Ti/(2*M)))/dp;
                 scalar alphai=128/(15*PI2)*std::atan(4*std::pow(kni,0.4));
                 scalar rKnanoi=1./((1+alphai*kni)*(1+4*kni/(1+kni)));
                 rKnano[i]=rKnanoi;
@@ -241,23 +245,6 @@
             solid[celli]=1.0;
         }
     }
-
-    // volScalarField::Boundary& epsBf = eps.boundaryFieldRef();
-    // volScalarField::Boundary& solidBf=solid.boundaryFieldRef();
-    // forAll(epsBf,patchi)
-    // {
-    //     forAll(epsBf[patchi],facei)
-    //     {
-    //         if(epsBf[patchi][facei]>0.99)
-    //         {
-    //             solidBf[patchi][facei]=0.0;
-    //         }
-    //         else
-    //         {
-    //             solidBf[patchi][facei]=1.0;
-    //         }
-    //     }
-    // }
 
     forAll(drag,celli)
     {
