@@ -11,10 +11,10 @@ IOdictionary transportProperties
     )
 );
 
-dimensionedScalar DO2(transportProperties.lookup("DO2"));
-dimensionedScalar DCO2(transportProperties.lookup("DCO2"));
-Info<<"O2 molecular diffusivity: "<<DO2.value()<< nl <<endl;
-Info<<"CO2 molecular diffusivity: "<<DCO2.value()<< nl <<endl;
+// dimensionedScalar DO2(transportProperties.lookup("DO2"));
+// dimensionedScalar DCO2(transportProperties.lookup("DCO2"));
+// Info<<"O2 molecular diffusivity: "<<DO2.value()<< nl <<endl;
+// Info<<"CO2 molecular diffusivity: "<<DCO2.value()<< nl <<endl;
 
 
 Info<< "Reading gas thermophysical properties" <<nl<< endl;
@@ -64,6 +64,11 @@ if(O2Index !=0)
     FatalErrorInFunction<<"O2 should be the first species"
     <<exit(FatalError); 
 }
+
+const scalar MO2=composition.Wi(O2Index);
+const scalar MCO2=composition.Wi(CO2Index);
+const scalar MN2=composition.Wi(N2Index);
+
 
 Info<< "Reading solid thermophysical properties"<<nl << endl;
 IOdictionary thermoSolid

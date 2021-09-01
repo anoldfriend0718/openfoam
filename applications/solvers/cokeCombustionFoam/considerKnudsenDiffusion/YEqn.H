@@ -1,7 +1,8 @@
+#include "volFieldsFwd.H"
 {
     PtrList<volScalarField> rhoDeffs(Y.size());
-    rhoDeffs.set(O2Index,new volScalarField("rhoEps2DO2",rho*eps*eps*DO2));
-    rhoDeffs.set(CO2Index,new volScalarField("rhoEps2DCO2",rho*eps*eps*DCO2));
+    rhoDeffs.set(O2Index,new volScalarField("epsRhoDeffO2",eps*rho*DeffO2));
+    rhoDeffs.set(CO2Index,new volScalarField("epsRhoDeffCO2",eps*rho*DeffCO2));
 
     volScalarField Yt(0.0*Y[0]);
 
@@ -16,7 +17,7 @@
             fvScalarMatrix YiEqn
             (
                   fvm::ddt(eps,rho, Yi)
-                + mvConvection->fvmDiv(phi, Yi)
+                + (1-solid)*mvConvection->fvmDiv(phi, Yi)
                 - fvm::laplacian(rhoDeff, Yi)
               ==
                   reaction.R(Yi)

@@ -43,6 +43,23 @@
                 }
             }
 
+            volScalarField::Boundary& cokeBf = coke.boundaryFieldRef();
+            volScalarField::Boundary& cokeRegionBf=cokeRegion.boundaryFieldRef();
+            forAll(cokeBf,patchi)
+            {
+                forAll(cokeBf[patchi],facei)
+                {
+                    if(cokeBf[patchi][facei]>SMALL)
+                    {
+                        cokeRegionBf[patchi][facei]=1.0;
+                    }
+                    else
+                    {
+                        cokeRegionBf[patchi][facei]=0.0;
+                    }
+                }
+            }
+
             rK=rK0*(1.0-eps)*(1.0-eps)/max((eps*eps*eps),SMALL);
             forAll(cokeRegion,celli)
             {
@@ -54,19 +71,19 @@
 
             }
       
-            drag=fvc::average(mu*rK);
+            // drag=fvc::average(mu*rK);
 
-            forAll(eps,celli)
-            {
-                if(eps[celli]>0.99)
-                {
-                    solid[celli]=0.0;
-                }
-                else
-                {
-                    solid[celli]=1.0;
-                }
-            }
+            // forAll(eps,celli)
+            // {
+            //     if(eps[celli]>0.99)
+            //     {
+            //         solid[celli]=0.0;
+            //     }
+            //     else
+            //     {
+            //         solid[celli]=1.0;
+            //     }
+            // }
             // volScalarField::Boundary& epsBf = eps.boundaryFieldRef();
             // volScalarField::Boundary& solidBf=solid.boundaryFieldRef();
             // forAll(epsBf,patchi)
@@ -84,10 +101,10 @@
             //     }
             // }
 
-            forAll(drag,celli)
-            {
-                if(solid[celli]<small) //==0
-                {
-                    drag[celli]=0.0;
-                }
-            }
+            // forAll(drag,celli)
+            // {
+            //     if(solid[celli]<small) //==0
+            //     {
+            //         drag[celli]=0.0;
+            //     }
+            // }

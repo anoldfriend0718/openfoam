@@ -1,3 +1,7 @@
+    
+    scalar dp=20e-9; 
+    Info<<"coke pore diameter: "<<dp<<endl;
+    
     Info<<"Reading the porosity and coke fraction"<<nl<<endl;
     volScalarField eps
     (
@@ -137,6 +141,23 @@
         }
     }
 
+    volScalarField::Boundary& cokeBf = coke.boundaryFieldRef();
+    volScalarField::Boundary& cokeRegionBf=cokeRegion.boundaryFieldRef();
+    forAll(cokeBf,patchi)
+    {
+        forAll(cokeBf[patchi],facei)
+        {
+            if(cokeBf[patchi][facei]>SMALL)
+            {
+                cokeRegionBf[patchi][facei]=1.0;
+            }
+            else
+            {
+                cokeRegionBf[patchi][facei]=0.0;
+            }
+        }
+    }
+
     forAll(rK,celli)
     {
         if(cokeRegion[celli]>1.0-SMALL) //==1.0
@@ -146,11 +167,49 @@
         }
     }
 
+
+    volScalarField rKnano
+    (
+        IOobject
+        (
+            "rKnano",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar(dimless,0.0)
+    );
+
+    {
+        const volScalarField& mu=thermo.mu()();
+        const volScalarField& T=thermo.T();
+                    
+        forAll(cokeRegion,i)
+        {
+            if(cokeRegion[i]>1-SMALL)
+            {
+                scalar mui=mu[i];
+                scalar pi=p[i];
+                scalar Ti=T[i];
+                scalar kni=2*(mui/pi*std::sqrt(PI*Rg1000*Ti/(2*MN2)))/dp;
+                scalar alphai=128/(15*PI2)*std::atan(4*std::pow(kni,0.4));
+                scalar rKnanoi=1./((1+alphai*kni)*(1+4*kni/(1+kni)));
+                rKnano[i]=rKnanoi;
+            }
+            else
+            {
+                rKnano[i]=1.0;
+            }
+        }
+    }
+
     Info<<"Creating the porous medium drag force field"<< nl <<endl;
     volScalarField drag
     {
         "drag",
-        fvc::average(mu*rK)
+        fvc::average(mu*rK*rKnano)
     };
 
     // Info<<"Label the cells that have porous medium"<<endl;
