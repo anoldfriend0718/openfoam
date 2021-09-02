@@ -177,7 +177,7 @@
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar(dimless,0.0)
@@ -226,7 +226,7 @@
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar ("solid", dimensionSet(0,0,0,0,0,0,0), 0) 

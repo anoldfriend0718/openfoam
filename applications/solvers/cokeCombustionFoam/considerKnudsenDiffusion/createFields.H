@@ -7,7 +7,7 @@ volScalarField DeffO2
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
     mesh,
     dimensionedScalar(dimensionSet(0,2,-1,0,0,0,0),0.0)
@@ -21,7 +21,7 @@ volScalarField DeffCO2
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
     mesh,
     dimensionedScalar(dimensionSet(0,2,-1,0,0,0,0),0.0)
@@ -131,7 +131,7 @@ surfaceScalarField phi
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
     linearInterpolate(rho*U) & mesh.Sf()
 );

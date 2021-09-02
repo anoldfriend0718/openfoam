@@ -5,11 +5,11 @@ volScalarField rhoCoke
 (
     IOobject
     (
-        "solid",
+        "rhoCoke",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
     mesh,
     cokeThermo.density

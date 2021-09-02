@@ -68,7 +68,7 @@ Foam::specialSurfaceArea::specialSurfaceArea(const Foam::fvMesh& mesh):
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar("SSi",dimless/dimLength,Zero)

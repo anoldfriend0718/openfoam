@@ -100,6 +100,9 @@
 
     p = p_rgh + rho*gh;
 
+    Info<< "min/max(p) = "
+       << gMin(p) << ", " << gMax(p) << endl;   
+
     // For closed-volume cases adjust the pressure level
     // to obey overall mass continuity
     if (!thermo.incompressible() && closedVolume)

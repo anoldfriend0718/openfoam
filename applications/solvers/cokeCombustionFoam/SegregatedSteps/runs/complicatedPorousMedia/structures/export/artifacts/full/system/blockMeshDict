@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-convertToMeters 1e-6;
+convertToMeters 0.5e-6;
 lx 2040;
 ly 1200;
 Nx 2040;
