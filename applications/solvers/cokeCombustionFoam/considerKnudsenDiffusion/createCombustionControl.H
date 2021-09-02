@@ -20,3 +20,5 @@ Info<<"Initial coke fraction: "<<residualCokeFrac<<endl;
 bool involveGasProduction=combustionControl.lookupOrDefault("involveGasProductionInNSEqn", true);
 Info<<"Involve Gas Production Into N-S Eqn: "<<involveGasProduction<<endl;
 
+bool solveEEqn=combustionControl.lookupOrDefault("solveEEqn", true);
+Info<<"if solve energy equation or not:  "<<solveEEqn<<endl;

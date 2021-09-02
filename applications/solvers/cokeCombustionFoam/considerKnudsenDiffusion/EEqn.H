@@ -1,3 +1,4 @@
+if(solveEEqn)
 {
     volScalarField& he = thermo.he();
 
@@ -45,11 +46,11 @@
     EEqn.solve();
 
     fvOptions.correct(he);
-
-    thermo.correct();
-
-    const volScalarField& T=thermo.T();
-
-    Info<< "min/max(T) = "
-        << gMin(T) << ", " << gMax(T) << endl;      
 }
+
+thermo.correct();
+
+const volScalarField& T=thermo.T();
+
+Info<< "min/max(T) = "
+    << gMin(T) << ", " << gMax(T) << endl;      
