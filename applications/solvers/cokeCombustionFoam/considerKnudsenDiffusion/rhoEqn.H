@@ -29,7 +29,6 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-#include "volFieldsFwd.H"
 {
     // //Solve fluid contunity equation
     // const tmp<volScalarField>& deltarRho=1./rho-1.0/rhoCoke;

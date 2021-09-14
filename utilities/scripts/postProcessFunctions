@@ -71,7 +71,7 @@ function reconstruct()
     echo "reconstruct for case dir: $caseDir"
     echo "sampling rate of reconstructing: $sampleRate"
 
-    fieldNames='["U","T","p","rho","O2","CO2","eps","coke","cokeRectionRate","Qdot"]'
+    fieldNames='["U","T","p","rho","O2","CO2","eps","coke","cokeRectionRate","Qdot","DeffO2"]'
     timeNames=all
     overWrite=false
     dataFolder=postProcess
@@ -105,6 +105,32 @@ function plotImages()
     echo "image saving folder: $image_folder"
 
     fields='["eps","UNorm","O2Conc","Qdot","T","p"]'
+    times='all'
+    script=${WM_PROJECT_USER_DIR}/utilities/postProcess/pyFigure.py
+    
+    source $WM_PROJECT_USER_DIR/.venv/bin/activate
+    echo "start to plot images"
+    python $script -f $fields -d $data_folder -s $image_folder -t $times -n $workerNum
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete plotting "
+    else
+        echo "something wrong in plotting"
+    fi
+}
+
+
+function plotImages_noT()
+{
+    workerNum=$1
+    data_folder=$2
+    image_folder=$3
+
+    echo "cpu number for plotting images: $workerNum"
+    echo "reading data from data folder: $data_folder"
+    echo "image saving folder: $image_folder"
+
+    fields='["eps","UNorm","O2Conc","Qdot","p"]'
     times='all'
     script=${WM_PROJECT_USER_DIR}/utilities/postProcess/pyFigure.py
     

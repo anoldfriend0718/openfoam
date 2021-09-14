@@ -32,8 +32,8 @@
         scalar xN2i=YN2i/MN2/totalMolei;
 
 
-        scalar DO2bi=(1-xO2i)/(xCO2i/DO2CO2i+xN2i/DO2N2i);
-        scalar DCO2bi=(1-xCO2i)/(xO2i/DO2CO2i+xN2i/DCO2N2i);
+        scalar DO2bi=(1-xO2i)/max(xCO2i/DO2CO2i+xN2i/DO2N2i,SMALL);
+        scalar DCO2bi=(1-xCO2i)/max(xO2i/DO2CO2i+xN2i/DCO2N2i,SMALL);
 
         scalar DO2Ki=2*dp/3.0*std::sqrt(2*Rg1000*Ti/PI/MO2);
         scalar DCO2Ki=2*dp/3.0*std::sqrt(2*Rg1000*Ti/PI/MCO2);
@@ -90,8 +90,8 @@
             scalar xCO2i=YCO2i/MCO2/totalMolei;
             scalar xN2i=YN2i/MN2/totalMolei;
 
-            scalar DO2bi=(1-xO2i)/(xCO2i/DO2CO2i+xN2i/DO2N2i);
-            scalar DCO2bi=(1-xCO2i)/(xO2i/DO2CO2i+xN2i/DCO2N2i);
+            scalar DO2bi=(1-xO2i)/max(xCO2i/DO2CO2i+xN2i/DO2N2i,SMALL);
+            scalar DCO2bi=(1-xCO2i)/max(xO2i/DO2CO2i+xN2i/DCO2N2i,SMALL);
 
             scalar DO2Ki=2*dp/3.0*std::sqrt(2*Rg1000*Ti/PI/MO2);
             scalar DCO2Ki=2*dp/3.0*std::sqrt(2*Rg1000*Ti/PI/MCO2);
@@ -108,5 +108,5 @@
             }
         }
     }
-
+    Info<<"Effective diffusivity is updated"<<endl;
 }

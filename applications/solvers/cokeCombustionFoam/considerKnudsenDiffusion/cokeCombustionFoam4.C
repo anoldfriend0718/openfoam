@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
         reaction.correct();
            
         #include "rhoEqn.H"
+        #include "updateDeff.H"
    
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())

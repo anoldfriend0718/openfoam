@@ -178,7 +178,7 @@ def compute_reaction_rate_burning_rate_for_one_time(data_folder, time):
 
 def compute_O2_fluxs_at_inlet(data_folder,transverse_data_folder,worker_num=8):
     times=pyFigure.get_times_from_data_folder(data_folder)
-    O2_diffusive_flux_DO2s=[]
+    O2_diffusive_fluxs=[]
     O2_adv_flux_by_deltaXs=[]
     futures=[]
     with concurrent.futures.ProcessPoolExecutor(max_workers=worker_num) as executor:
@@ -188,12 +188,12 @@ def compute_O2_fluxs_at_inlet(data_folder,transverse_data_folder,worker_num=8):
             futures.append(future)
         for _, future in enumerate(futures):
             ret=future.result()
-            O2_diffusive_flux_DO2s.append(ret[0])
+            O2_diffusive_fluxs.append(ret[0])
             O2_adv_flux_by_deltaXs.append(ret[1])
 
     df_O2_fluxs_At_Inlet=pd.DataFrame({"time":[float(time) for time in times],\
                          "O2_adv_flux_by_deltaX":O2_adv_flux_by_deltaXs,\
-                         "O2_diffusive_Flux_By_DO2":O2_diffusive_flux_DO2s})
+                         "O2_diffusive_Fluxs":O2_diffusive_fluxs})
     df_O2_fluxs_At_Inlet.sort_values(by="time",inplace=True)
     
     save_folder=os.path.abspath(os.path.join(data_folder,"./others"))
@@ -215,14 +215,18 @@ def compute_O2_flux_at_inlet_for_one_time(data_folder,transverse_data_folder,tim
     dfpivotRho=df.pivot("y", "x", "rho")
     rho=dfpivotRho.values
     rhoAtInlet=rho[:,inlet_index]
-    O2_diffusive_Flux_DO2=np.sum(rhoAtInlet*O2GradAtInlet)*-1
 
+    dfpivotDeffO2=df.pivot("y", "x", "DeffO2")
+    DeffO2=dfpivotDeffO2.values
+    DeffO2AtInlet=DeffO2[:,inlet_index]
+
+    O2_diffusive_Flux=np.sum(DeffO2AtInlet*rhoAtInlet*O2GradAtInlet)*-1
 
     df2=pd.read_csv(f"{transverse_data_folder}/{time}.csv")
     xMin=np.min(df2["x"])
     O2AdvFluxAtInlet=list((df2[df2["x"]==xMin])["O2AdvFlux"])[0]
 
-    return (O2_diffusive_Flux_DO2,O2AdvFluxAtInlet)
+    return (O2_diffusive_Flux,O2AdvFluxAtInlet)
 
     
 if __name__ == "__main__":

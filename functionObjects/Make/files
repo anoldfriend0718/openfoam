@@ -1,0 +1,3 @@
+writeDeffO2/writeDeffO2.C
+
+LIB = $(FOAM_USER_LIBBIN)/libmyFieldFunctionObjects

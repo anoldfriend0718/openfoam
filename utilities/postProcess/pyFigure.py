@@ -149,8 +149,10 @@ def plot_contourf_Impl(X,Y,Z,title,label,cmap=pplot.Colormap('CoolWarm'),levels=
     # cbarticks = np.arange(vmin,vmax,(vmax-vmin)/10)
     # fig.colorbar(CS,cax=ax_cb,ticks=cbarticks,label=label)
 
-
-    clippedcolorbar(CS,cax=ax_cb,label=label, extend='neither')
+    # cbar=fig.colorbar(CS,cax=ax_cb,label=label)
+  
+    
+    cb=clippedcolorbar(CS,cax=ax_cb,label=label, extend='neither')
 
     fig.tight_layout()
     return fig,ax
@@ -522,10 +524,10 @@ def plot_reaction_rate_burning_rate(df_rate):
 
     return ax,ax2,fig
 
-def plot_O2_flux_reaction_rate(df_O2_flux_at_inlet,df_rate,pixelResolution,DO2,sampling_rate=5,ylim=(1e-9, 1e-4)):
+def plot_O2_flux_reaction_rate(df_O2_flux_at_inlet,df_rate,pixelResolution,sampling_rate=5,ylim=(1e-9, 1e-4)):
     MCoke=12
     MO2=32
-    df_O2_flux_at_inlet["diffusive_flux"]=np.array(df_O2_flux_at_inlet["O2_diffusive_Flux_By_DO2"])*DO2
+    df_O2_flux_at_inlet["diffusive_flux"]=np.array(df_O2_flux_at_inlet["O2_diffusive_Fluxs"])
     df_O2_flux_at_inlet["advective_flux"]=np.array(df_O2_flux_at_inlet["O2_adv_flux_by_deltaX"])*pixelResolution
     df_O2_flux_at_inlet["total_flux"]=df_O2_flux_at_inlet["diffusive_flux"]+df_O2_flux_at_inlet["advective_flux"]
 

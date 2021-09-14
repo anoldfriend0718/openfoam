@@ -3,11 +3,11 @@ volScalarField DeffO2
 (
     IOobject
     (
-        "Deff_O2",
+        "DeffO2",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
     mesh,
     dimensionedScalar(dimensionSet(0,2,-1,0,0,0,0),0.0)
@@ -17,7 +17,7 @@ volScalarField DeffCO2
 (
     IOobject
     (
-        "Deff_CO2",
+        "DeffCO2",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
@@ -248,5 +248,5 @@ tmp<fv::convectionScheme<scalar>> mvConvection
         mesh.divScheme("div(phi,Yi_h)")
     )
 );
-
+#include "updateDeff.H"
 
