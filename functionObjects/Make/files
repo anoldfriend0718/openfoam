@@ -1,3 +1,4 @@
 writeDeffO2/writeDeffO2.C
+patchHeatFlux/patchHeatFlux.C
 
 LIB = $(FOAM_USER_LIBBIN)/libmyFieldFunctionObjects
