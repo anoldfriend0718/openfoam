@@ -1,0 +1,101 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  4.1                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    div(rhoPhiByEps,U)  Gauss linearUpwind grad(U);
+    div(phi,alpha)   Gauss upwind;
+    div(phirb,alpha) bounded Gauss upwind;
+    div(((rho*nu)*dev2(T(grad(U))))) Gauss linear;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+    //div(phi,C)      bounded Gauss upwind;   //Gauss vanLeer;        //Transport
+    div(rhoPhi,C)   Gauss vanLeer; //bounded Gauss upwind;   //bounded Gauss upwind;  //Gauss vanLeer;     //Transport
+    div(PhiGradAlphaf,(DaCST*C)) Gauss linear;
+    div(PhiGradAlphaf2,(DaCST*C)) Gauss linear;
+    //div(PhiGradAlphaf,(DaCST*C))
+    div(PhiGradAlphaCSTf,C)     Gauss linear; //Gauss linear;
+    div(PhiGradAlphaCSTf0,C)     Gauss linear; //Gauss linear;
+    div(PhiGradAlphaf,DaCST)     Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+    //interpolate(DaCST)    harmonic;
+    interpolate(Solidv)    harmonic;
+}
+
+snGradSchemes
+{
+    default         corrected; 
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+/*
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default        cellMDLimited Gauss linear 1;
+}
+
+{
+    div(rhoPhiByEps,U)  Gauss linearUpwind grad(U);
+    div(phi,alpha)   Gauss upwind;
+    div(phirb,alpha) bounded Gauss upwind;
+    div(((rho*nu)*dev2(T(grad(U))))) Gauss linear;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         orthogonal;
+}
+
+*/
+
+// ************************************************************************* //
