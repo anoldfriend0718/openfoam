@@ -250,3 +250,31 @@ tmp<fv::convectionScheme<scalar>> mvConvection
 );
 #include "updateDeff.H"
 
+//for postprocess
+volVectorField O2AdvFlux
+(
+    IOobject
+    (
+        "O2AdvFlux",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    rho*Y[O2Index]*U
+);
+
+volVectorField O2DiffFlux
+(
+    IOobject
+    (
+        "O2DiffFlux",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    -eps*rho*DeffO2*fvc::reconstruct(fvc::snGrad(Y[O2Index])*mesh.magSf())
+);
+
+

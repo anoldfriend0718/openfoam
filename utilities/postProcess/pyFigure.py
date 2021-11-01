@@ -1,5 +1,6 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
+from logging import exception
 import os
 import os.path as path
 import sys
@@ -172,15 +173,19 @@ def plot_contourf(df,fieldName,title,label,cmap=pplot.Colormap('CoolWarm'),level
     return fig,ax
 
 def plot_contourf_save(df,fieldName,title,label,folder_path,cmap=pplot.Colormap('CoolWarm'),levels=250,figwidth=20,vmin=0,vmax=0,dpi=600):
-    dfpivot=df.pivot("y", "x", fieldName)
-    X=dfpivot.columns.values
-    Y=dfpivot.index.values
-    Z=dfpivot.values
-    fig,_=plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=vmin,vmax=vmax)
-    if not os.path.exists(folder_path):
-        os.mkdir(folder_path)
-    plt.savefig(f"{folder_path}/{title}.jpg".replace(" ","-"),dpi=dpi)
-    plt.close(fig)
+    try:
+        dfpivot=df.pivot("y", "x", fieldName)
+        X=dfpivot.columns.values
+        Y=dfpivot.index.values
+        Z=dfpivot.values
+        fig,_=plot_contourf_Impl(X,Y,Z,title,label,cmap=cmap,levels=levels,figwidth=figwidth,vmin=vmin,vmax=vmax)
+        if not os.path.exists(folder_path):
+            os.mkdir(folder_path)
+        plt.savefig(f"{folder_path}/{title}.jpg".replace(" ","-"),dpi=dpi)
+        plt.close(fig)
+    except Exception  as e:
+        print(f"Error: failed in plotting {title} with error message: {e}")
+        raise
 
     # snapshot = tracemalloc.take_snapshot()
     # top_stats = snapshot.statistics('lineno')  # lineno,逐行统计；filename，统计整个文件内存
@@ -362,8 +367,8 @@ def read_min_max_field(file_path,sampling_rate,field):
 def plot_min_max_field(file_path,sampling_rate,field,label,yscale="linear"):
     data_sampling=read_min_max_field(file_path,sampling_rate,f'^{field}')
     fig, ax = plt.subplots()
-    ax.plot(data_sampling["Time"],data_sampling["max"],label=f"max {field}")
-    ax.plot(data_sampling["Time"],data_sampling["min"],label=f"min {field}")
+    ax.plot(data_sampling["Time"],data_sampling["max"].astype(np.double),label=f"max {field}")
+    ax.plot(data_sampling["Time"],data_sampling["min"].astype(np.double),label=f"min {field}")
     ax.set_xlabel(f"Time (s)")
     ax.set_ylabel(label)
     ax.set_yscale(yscale)
@@ -413,7 +418,7 @@ def plot_transverse_averages_of_multiple_times(transverse_data_folder,times,ls=1
         
     ax.set_xlabel("X (m)",fontsize=ls)
     ax.xaxis.set_major_formatter(formatter) 
-    ax.set_ylabel("O$_2$ mole concentration (mol/m$^3$)",fontsize=ls,labelpad=6)
+    ax.set_ylabel("O$_2$ mole concentration (mol/m$^3$)",fontsize=ls,labelpad=10)
     ax.tick_params(labelsize=ts)
     # ax.legend(loc='best', shadow=True, fancybox=True)
     fig.add_subplot(ax)
@@ -455,7 +460,7 @@ def plot_transverse_averages_of_multiple_times(transverse_data_folder,times,ls=1
         ax.tick_params(labelsize=ts)
         fig.add_subplot(ax)
     axes[1,0].set_ylabel(ylabel='Coke fraction',loc="center",fontsize=ls)
-    axes[1,0].yaxis.set_label_coords(-0.14,-0.15)
+    axes[1,0].yaxis.set_label_coords(-0.18,-0.15)
 
 
     axes = np.empty(shape=(4, 1), dtype=object)
@@ -476,7 +481,7 @@ def plot_transverse_averages_of_multiple_times(transverse_data_folder,times,ls=1
             plt.setp(ax.get_xticklabels(), visible=False)
         ax.tick_params(labelsize=ts)
     axes[1,0].set_ylabel(ylabel='Reaction Heat Rate (J/(m$^3\cdot$s))',loc="center",fontsize=ls)
-    axes[1,0].yaxis.set_label_coords(-0.12,-0.15)
+    axes[1,0].yaxis.set_label_coords(-0.15,-0.15)
     
 
 

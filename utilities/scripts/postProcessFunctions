@@ -61,6 +61,39 @@ function batchPostProcess()
     echo "complete post processing "
 }
 
+function reconstruct0()
+{
+    workerNum=$1
+    caseDir=$2
+    sampleRate=$3
+
+    echo "cpu number for reconstructing: $workerNum"
+    echo "reconstruct for case dir: $caseDir"
+    echo "sampling rate of reconstructing: $sampleRate"
+
+    fieldNames='["U","T","p","rho","O2","CO2","eps","coke","cokeRectionRate","Qdot"]'
+    timeNames=all
+    overWrite=false
+    dataFolder=postProcess
+
+    echo "start to reconstruct..."
+    source $WM_PROJECT_USER_DIR/.venv/bin/activate
+    pyscipt=$WM_PROJECT_USER_DIR/utilities/postProcess/pyResconstruct.py
+
+    if $overWrite; then
+        python  $pyscipt -c $caseDir -t $timeNames -f $fieldNames -n $workerNum -r $sampleRate -s $dataFolder -w
+    else
+        python  $pyscipt -c $caseDir -t $timeNames -f $fieldNames -n $workerNum -r $sampleRate -s $dataFolder
+    fi
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete reconstructting "
+    else
+        echo "something wrong in reconstructting"
+    fi
+
+}
+
 function reconstruct()
 {
     workerNum=$1
@@ -144,6 +177,8 @@ function plotImages_noT()
         echo "something wrong in plotting"
     fi
 }
+
+
 
 
 function makeAnimation()

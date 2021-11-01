@@ -210,7 +210,8 @@ def compute_O2_flux_at_inlet_for_one_time(data_folder,transverse_data_folder,tim
     dfpivotO2=df.pivot("y", "x", "O2")
     O2=dfpivotO2.values
     O2Grad=np.gradient(O2,axis=1, edge_order=2)
-    O2GradAtInlet=O2Grad[:,inlet_index]
+    O2GradAtInlet=O2Grad[:,inlet_index] 
+    #distance is 1, not deltax, so O2GradAtInlet is O2GradAtInlet_actual*distance
 
     dfpivotRho=df.pivot("y", "x", "rho")
     rho=dfpivotRho.values

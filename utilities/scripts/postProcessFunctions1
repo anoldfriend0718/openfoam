@@ -1,0 +1,270 @@
+
+
+
+function runCokeCombustionFoam()
+{
+    cpu=$1
+    . "$WM_PROJECT_DIR/bin/tools/RunFunctions"
+    echo "Running computation..."
+    srun -n $cpu  $FOAM_USER_APPBIN/cokeCombustionFoam4 -parallel  >> log.cokeCombustionFoam4 2>&1
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete computations"
+    else
+        echo "something wrong in computations"
+        return 1
+    fi
+}
+
+function batchPostProcess()
+{
+    cpu=$1
+    echo "Running batchPostProcess..."
+    srun -n $cpu postProcess -func minMaxComponents2 -parallel  > log.batchPostProcess 2>&1
+    # sleep 5
+
+    #srun -n $cpu postProcess -func minMaxMagnitude -parallel "$@" < /dev/null >> log.batchPostProcess 2>&1
+    # sleep 5
+    
+    # wait
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete batchPostProcess"
+    else
+        echo "something wrong in batchPostProcess"
+        return 1
+    fi
+}
+
+
+
+function reconstruct()
+{
+    workerNum=$1
+    caseDir=$2
+    sampleRate=$3
+    dataFolder=$4
+
+    echo "Running reconstruction..."
+    if [ ! -d $dataFolder ]; then
+        mkdir -p $dataFolder 
+    fi
+
+    echo "cpu number for reconstructing: $workerNum"
+    echo "reconstruct for case dir: $caseDir"
+    echo "sampling rate of reconstructing: $sampleRate"
+
+    fieldNames='["U","T","p","rho","O2","CO2","eps","coke","cokeRectionRate","Qdot","DeffO2"]'
+    timeNames=all
+    overWrite=false
+    
+    echo "start to reconstruct..."
+    source $WM_PROJECT_USER_DIR/.venv/bin/activate
+    pyscipt=$WM_PROJECT_USER_DIR/utilities/postProcess/pyResconstruct.py
+
+    if $overWrite; then
+        python  $pyscipt -c $caseDir -t $timeNames -f $fieldNames -n $workerNum -r $sampleRate -s $dataFolder -w > log.reconstruct 2>&1
+    else
+        python  $pyscipt -c $caseDir -t $timeNames -f $fieldNames -n $workerNum -r $sampleRate -s $dataFolder > log.reconstruct 2>&1
+    fi
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete reconstructting "
+    else
+        echo "something wrong in reconstructting"
+        return 1
+    fi
+
+}
+
+function plotImages()
+{
+    workerNum=$1
+    data_folder=$2
+    image_folder=$3
+    echo "Running plotting images..."
+    echo "cpu number for plotting images: $workerNum"
+    echo "reading data from data folder: $data_folder"
+    echo "image saving folder: $image_folder"
+
+    fields='["eps","UNorm","O2Conc","Qdot","T","p"]'
+    times='all'
+    script=${WM_PROJECT_USER_DIR}/utilities/postProcess/pyTricontours.py
+    
+    source $WM_PROJECT_USER_DIR/.venv/bin/activate
+    echo "start to plot images"
+
+    python $script -f $fields -d $data_folder -s $image_folder -t $times -n $workerNum > log.plotImages 2>&1
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete plotting "
+    else
+        echo "something wrong in plotting"
+        return 1
+    fi
+}
+
+
+function makeAnimation()
+{
+    echo "Running making animation..."
+    animation_folder=$1
+    if [ ! -e $animation_folder ]; then
+        echo "Create animation path: $animation_folder"
+        echo "saving animations to folder:  $animation_folder"
+        mkdir $animation_folder
+    fi
+
+    ls $2 | sort -t '-' -k $3 -n | sed 's:\ :\\\ :g'| sed 's/^/file /'  > $4.txt
+    rate=$5
+
+    # which ffmpeg
+
+    # ffmpeg -y -r 10 -safe 0 -f concat  -i $4.txt -r 10 -vcodec libx264  -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"  $animation_folder/$4.mp4
+    ffmpeg  -y  -r $rate -safe 0 -f concat  -i $4.txt -r $rate  $animation_folder/$4.gif 
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete making animation of $4"
+        rm $4.txt
+    else
+        echo "something wrong in making animation of $4"
+        return 1
+    fi
+}
+
+
+function makeAnimationMP4()
+{
+    echo "Running making animation..."
+    animation_folder=$1
+    if [  ! -e $animation_folder ]; then
+        echo "Create animation path: $animation_folder"
+        echo "saving animations to folder:  $animation_folder"
+        mkdir $animation_folder
+    fi
+
+    ls $2 | sort -t '-' -k $3 -n | sed 's:\ :\\\ :g'| sed 's/^/file /'  > $4.txt
+    rate=$5
+
+    # source /public1/home/sc90898/Repo/env.sh 
+    # which ffmpeg
+
+    ffmpeg -y -r $rate -safe 0 -f concat  -i $4.txt -r $rate -vcodec libx264  -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"  $animation_folder/$4.mp4
+    # ffmpeg  -y  -r $rate -safe 0 -f concat  -i $4.txt -r $rate  $animation_folder/$4.gif
+
+    if [ $? -eq 0 ]; then
+        echo "succeed to complete making animation of $4"
+        rm $4.txt
+    else
+        echo "something wrong in making animation of $4"
+        return 1
+    fi
+}
+
+
+get_file_abspath() {
+  # $1 : relative filename
+  echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
+
+get_file_dirpath() {
+  # $1 : relative filename
+  echo "$(cd "$(dirname "$1")" && pwd)"
+}
+
+function runWorkflow()
+{
+    #1: cpu
+    #2: worker num for reconstruction  
+    #3: case directory
+    #4: sampling rate for reconstruction: reconstruct result per $sampleRate time instances
+    #5: save folder for reconstructed data 
+    #6: save folder for images
+    #7: animation rate 
+
+    # run computation 
+    cpu=$1
+    runCokeCombustionFoam $cpu
+    is_succeed_comp=$?
+    echo is_succeed_comp: $is_succeed_comp
+    # [ $? -ne 0  ] && exit 1
+
+    #reconstruct results into csv format 
+    workerNum=$2
+    echo caseDir: $caseDir
+    sampleRate=$4
+
+    dataFolder=$5
+    if [ ! -e $dataFolder ]; then
+        echo "Create data folder path: $dataFolder"
+        mkdir -p $dataFolder
+    fi
+    dataFolder=$(get_file_abspath "$5")
+    echo reconstruct data folder: $dataFolder
+    reconstruct $workerNum $caseDir $sampleRate $dataFolder
+    [ $? -ne 0  ] && exit 2
+    csv_data_count=$(find $dataFolder -name "*.csv" -type f  | wc -l)
+    if [ $csv_data_count -gt 0 ]; then
+        echo generated csv data count: $csv_data_count
+    else
+        echo "error: no csv data generated!"
+        exit 2
+    fi
+
+    # post process 
+    batchPostProcess  $cpu
+    [ $? -ne 0  ] && exit 3
+
+    # plot images
+    imageFolder=$6
+    if [ ! -e $imageFolder ]; then
+        echo "Create image folder path: $imageFolder"
+        mkdir -p $imageFolder
+    fi
+    imageFolder=$(get_file_abspath "$6")
+    echo image folder: $imageFolder
+    plotImages $workerNum $dataFolder $imageFolder
+    [ $? -ne 0  ] && exit 4
+    image_count=$(find $imageFolder -name "*.jpg" -type f  | wc -l)
+    if [ $image_count -gt 0 ]; then
+        echo generated image count: $image_count
+    else
+        echo "error: no image generated!"
+        exit 4
+    fi
+
+    #make animations  
+    echo "Running making animation..."
+    image_parent_folder=$(get_file_dirpath "$image_folder")
+    animation_folder=$image_parent_folder/animations #relative to image_folder
+    echo animation folder: $animation_folder
+    if [ ! -e $animation_folder ]; then
+        echo "Create animation path: $animation_folder"
+        mkdir $animation_folder
+    fi
+    animation_rate=$7
+    echo "animation frame rate :$animation_rate"
+ 
+    cd $imageFolder
+    log_makeAnimation=$caseDir/log.makeAnimation
+    makeAnimation $animation_folder 'Temperature*.jpg'             4 temperature $animation_rate &  > log_makeAnimation 2>&1
+    makeAnimation $animation_folder 'Pressure*.jpg'                4 pressure $animation_rate & >> log_makeAnimation 2>&1
+    makeAnimation $animation_folder 'porosity*.jpg'                4 porosity $animation_rate &  >> log_makeAnimation 2>&1
+    makeAnimation $animation_folder 'O\$_2\$*.jpg'                 5 O2Conc $animation_rate & >> log_makeAnimation 2>&1
+    makeAnimation $animation_folder 'velocity-magnitude*.jpg '     5 velocityMagnitude $animation_rate &  >> log_makeAnimation 2>&1
+    makeAnimation $animation_folder 'Reaction-heat-rate*.jpg '     6 heatRate $animation_rate & >> log_makeAnimation 2>&1
+    wait 
+    animation_count=$(find $animation_folder -name "*.gif" -type f  | wc -l)
+    if [ $animation_count -gt 0 ]; then
+        echo generated animation count: $animation_count
+    else
+        echo "error: no animation generated!"
+        exit 5
+    fi
+
+    #finally 
+    if [ $is_succeed_comp -eq 0 ];then
+        echo "All succeeded!"
+    else
+        echo "Some results have been outputed, while computation has something wrong! "
+    fi
+
+}
