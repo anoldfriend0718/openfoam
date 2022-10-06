@@ -19,10 +19,16 @@ function batchPostProcess()
 {
     cpu=$1
     echo "Running batchPostProcess..."
-    srun -n $cpu postProcess -func minMaxComponents2 -parallel  > log.batchPostProcess 2>&1
+    
+    is_exist_singleGraph=`find ./system/ -name singleGraph | wc -l`
+    if [ $is_exist_singleGraph -gt 0 ]; then
+        srun -n $cpu $FOAM_USER_APPBIN/cokeCombustionFoam4 -postProcess -func singleGraph -parallel   > log.batchPostProcess 2>&1
+    fi
+
+    srun -n $cpu postProcess -func minMaxComponents2 -parallel  >> log.batchPostProcess 2>&1
     # sleep 5
 
-    #srun -n $cpu postProcess -func minMaxMagnitude -parallel "$@" < /dev/null >> log.batchPostProcess 2>&1
+    #srun -n $cpu postProcess -func minMaxMagnitude -parallel  >> log.batchPostProcess 2>&1
     # sleep 5
     
     # wait

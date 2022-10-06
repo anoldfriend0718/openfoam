@@ -84,6 +84,7 @@
         "**/0/*": "OpenFOAM",
         "*.in": "cpp",
         "**/0_org/*": "OpenFOAM",
+        "**/0_orig/*": "OpenFOAM",
         "**/[0-9][!_]/*": "OpenFOAM",
         "**/constant/*": "OpenFOAM",
         "**/system/*": "OpenFOAM",

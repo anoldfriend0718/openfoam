@@ -221,9 +221,12 @@ def read_plot_multiple_field_contourf_save_for_multiple_times(
     if len(time_instants) == 0:
         return
     for time_instant in time_instants:
-        read_plot_multiple_field_contourf_save(
-            data_folder=data_folder, fields=fields, time_instant=time_instant, save_folder=save_folder,
-            cmap_name=cmap_name, xranges=xranges, figwidth=figwidth, dpi=dpi)
+        try:
+            read_plot_multiple_field_contourf_save(
+                data_folder=data_folder, fields=fields, time_instant=time_instant, save_folder=save_folder,
+                cmap_name=cmap_name, xranges=xranges, figwidth=figwidth, dpi=dpi)
+        except Exception as e:
+            print(f"Error in plotting the time instant: {time_instant}  with error message: {e}")
 
 
 def plot_multiple_contourf_save_all_time(

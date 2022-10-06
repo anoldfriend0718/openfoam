@@ -85,7 +85,6 @@ int main(int argc, char *argv[])
     );
 
 
-
     scalar epsThreshold=0.01;
     //label solid regions 
     forAll(eps,celli)
@@ -118,27 +117,27 @@ int main(int argc, char *argv[])
     tmp<surfaceScalarField> tSnGradFluid=fvc::snGrad(fluid);
     const surfaceScalarField& snGradFluid=tSnGradFluid.ref();
 
-    tmp<volScalarField>  tGradFluidMag=fvc::reconstructMag(snGradFluid*mesh.magSf());
-    volScalarField gradFluidMag
-    (
-        IOobject
-        (
-            "gradFluidMag",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        tGradFluidMag
-    );
-    forAll(fluid,cell)
-    {
-        if(fluid[cell]<1) //not count the solid phase
-        {
-            gradFluidMag[cell]=0;
-        }
-    }
-    gradFluidMag.write();
+    // tmp<volScalarField>  tGradFluidMag=fvc::reconstructMag(snGradFluid*mesh.magSf());
+    // volScalarField gradFluidMag
+    // (
+    //     IOobject
+    //     (
+    //         "gradFluidMag",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::NO_WRITE
+    //     ),
+    //     tGradFluidMag
+    // );
+    // forAll(fluid,cell)
+    // {
+    //     if(fluid[cell]<1) //not count the solid phase
+    //     {
+    //         gradFluidMag[cell]=0;
+    //     }
+    // }
+    // gradFluidMag.write();
     
     surfaceScalarField absSnGradFluid
     (
@@ -166,16 +165,29 @@ int main(int argc, char *argv[])
         ),
         tAbsGradFluidMag
     );
-    
-    forAll(fluid,cell)
-    {
-        if(fluid[cell]<1) //not count the solid phase
-        {
-            absGradFluidMag[cell]=0;
-        }
-    }
     absGradFluidMag.write();
 
+    // volScalarField absGradFluidMagWithoutRockRegions
+    // (
+    //     IOobject
+    //     (
+    //         "absGradFluidMagWithoutRockRegions",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::NO_WRITE
+    //     ),
+    //     absGradFluidMag
+    // );
+    // forAll(fluid,cell)
+    // {
+    //     if(fluid[cell]<1) //not count the solid phase
+    //     {
+    //         absGradFluidMagWithoutRockRegions[cell]=0;
+    //     }
+    // }
+    // absGradFluidMagWithoutRockRegions.write();
+    
 
     Info<< "End\n" << endl;
 
