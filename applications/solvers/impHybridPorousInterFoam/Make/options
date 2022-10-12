@@ -2,18 +2,18 @@ EXE_INC = -g \
     -I$(LIB_SRC)/transportModels/twoPhaseMixture/lnInclude \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
-    -I$(WM_PROJECT_USER_DIR)/src/librariesSSF7c4/porousInterfaceProperties/lnInclude \
-    -I$(WM_PROJECT_USER_DIR)/src/librariesSSF7c4/porousImmiscibleIncompressibleTwoPhaseMixture/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
-    -I$(WM_PROJECT_USER_DIR)/src/librariesSSF7c4/porousModels/lnInclude
+    -I$(WM_PROJECT_USER_DIR)/src/transportModels/porousInterfaceProperties/lnInclude \
+    -I$(WM_PROJECT_USER_DIR)/src/transportModels/porousImmiscibleIncompressibleTwoPhaseMixture/lnInclude \
+    -I$(WM_PROJECT_USER_DIR)/src/transportModels/porousModels/lnInclude
 
 EXE_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
     -lsampling \
     -L$(FOAM_USER_LIBBIN) \
-    -lporousImmiscibleIncompressibleTwoPhaseMixtureSSF7c4 \
-    -lporousModels \
-    -lporousInterfacePropertiesSSF7c4
+    -limpPorousImmiscibleIncompressibleTwoPhaseMixture \
+    -limpPorousModels \
+    -limpPorousInterfaceProperties

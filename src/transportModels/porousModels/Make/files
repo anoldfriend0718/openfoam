@@ -9,5 +9,5 @@ capillarityModels/Linear/pcLinear.C
 capillarityModels/VanGenuchten/pcVanGenuchten.C
 capillarityModels/BrooksAndCorey/pcBrooksAndCorey.C
 
-LIB = $(FOAM_USER_LIBBIN)/libporousModels
+LIB = $(FOAM_USER_LIBBIN)/libimpPorousModels
 
