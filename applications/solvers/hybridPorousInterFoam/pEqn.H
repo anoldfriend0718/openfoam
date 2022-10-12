@@ -1,8 +1,6 @@
     volScalarField rAU("rAU", 1.0/UEqn.A()); 
     surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU)); 
     volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
-    //volScalarField mdotp ("mdotp", mdotc*(gama_si/rho_si+gama_l/rho1+gama_g/rho2));  //liuzy, define reaction source term to mas conservation equaion
-    // mdotp = mdotc*(gama_si/rho_si+gama_l/rho1+gama_g/rho2);
 
     surfaceScalarField phiHbyA
     (
@@ -23,8 +21,8 @@
     surfaceScalarField phiPc
     (
         (
-            mixture.surfaceTensionForce()*Solidf0 //*Solidf0 //*(1.-Solidf) //(1.-Solidf)  //Solidf0 //(1.-Solidf) //activate free fluid interface model
-	 +  fvc::interpolate(PcCoeff)*fvc::snGrad(alpha1)*(1.-Solidf0)  //*(1.-Solidf0) //*Solidf //Solidf //(1.-Solidf0)   //*Solidf //activate porous media model
+            mixture.surfaceTensionForce()*(1.-Solidf) //activate free fluid interface model
+	 +  fvc::interpolate(PcCoeff)*fvc::snGrad(alpha1)*Solidf //activate porous media model
         )*rAUf*mesh.magSf()
     );
 
@@ -37,16 +35,16 @@
     {
         fvScalarMatrix pEqn
         (
-            fvm::laplacian(rAUf, p) == fvc::div(phiHbyA) - fvm::Su(mdotp, p)   //liuzy, add reaction source term to mas conservation equaion    HbyA=laplacain+m => laplacain=HbyA-m    
+            fvm::laplacian(rAUf, p) == fvc::div(phiHbyA)        
         );
 
         pEqn.setReference(pRefCell, getRefCellValue(p, pRefCell));
 
         pEqn.solve();
-        // p = p*Solidv;
+
         if (pimple.finalNonOrthogonalIter())
         {
-            phi = (phiHbyA - pEqn.flux());  //*(1.0-Solidwf)
+            phi = phiHbyA - pEqn.flux();
 
             p.relax();
 
@@ -67,8 +65,6 @@
             pRefValue - getRefCellValue(p, pRefCell)
         );
     }
-
-
 
     
 

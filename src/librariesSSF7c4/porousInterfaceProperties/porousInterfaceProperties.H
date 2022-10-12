@@ -85,33 +85,19 @@ class interfaceProperties
 
         //- Stabilisation for normalisation of the interface normal
         const dimensionedScalar deltaN_;
-	const volScalarField& alpha1_;
+	    const volScalarField& alpha1_;
         const volVectorField& U_;
         surfaceScalarField nHatf_;
-        surfaceScalarField nHatf_0;
-        surfaceScalarField nHatf_g;
         volVectorField nI_;
-        volVectorField nI_0;
-        volVectorField nIsi_;
         volScalarField K_;
-        volScalarField K_0;
         surfaceScalarField Kf_;
-        volScalarField K_g;
         volScalarField alpha1_ave;
         volScalarField  alpha_pc;
-        volScalarField  alpha_ls;
         //surfaceScalarField K_;
 
-        volScalarField theta_fc2;
-        volScalarField theta_fc1;
-        volVectorField fc0_;
-        volVectorField fcg_;
         volVectorField fc_;
 
-        //surfaceScalarField stfc_;
-        surfaceScalarField deltasf0_;
         surfaceScalarField deltasf_;
-        surfaceScalarField stf0_;
         surfaceScalarField stf_;
 
     // Private Member Functions
@@ -128,7 +114,6 @@ class interfaceProperties
             surfaceVectorField::Boundary& nHat,
             const surfaceVectorField::Boundary& gradAlphaf
         ) const;
-
 
 	//- Correction for the boundary condition on the unit normal SolidnHat on
         //  porous walls to produce the correct contact dynamic angle
@@ -178,33 +163,17 @@ public:
             return nHatf_;
         }
 
-        //tmp<volScalarField> sigmaK() const;
-
         tmp<surfaceScalarField> sigmaKSSF() const;
 
         tmp<surfaceScalarField> surfaceTensionForce() const;
 
-        tmp<surfaceScalarField> stf() const;
-
-        tmp<surfaceScalarField> stf0() const;
-
         tmp<surfaceScalarField> deltasf() const;
-
-        tmp<surfaceScalarField> deltasf0() const;
 
         tmp<volScalarField> Klg() const;
 
         tmp<volVectorField> nlg() const;
 
         tmp<volVectorField> fc() const;
-
-        tmp<volVectorField> fc0() const;
-        
-        tmp<volScalarField> thetafc() const;
-
-        tmp<volScalarField> thetafc0() const;
-
-        tmp<volScalarField> alphals() const;
 
         tmp<volScalarField> alphapc() const;
 

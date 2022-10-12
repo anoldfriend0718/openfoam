@@ -24,13 +24,12 @@
             (
                 (
 		     //activate free fluid interface model
-                     mixture.surfaceTensionForce()*Solidf0 //*Solidf0 //*(1.-Solidf) 
-                     //fcf*Solidf0 //(1.-Solidf) 
+                     mixture.surfaceTensionForce()*(1.-Solidf) 
                      //activate porous media model
-	            + fvc::interpolate(PcCoeff)*fvc::snGrad(alpha1)*(1.0-Solidf0)   //*(1.0-Solidf0) //Solidf  //(1.0-Solidf0)  //Solidf 
-                  - fvc::snGrad(p)  //*(1.-Solidf) 
-                ) * mesh.magSf()  //*(1.0-Solidwf)
-		+fvc::interpolate(rho)*(g & mesh.Sf())  //*(1.0-Solidwf)
-            ) // + fc
+	          +  fvc::interpolate(PcCoeff)*fvc::snGrad(alpha1)*Solidf 
+                  - fvc::snGrad(p)
+                ) * mesh.magSf()
+		+fvc::interpolate(rho)*(g & mesh.Sf())
+            )
         );
     }

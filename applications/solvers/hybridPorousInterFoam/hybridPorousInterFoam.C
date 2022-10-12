@@ -99,19 +99,13 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-                #include "updateSourceTerm.H"
-            //#include "CEqn.H"
-            //#include "SEqn.H"
-	        #include "updatePorousMediaFields.H"
-	        #include "updateVariables.H"
 	   
             #include "alphaControls.H"
             #include "alphaEqnSubCycle.H"
 
             mixture.correct(); 
 	
-	        #include "updateVariables.H"
-                #include "SSF_calc.H"
+	    #include "updateVariables.H"
             #include "UEqn.H"
 
             // --- Pressure corrector loop
@@ -119,14 +113,9 @@ int main(int argc, char *argv[])
             {
                 #include "pEqn.H"
             }
-            
-            
-            
         }
 
         fc_err = fvc::grad(p) - fc;
-        
-        //#include "CEqn.H"
         
         runTime.write();
 
