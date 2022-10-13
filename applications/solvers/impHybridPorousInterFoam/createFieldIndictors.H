@@ -49,13 +49,32 @@ surfaceScalarField Solidf
     ),
     fvc::interpolate(Solid)
 );
+
+//choose the interface surface tension model
+// 0: vof model for the fluid region, 1: porous model for the porous region
+int mode_interface_fc(transportProperties.lookupOrDefault("Mifc", 1));
+
 //Eliminating intermediate values of Solid Indicator Function
 forAll(Solidf,facei)
 {
-	if(Solidf[facei]<1) // if <1 ==0.  
-	{	
-	Solidf[facei]=0; 
-	}
+	if(mode_interface_fc==0)
+    {
+        if(Solidf[facei]<1) // if <1 ==0.  
+        {	
+            //when calculting the surface tension
+            //porous interface is treated as the fluid phase 
+            Solidf[facei]=0; 
+        }
+    }
+    else
+    {
+        if(Solidf[facei]>0) // if <1 ==0.  
+        {	
+            //when calculting the surface tension
+            //porous interface is treated as the porous phase 
+            Solidf[facei]=1; 
+        } 
+    }
 }
 
 // Defenition of Solid Indicator

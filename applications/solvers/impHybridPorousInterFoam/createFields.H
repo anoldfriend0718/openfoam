@@ -68,20 +68,6 @@ volScalarField eps
     mesh
 );
 
-volVectorField fc  //output surface tension force
-(
-    IOobject
-    (
-        "fc",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedVector("fc", dimMass/(dimLength*dimLength*dimTime*dimTime), vector(0,0,0))
-);
-
 volVectorField fc_err  //output surface tension force
 (
     IOobject
@@ -92,50 +78,9 @@ volVectorField fc_err  //output surface tension force
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    fc
-);
-
-
-volScalarField Klg
-(
-    IOobject
-    (
-        "Klg",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
     mesh,
-    dimensionedScalar (dimensionSet(0,-1,0,0,0,0,0), 0) 
+     dimensionedVector("fc_err", dimMass/(dimLength*dimLength*dimTime*dimTime), vector(0,0,0))
 );
-
-volVectorField nlg  //output surface tension force
-(
-    IOobject
-    (
-        "nlg",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedVector("nlg", dimless, vector(0,0,0))
-);
-
-
-#include "createFieldIndictors.H"
-#include "createPhi.H"
-
-Info<< "Reading transportProperties\n" << endl;
-immiscibleIncompressibleTwoPhaseMixture mixture(U, phi);
-
-volScalarField& alpha1(mixture.alpha1());
-volScalarField& alpha2(mixture.alpha2());
-
-const dimensionedScalar& rho1 = mixture.rho1();
-const dimensionedScalar& rho2 = mixture.rho2();
 
 IOdictionary transportProperties
 (
@@ -148,6 +93,18 @@ IOdictionary transportProperties
         IOobject::NO_WRITE
     )
 );
+
+#include "createFieldIndictors.H"
+#include "createPhi.H"
+
+Info<< "Reading transportProperties\n" << endl;
+immiscibleIncompressibleTwoPhaseMixture mixture(U, phi);
+
+volScalarField& alpha1(mixture.alpha1());
+volScalarField& alpha2(mixture.alpha2());
+
+const dimensionedScalar& rho1 = mixture.rho1();
+const dimensionedScalar& rho2 = mixture.rho2();
 
 dictionary wetting (transportProperties.subDict(mixture.phase1Name())); 
 dictionary nonWetting (transportProperties.subDict(mixture.phase2Name()));

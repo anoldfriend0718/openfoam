@@ -40,6 +40,7 @@ SourceFiles
 #define interfaceProperties_H
 
 #include "IOdictionary.H"
+#include "scalar.H"
 #include "surfaceTensionModel.H"
 #include "volFields.H"
 #include "surfaceFields.H"
@@ -66,16 +67,29 @@ class interfaceProperties
 	//- Contact Angle
 	scalar theta0_;
 
-        //- smoothing coefficient for alphaS
+        //- smoothing coefficient in the SSF scheme
         scalar cSK_;
-        //-number of smoothing cycle for alphaS
+        //-number of smoothing cycle in the SSF scheme
         label nSK_;
-        //- Sharp force coefficient (put 0.98-0.99 for static problems, 0.4-0.5 for dynamic)
+        //- Sharp force coefficient in the SSF scheme (put 0.98-0.99 for static problems, 0.4-0.5 for dynamic)
         scalar cPc_;
-        //- smoothing coefficient for K_
+        //-number of smoothing cycle for curvature K_ in the SSF scheme
         label nSC_;
-        //- correct K_
-        scalar Kcorr_;
+        //-curvature K_ calculation model: KCorr=0 simple, KCorr=1 Complex (default simple)
+        scalar KCorr_;
+        //-number of smoothing cycle for the porous boundary normal
+        scalar porousBoundaryNormSmoothingCycles_;
+        //- model index of the smoothing scheme for the porous boundary normal
+        int porousBoundaryNormSmoothingMethod_;
+        //- indicate the initial phase in the pore space of the porous region
+        //0: gas, 1: fluid
+        int alphaInPorousRegion_;
+        //- coefficient of the hybrid scheme for the gas-fluid interface normal
+        scalar hybridNlgCoeff_;
+        //- coefficient of the alpha clipping scheme for the curvation computation
+        scalar alphaThresholdK_;
+        //- coefficient of the alpha clipping scheme for the surface tension computation
+        scalar alphaThresholdFc_;
 
         //- Activate Contact Angle
         scalar activatePorousContactAngle_;
@@ -92,9 +106,7 @@ class interfaceProperties
         volScalarField K_;
         surfaceScalarField Kf_;
         volScalarField alpha1_ave;
-        volScalarField  alpha_pc;
-        //surfaceScalarField K_;
-
+        volScalarField  alpha1_pc;
         volVectorField fc_;
 
         surfaceScalarField deltasf_;

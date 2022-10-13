@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        fc_err = fvc::grad(p) - fc;
+        fc_err = fvc::grad(p) - mixture.fc();
         
         runTime.write();
 
@@ -124,8 +124,8 @@ int main(int argc, char *argv[])
             << nl << endl;
 
     };
-     
-    ; Info<< "End\n" << endl;
+    
+    Info<< "End\n" << endl;
 
     return 0;
 }

@@ -120,9 +120,6 @@ void Foam::interfaceProperties::correctContactAngleDB
 {
     // Reading Values From Main Simulation
     volScalarField Solid_ = alpha1_.mesh().lookupObject<volScalarField>("Solid"); 
-
-    scalar SmoothingCycles_(transportPropertiesDict_.lookupOrDefault("SmoothingCycles",0));
-    scalar SmoothingMethod_(transportPropertiesDict_.lookupOrDefault("SmoothingMethod",1));
     scalar SmootherCount = 0;
 
     // Defining the Solid Surface Interface
@@ -139,11 +136,11 @@ void Foam::interfaceProperties::correctContactAngleDB
     surfaceVectorField nHatSolidfv(gradSolidf/(mag(gradSolidf) + deltaN_));
 
     //the previous smoothing scheme of the porous boundary  
-    if (SmoothingMethod_ == 0)
+    if (porousBoundaryNormSmoothingMethod_ == 0)
     {
-        while (SmootherCount <= SmoothingCycles_)
+        while (SmootherCount <= porousBoundaryNormSmoothingCycles_)
         {
-        if (SmootherCount < SmoothingCycles_)
+        if (SmootherCount < porousBoundaryNormSmoothingCycles_)
             {gradSolidf = SolidSurface*fvc::interpolate(fvc::average(gradSolidf));}
         else 
             {gradSolidf = fvc::interpolate(fvc::average(gradSolidf));}
@@ -153,14 +150,13 @@ void Foam::interfaceProperties::correctContactAngleDB
     }
 
     // improved smoothing scheme of the porous boundary  
-    if (SmoothingMethod_ == 1)
+    if (porousBoundaryNormSmoothingMethod_ == 1)
     {
         volVectorField nHatSolidv(gradSolid/(mag(gradSolid) + deltaN_));
         volScalarField nHatSolidvMag0(mag(nHatSolidv));
         volScalarField nHatSolidvMag(max(nHatSolidvMag0,deltaN_.value()));
 
-        // Smoothing the normal of the solid surface
-        while (SmootherCount <= SmoothingCycles_)
+        while (SmootherCount <= porousBoundaryNormSmoothingCycles_)
         {
             nHatSolidv = nHatSolidvMag0*fvc::average(fvc::interpolate(nHatSolidv*nHatSolidvMag))/fvc::average(fvc::interpolate(nHatSolidvMag));
             nHatSolidv = nHatSolidv/(mag(nHatSolidv)+deltaN_.value());
@@ -209,8 +205,7 @@ void Foam::interfaceProperties::correctContactAngleDB
         // nHatb *= nHatbmag;
 }
 
-/////Calculating the curvature/////   ADD Smoothing by LZY
-
+/////Calculating the curvature
 void Foam::interfaceProperties::calculateK()
 {
     
@@ -219,33 +214,30 @@ void Foam::interfaceProperties::calculateK()
     volScalarField Solid_ = alpha1_.mesh().lookupObject<volScalarField>("Solid"); 
     surfaceScalarField Fluidf_ = alpha1_.mesh().lookupObject<surfaceScalarField>("Fluidf");  
 
-    scalar alphaThresholdK_(transportPropertiesDict_.lookupOrDefault("alphaThresholdK",0.0));
-    scalar alphaInPorousRegion_(transportPropertiesDict_.lookupOrDefault("alphaInPorousRegion",1));
-    scalar xfcset(transportPropertiesDict_.lookupOrDefault("xfcset",1.0));
-
     volScalarField talpha2(1.0-alpha1_);
     dimensionedScalar small("small", dimless, 1e-10);
-       //if alpha in solid =0 (gas)
-    if (alphaInPorousRegion_ == 0)  //alpha_s_ini = 0
+    //alpha in fluid region is extrapolated to the near porous interface cell
+    //if alpha in solid =0 (gas)
+    if (alphaInPorousRegion_ == 0)  
     {
         alpha1_ave = (fvc::average(fvc::interpolate(max(talpha2,small),"Fluid_c2f")*Fluidf_)/fvc::average(Fluidf_));
         alpha1_ave = (1.0-Solid_)*talpha2 + Solid_*alpha1_ave;
         alpha1_ave = 1.0 - alpha1_ave;
     }
-   
    //if alpha in solid =1 (water)
-    if (alphaInPorousRegion_ == 1)  //alpha_s_ini = 1
+    if (alphaInPorousRegion_ == 1)  
     {
         alpha1_ave = (fvc::average(fvc::interpolate(max(alpha1_,small),"Fluid_c2f")*Fluidf_)/fvc::average(Fluidf_));
         alpha1_ave = (1.0-Solid_)*alpha1_ + Solid_*alpha1_ave;
     }
 
-    // init alpha smoothed  from interGCFoam
-    // volScalarField alpha1s = alpha1_ave;
-    volScalarField alpha1s ( min(max((1.0+2.0*alphaThresholdK_)*(alpha1_ave-0.5)+0.5,0.0),1.0) );  // clip //??  
+    // clip alpha field to exclude the localized unphysical variations in alpha close to 0 or 1 in the interface vicinity
+    volScalarField alpha1s ( min(max((1.0+2.0*alphaThresholdK_)*(alpha1_ave-0.5)+0.5,0.0),1.0) );  
+    // smooth the alpha field in the fluid region
     for (int i=0;i<nSK_;i++)
     {
-        alpha1s = Solid_*alpha1_ave + (1.0-Solid_)*(cSK_ * fvc::average(fvc::interpolate(alpha1s*(1.0-Solid_)))/fvc::average(fvc::interpolate(max(1.0-Solid_,small))) + (1.0 - cSK_) * alpha1s);
+        alpha1s = Solid_*alpha1_ave + (1.0-Solid_)*(cSK_ * fvc::average(fvc::interpolate(alpha1s*(1.0-Solid_))) \
+            /fvc::average(fvc::interpolate(max(1.0-Solid_,small))) + (1.0 - cSK_) * alpha1s);
     }
      //gradient interpolation
     const volVectorField gradAlpha(fvc::grad(alpha1s, "nHat")); 
@@ -257,41 +249,38 @@ void Foam::interfaceProperties::calculateK()
     surfaceVectorField nHatfv_n(fvc::interpolate(nI_));   
 
     //hybrid interpolation
-    surfaceVectorField nHatfv_ave (nHatfv_n*xfcset+nHatfv_g*(1.0-xfcset));
+    surfaceVectorField nHatfv_ave (nHatfv_n*hybridNlgCoeff_+nHatfv_g*(1.0-hybridNlgCoeff_));
 
     if (activatePorousContactAngle_==1)
     {
         correctContactAngleDB(nHatfv_ave,gradAlphaf);
-        }
+    }
     correctContactAngle(nHatfv_ave.boundaryFieldRef(), gradAlphaf.boundaryField());
-    //correctContactAngle(nHatfv_g.boundaryFieldRef(), gradAlphaf.boundaryField());
 
     // Face unit interface normal flux
     nHatf_ = nHatfv_ave & Sf; 
     
-
     // Complex expression for curvature.
     // Correction is formally zero but numerically non-zero.
-    //  Kcorr=0 simple, Kcorr=1 Complex (default simple)
-    K_ = -fvc::div(nHatf_) + (nI_ & fvc::grad(nHatfv_ave) & nI_)*Kcorr_;
+    //  KCorr=0 simple, KCorr=1 Complex (default simple)
+    K_ = -fvc::div(nHatf_) + (nI_ & fvc::grad(nHatfv_ave) & nI_)*KCorr_;
 
     K_.correctBoundaryConditions();
 
     //the curvation correction based on the SSF scheme
     if (nSC_>0)
     {
-        // apha_c
-        volScalarField alpha1c_ = Foam::min(1.0, Foam::max(alpha1_ave, 0.0));  //alpha1_ave  //alpha1_
-        // eq 21b(w)  
-        volScalarField w = Foam::sqrt(alpha1c_*(1.0 - alpha1c_) + 1e-6);
-        volScalarField factor = 2.0 * Foam::sqrt(alpha1c_*(1.0 - alpha1c_));
-        volScalarField Kstar = fvc::average(fvc::interpolate(K_*w*(1.0-Solid_)))/fvc::average(fvc::interpolate(w*max(1.0-Solid_,small)));
-        volScalarField Ks = factor * K_ + (1.0 - factor) * Kstar;
+        volScalarField alpha1c_ = Foam::min(1.0, Foam::max(alpha1_ave, 0.0))();  
+      
+        volScalarField w = Foam::sqrt(alpha1c_*(1.0 - alpha1c_) + 1e-6)();
+        volScalarField factor = (2.0 * Foam::sqrt(alpha1c_*(1.0 - alpha1c_)))();
+        volScalarField KStar = (fvc::average(fvc::interpolate(K_*w*(1.0-Solid_)))/fvc::average(fvc::interpolate(w*max(1.0-Solid_,small))))();
+        volScalarField Ks = (factor * K_ + (1.0 - factor) * KStar)();
 
         for (int i=1;i<nSC_;i++)
         {
-            Kstar = fvc::average(fvc::interpolate(Ks*w*(1.0-Solid_)))/fvc::average(fvc::interpolate(w*max(1.0-Solid_,small)));
-            Ks = factor * K_ + (1.0 - factor) * Kstar;
+            KStar = fvc::average(fvc::interpolate(Ks*w*(1.0-Solid_)))/fvc::average(fvc::interpolate(w*max(1.0-Solid_,small)));
+            Ks = factor * K_ + (1.0 - factor) * KStar;
         }
 
         Kf_ = fvc::interpolate(w*Ks*(1.0-Solid_))/fvc::interpolate(w*max(1.0-Solid_,small));
@@ -300,21 +289,21 @@ void Foam::interfaceProperties::calculateK()
 }
 
 
-void Foam::interfaceProperties::calculateFc() //const
+void Foam::interfaceProperties::calculateFc() 
 {
     const fvMesh& mesh = alpha1_.mesh();
-    surfaceScalarField Solidf0_ = alpha1_.mesh().lookupObject<surfaceScalarField>("Solidf");  
+    surfaceScalarField Solidf = alpha1_.mesh().lookupObject<surfaceScalarField>("Solidf");  
 
+    // clip alpha field to exclude the localized unphysical variations in alpha close to 0 or 1 in the interface vicinity
+    alpha1_pc = min(max((1.0+2.0*alphaThresholdFc_)*(alpha1_ave-0.5)+0.5,0.0),1.0); 
     //sharp the alpha field based on the SSF scheme
-    scalar alphaThresholdFc_(transportPropertiesDict_.lookupOrDefault("alphaThresholdFc",0.001));
-    alpha_pc = min(max((1.0+2.0*alphaThresholdFc_)*(alpha1_ave-0.5)+0.5,0.0),1.0);  // clip
-    alpha_pc = 1.0/(1.0-cPc_)*(min( max(alpha_pc,cPc_/2.0), (1.0-cPc_/2.0) ) - cPc_/2.0);
+    alpha1_pc = 1.0/(1.0-cPc_)*(min( max(alpha1_pc,cPc_/2.0), (1.0-cPc_/2.0) ) - cPc_/2.0);
 
-    alpha_pc.correctBoundaryConditions();
+    alpha1_pc.correctBoundaryConditions();
 
-    deltasf_ = fvc::snGrad(alpha_pc);
+    deltasf_ = fvc::snGrad(alpha1_pc);
     stf_ = sigmaKSSF()*deltasf_;
-    fc_ = fvc::reconstruct(stf_*Solidf0_*mesh.magSf());
+    fc_ = fvc::reconstruct(stf_*(1-Solidf)*mesh.magSf());
 }
  
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -339,7 +328,7 @@ Foam::interfaceProperties::interfaceProperties
     (
            transportPropertiesDict_.lookupOrDefault("theta0",90)
     ),
-    //- smoothing coefficient for alphaS (generally 0.5)
+
     cSK_
     (
         readScalar
@@ -347,7 +336,7 @@ Foam::interfaceProperties::interfaceProperties
             alpha1.mesh().solverDict(alpha1.name()).lookup("cSK")
         )
     ),
-    //-number of smoothing cycle for alphaS
+
     nSK_
     (
         readScalar
@@ -355,7 +344,7 @@ Foam::interfaceProperties::interfaceProperties
             alpha1.mesh().solverDict(alpha1.name()).lookup("nSK")
         )
     ),
-    //- Sharp force coefficient (put 0.98-0.99 for static problems, 0.4-0.5 for dynamic)
+
     cPc_
     (
        readScalar
@@ -363,7 +352,7 @@ Foam::interfaceProperties::interfaceProperties
            alpha1.mesh().solverDict(alpha1.name()).lookup("cPc")
        )
     ),
-    //-number of smoothing cycle for curvature K_
+
     nSC_
     (
         readScalar
@@ -371,18 +360,43 @@ Foam::interfaceProperties::interfaceProperties
             alpha1.mesh().solverDict(alpha1.name()).lookup("nSC")
         )
     ),
-    //-number of smoothing cycle for curvature K_
-    Kcorr_
+
+    KCorr_
     (
         readScalar
         (
-            alpha1.mesh().solverDict(alpha1.name()).lookup("Kcorr")
+            alpha1.mesh().solverDict(alpha1.name()).lookup("KCorr")
         )
+    ),
+
+    porousBoundaryNormSmoothingCycles_
+    (
+        readScalar(alpha1.mesh().solverDict(alpha1.name()).lookup("porousBoundaryNormSmoothingCycles"))
+    ),
+
+    porousBoundaryNormSmoothingMethod_
+    (
+        alpha1.mesh().solverDict(alpha1.name()).lookupOrDefault("porousBoundaryNormSmoothingMethod",1)
+    ),
+
+    hybridNlgCoeff_
+    (
+        alpha1.mesh().solverDict(alpha1.name()).lookupOrDefault("hybridNlgCoeff",1.0)
+    ),
+
+    alphaThresholdK_
+   (
+       alpha1.mesh().solverDict(alpha1.name()).lookupOrDefault("alphaThresholdK",0.0)
+    ),
+
+    alphaThresholdFc_
+    (
+        alpha1.mesh().solverDict(alpha1.name()).lookupOrDefault("alphaThresholdFc",0.001)
     ),
 
     activatePorousContactAngle_
     (
-           transportPropertiesDict_.lookupOrDefault("activatePorousContactAngle",0)
+        transportPropertiesDict_.lookupOrDefault("activatePorousContactAngle",0)
     ),
 
     sigmaPtr_(surfaceTensionModel::New(dict, alpha1.mesh())),
@@ -409,16 +423,16 @@ Foam::interfaceProperties::interfaceProperties
         dimensionedScalar("nHatf", dimArea, 0.0)
     ),
 
-    //interface normal vector at cell center
+    //gas-fluid interface normal vector at cell center
     nI_
     (
         IOobject
         (
-            "nI",
+            "nlg",
             alpha1_.time().timeName(),
             alpha1_.mesh(),
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         alpha1_.mesh(),
         dimensionedVector(dimless, vector(0.0,0.0,0.0)) //(0.0 0.0 0.0)
@@ -428,9 +442,11 @@ Foam::interfaceProperties::interfaceProperties
     (
         IOobject
         (
-            "interfaceProperties:K",
+            "Klg",
             alpha1_.time().timeName(),
-            alpha1_.mesh()
+            alpha1_.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
         ),
         alpha1_.mesh(),
         dimensionedScalar("K", dimless/dimLength, 0.0)
@@ -452,7 +468,7 @@ Foam::interfaceProperties::interfaceProperties
     (
         IOobject
         (
-            "alpha1_ave",
+            "alpha.wetting.forKlg",
             alpha1_.time().timeName(),
             alpha1_.mesh(),
             IOobject::NO_READ,
@@ -461,15 +477,15 @@ Foam::interfaceProperties::interfaceProperties
         alpha1_
     ),
 
-    alpha_pc
+    alpha1_pc
     (
         IOobject
         (
-            "alpha_pc",
+            "alpha1_pc",
             alpha1_.time().timeName(),
             alpha1_.mesh(),
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         alpha1_
     ),
@@ -478,11 +494,11 @@ Foam::interfaceProperties::interfaceProperties
     (
         IOobject
         (
-            "fc_",
+            "fc",
             alpha1_.time().timeName(),
             alpha1_.mesh(),
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         alpha1_.mesh(),
         dimensionedVector(Foam::dimPressure/dimLength, vector(0.0,0.0,0.0)) //(0.0 0.0 0.0)
@@ -517,9 +533,6 @@ Foam::interfaceProperties::interfaceProperties
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-
-
 Foam::tmp<Foam::surfaceScalarField>
 Foam::interfaceProperties::sigmaKSSF() const
 {
@@ -565,7 +578,7 @@ Foam::interfaceProperties::fc() const
 Foam::tmp<Foam::volScalarField>
 Foam::interfaceProperties::alphapc() const
 {
-    return alpha_pc;
+    return alpha1_pc;
 }
 
 Foam::tmp<Foam::volScalarField>
