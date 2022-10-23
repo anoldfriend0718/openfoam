@@ -1,3 +1,0 @@
-porousImmiscibleIncompressibleTwoPhaseMixture.C
-
-LIB = $(FOAM_USER_LIBBIN)/libporousImmiscibleIncompressibleTwoPhaseMixtureSSF7c4_o

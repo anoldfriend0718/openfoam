@@ -1,3 +1,0 @@
-hybridPorousInterFoam.C
-
-EXE = $(FOAM_USER_APPBIN)/hybridPorousInterFoam_TR_ssf7c5
