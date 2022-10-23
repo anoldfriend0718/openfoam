@@ -189,20 +189,6 @@ void Foam::interfaceProperties::correctContactAngleDB
 	    // correction of the interface and re-normalizing
 	    nHatb = a*nHatSolidfv + b*nHatb;
             nHatb /= (mag(nHatb) + deltaN_.value());
-
-        // surfaceScalarField nHatbmag(mag(nHatb));
-        // forAll(nHatbmag,facei)
-        // {
-        //     if(nHatbmag[facei]<0.5) // if <1 ==0.  
-        //     {	
-        //     nHatbmag[facei]=0; 
-        //     }
-        //     if(nHatbmag[facei]>0.5) // if <1 ==0.  
-        //     {	
-        //     nHatbmag[facei]=1; 
-        //     }
-        // }
-        // nHatb *= nHatbmag;
 }
 
 /////Calculating the curvature
@@ -371,12 +357,17 @@ Foam::interfaceProperties::interfaceProperties
 
     porousBoundaryNormSmoothingCycles_
     (
-        readScalar(alpha1.mesh().solverDict(alpha1.name()).lookup("porousBoundaryNormSmoothingCycles"))
+        alpha1.mesh().solverDict(alpha1.name()).lookupOrDefault("porousBoundaryNormSmoothingCycles",1)
     ),
 
     porousBoundaryNormSmoothingMethod_
     (
         alpha1.mesh().solverDict(alpha1.name()).lookupOrDefault("porousBoundaryNormSmoothingMethod",1)
+    ),
+
+    alphaInPorousRegion_
+    (
+        alpha1.mesh().solverDict(alpha1.name()).lookupOrDefault("alphaInPorousRegion",1)
     ),
 
     hybridNlgCoeff_
@@ -428,7 +419,7 @@ Foam::interfaceProperties::interfaceProperties
     (
         IOobject
         (
-            "nlg",
+            "nI",
             alpha1_.time().timeName(),
             alpha1_.mesh(),
             IOobject::NO_READ,
@@ -442,7 +433,7 @@ Foam::interfaceProperties::interfaceProperties
     (
         IOobject
         (
-            "Klg",
+            "interfaceProperties_K",
             alpha1_.time().timeName(),
             alpha1_.mesh(),
             IOobject::NO_READ,

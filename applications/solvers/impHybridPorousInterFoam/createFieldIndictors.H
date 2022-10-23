@@ -109,7 +109,7 @@ volScalarField Porous
 
 forAll(eps,celli) 
 {
-	if(eps[celli]>=0.01 && eps[celli]<0.99) 
+	if(eps[celli]>0.01 && eps[celli]<0.99) 
 	{	
 	Porous[celli]=1; 
 	}
