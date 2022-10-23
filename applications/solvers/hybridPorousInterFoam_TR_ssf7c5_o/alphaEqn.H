@@ -1,3 +1,4 @@
+#include "surfaceFieldsFwd.H"
 {
     word alphaScheme("div(phi,alpha)");
     word alpharScheme("div(phirb,alpha)");
@@ -45,7 +46,7 @@
     scalar cnCoeff = 1.0/(1.0 + ocCoeff);
 
     // Standard face-flux compression coefficient
-    surfaceScalarField phic(mixture.cAlpha()*mag(phi/mesh.magSf())); 
+    surfaceScalarField phic(mixture.cAlpha()*mag(phi/mesh.magSf())); //*Solidf0  //(1.0-Solidwf)*
 
     // Add the optional isotropic compression contribution
     if (icAlpha > 0)
@@ -58,18 +59,18 @@
     if (scAlpha > 0)
     {
         phic +=
-            scAlpha*mag(mesh.delta() & fvc::interpolate(symm(fvc::grad(U))));
+            scAlpha*mag(mesh.delta() & fvc::interpolate(symm(fvc::grad(U))));  //Solidf0*
     }
 
     //Calculating Porous Media Velocities   // display and check
-    Uwetting = Porous*M1*(
+    Uwetting = (Solid-Solidw)*M1*(
 	 - fvc::grad(p) 
 	 + (1.-alpha1)*fvc::grad(pc) 
          -  pc*fvc::grad(alpha1) 
          +  rho1*g
 	 );
 
-    UnonWetting = Porous*M2*(
+    UnonWetting = (Solid-Solidw)*M2*(
 	 -fvc::grad(p) 
 	 -alpha1*fvc::grad(pc) 
          -pc*fvc::grad(alpha1)
@@ -81,6 +82,7 @@
 
     // Defining relative velocity
     Ur = ( Uwetting/max(alpha1,0.001) - UnonWetting/max((1.-alpha1),0.001) )/eps;
+    //Ur = ( Uwetting*(1.-alpha1) - UnonWetting*alpha1 );
     surfaceScalarField phirPore(fvc::interpolate(Ur) & mesh.Sf());
    
     surfaceScalarField::Boundary& phicBf =
@@ -128,6 +130,10 @@
 
     tmp<surfaceScalarField> phiCN(phi);
 
+    //liuzy, reaction source term for alphaEqn
+    //volScalarField mdotle("mdotle", mdotc*gama_l/rho1);  // lzy, explicit source term
+    //mdotle = mdotc*gama_l/rho1;
+
     // Calculate the Crank-Nicolson off-centred volumetric flux
     if (ocCoeff > 0)
     {
@@ -150,7 +156,10 @@
                 upwind<scalar>(mesh, phiCN)
             ).fvmDiv(phiCN, alpha1)
 
-          - fvm::Sp(divU,alpha1)  
+          - fvm::Sp(divU,alpha1)    /// lzy, alpha1*divU
+          ==
+            fvm::Sp(mdotli,alpha1)  // lzy, implicit source term
+          + mdotle   // lzy, explicit source term 
         );
 
         alpha1Eqn.solve();
@@ -189,13 +198,14 @@
         mixture.correct();
     }
 
-    volScalarField alpha10("alpha10", alpha1);  
+    volScalarField alpha10("alpha10", alpha1);  // lzy
 
     for (int aCorr=0; aCorr<nAlphaCorr; aCorr++)
     {  
-	surfaceScalarField phir(Solidf*phirPore+(1.-Solidf)*phic*mixture.nHatf());
-    // surfaceScalarField phir((1.-Solidf)*phic*mixture.nHatf());
-
+	//surfaceScalarField phir((1.0-Solidwf)*Solidf*phirPore+(1.-Solidf)*phic*mixture.nHatf());   //test hybrid
+    surfaceScalarField phir((1.-Solidf)*phic*mixture.nHatf());
+    // phir((1-Solidf0)*phirPore+Solidf0*phic*mixture.nHatf());  //Solidf0*  Solidf*  (1.-Solidf)*
+ 
         tmp<surfaceScalarField> talphaPhiUn
         (
             fvc::flux
@@ -218,13 +228,14 @@
             talphaPhiUn =
                 cnCoeff*talphaPhiUn + (1.0 - cnCoeff)*alphaPhi.oldTime();
         }
-        volScalarField alpha100("alpha100", alpha10);    
-        alpha10 = alpha1;    
+        
+        volScalarField alpha100("alpha100", alpha10);    // lzy
+        alpha10 = alpha1;    // lzy
 
         if (MULESCorr)
         {
             tmp<surfaceScalarField> talphaPhiCorr(talphaPhiUn() - alphaPhi);
-            volScalarField alpha10("alpha10", alpha1);
+            //volScalarField alpha10("alpha10", alpha1);
  
             MULES::correct
             (
@@ -232,8 +243,8 @@
                 alpha1,
                 talphaPhiUn(),
                 talphaPhiCorr.ref(),
-		zeroField(),
-		(divU*(alpha10-alpha100))(),
+		mdotli, //zeroField(),  //lzy
+		(divU*(alpha10-alpha100)-mdotli*alpha10)(), //zeroField(),  //lzy
                 oneField(),
                 zeroField()
             );
@@ -258,8 +269,8 @@
                 alpha1,
                 phiCN,
                 alphaPhi,
-		zeroField(),
-		(divU*alpha1)(),  //zeroField(),
+		mdotli, //zeroField(),
+		(divU*alpha1+mdotle)(),  //zeroField(),
 	        oneField(),
                 zeroField()
             );
@@ -294,6 +305,13 @@
         // Calculate the end-of-time-step mass flux
         rhoPhi = alphaPhi*(rho1 - rho2) + phi*rho2;
     }
+    //snGradSolid = fvc::snGrad(Solid);
+    // alpha1_i = max(alpha1,SMALL);
+    // alpha1_i = (1-Solid)*alpha1 + Solid*fvc::average(fvc::interpolate(alpha1_i,"interNearSolid"));
+    // alpha1_i = (1-Solid)*alpha1 + Solid*fvc::average(fvc::interpolate(alpha1,"interNearSolid"));
+    // alpha1_i = fvc::average(fvc::interpolate(alpha1_i,"interNearSolid"));
+    
+
 
     Info<< "Phase-1 volume fraction = "
         << alpha1.weightedAverage(mesh.Vsc()).value()

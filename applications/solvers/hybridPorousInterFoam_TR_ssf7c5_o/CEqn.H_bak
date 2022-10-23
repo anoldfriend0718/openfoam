@@ -1,0 +1,59 @@
+    Info<< "solve CEqn" << endl;
+    // volScalarField eps2D (eps*eps*Df);
+
+    //volScalarField rhoEpsDa (rho*eps*eps*Da1*Da2/(alpha1*Da2 + alpha2*Da1));
+    //volScalarField DaCST ("DaCST", -rhoEpsDa*C*(rho2*Ha-rho1)/(rho1*Ha*alpha1+rho2*alpha2));    // - _v2
+    //volScalarField suCST ("suCST", fvc::laplacian(DaCST,alpha1)); 
+
+    //volScalarField Solidv ("Solidv",max((1.0-Solid),SMALL));
+    rhoEpsDa = (rho*eps*eps*Da1*Da2/(alpha1*Da2 + alpha2*Da1))*Solidv; //(max((1.0-Solid),SMALL));
+    //DaCST =  -rhoEpsDa*C*(rho2*Ha-rho1)/(rho1*Ha*alpha1+rho2*alpha2);    // - _v2
+    DaCST =  -rhoEpsDa*(rho1*Ha-rho2)/(rho1*Ha*alpha1+rho2*alpha2); 
+
+    suCST = fvc::laplacian(DaCST*C,alpha1);   //for debug
+    //gradAlpha = fvc::grad(alpha1);
+
+    //CST source term using snGrad(Alpha1)
+    PhiGradAlphaf=mesh.magSf()*fvc::snGrad(alpha1);  //surfaceScalarField
+    //PhiGradAlphaf2=PhiGradAlphaf;  //surfaceScalarField
+    
+/*
+    // filter phi near solid
+    forAll(PhiGradAlphaf2,facei) 
+    {
+	if(Solidf0[facei]>0) 
+	{	
+	PhiGradAlphaf2[facei]=0; 
+	}
+    }
+*/
+    suCST_ga=fvc::div(PhiGradAlphaf,DaCST*C);  //for debug
+
+    suCST_err=suCST_ga - suCST;   //for debug
+
+    //surfaceScalarField PhiGradAlphaCSTf ("PhiGradAlphaCSTf",fvc::interpolate(Solidv)*fvc::interpolate(DaCST)*PhiGradAlphaf);   // fvc::interpolate(some_vsf, "harmonic")
+    PhiGradAlphaCSTf = Solidf0*fvc::interpolate(DaCST)*PhiGradAlphaf;  // fvc::interpolate(Solidv)
+
+    suCST_ga2=fvc::div(PhiGradAlphaCSTf,C);
+
+    fvScalarMatrix CEqn
+    (
+        fvm::ddt(eps,rho,C) + fvm::div(rhoPhi, C)
+     ==
+        fvm::laplacian(rhoEpsDa,C) 
+      //+ fvm::SuSp(suCST,C)
+      //- fvm::SuSp(-suCST,C) 
+      //+ fvm::Su(suCST_ga2,C) 
+        + fvm::div(PhiGradAlphaCSTf, C)
+
+        + fvm::Sp(mdotci,C)      //reaction Sp  
+        - fvm::Su(mdotci*Ceq,C)  //reaction Su
+    );
+
+    CEqn.relax();
+    
+    CEqn.solve();
+    C = max(C,0.0);
+    Info << "CEqn" << " Min(C) = " << gMin(C) << " Max(C) = " << gMax(C) << endl;
+    // C = max(min(C,1.0),0.0);
+    // Info << "limit: CEqn" << " Min(C) = " << gMin(C) << " Max(C) = " << gMax(C) << endl;

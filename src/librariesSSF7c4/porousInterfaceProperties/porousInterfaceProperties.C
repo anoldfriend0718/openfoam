@@ -224,16 +224,16 @@ void Foam::interfaceProperties::calculateK()
     scalar xfcset(transportPropertiesDict_.lookupOrDefault("xfcset",1.0));
 
     volScalarField talpha2(1.0-alpha1_);
-    dimensionedScalar small("small", dimless, 1e-10);
-       //if alpha in solid =0 (gas)
+    dimensionedScalar small("small", dimless, 1e-10);	
+    //if alpha in solid =0 (gas)
     if (alphaInPorousRegion_ == 0)  //alpha_s_ini = 0
     {
         alpha1_ave = (fvc::average(fvc::interpolate(max(talpha2,small),"Fluid_c2f")*Fluidf_)/fvc::average(Fluidf_));
         alpha1_ave = (1.0-Solid_)*talpha2 + Solid_*alpha1_ave;
         alpha1_ave = 1.0 - alpha1_ave;
     }
-   
-   //if alpha in solid =1 (water)
+
+    //if alpha in solid =1 (water)
     if (alphaInPorousRegion_ == 1)  //alpha_s_ini = 1
     {
         alpha1_ave = (fvc::average(fvc::interpolate(max(alpha1_,small),"Fluid_c2f")*Fluidf_)/fvc::average(Fluidf_));
@@ -307,14 +307,16 @@ void Foam::interfaceProperties::calculateFc() //const
 
     //sharp the alpha field based on the SSF scheme
     scalar alphaThresholdFc_(transportPropertiesDict_.lookupOrDefault("alphaThresholdFc",0.001));
+    // alpha_pc = min(max((1.0+2.0*alphaThresholdFc_)*(alpha1_-0.5)+0.5,0.0),1.0);  // clip
     alpha_pc = min(max((1.0+2.0*alphaThresholdFc_)*(alpha1_ave-0.5)+0.5,0.0),1.0);  // clip
+
     alpha_pc = 1.0/(1.0-cPc_)*(min( max(alpha_pc,cPc_/2.0), (1.0-cPc_/2.0) ) - cPc_/2.0);
 
     alpha_pc.correctBoundaryConditions();
 
     deltasf_ = fvc::snGrad(alpha_pc);
     stf_ = sigmaKSSF()*deltasf_;
-    fc_ = fvc::reconstruct(stf_*Solidf0_*mesh.magSf());
+    fc_ = fvc::reconstruct(stf_*(1-Solidf0_)*mesh.magSf());
 }
  
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

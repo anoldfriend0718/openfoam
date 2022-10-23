@@ -124,6 +124,17 @@ volVectorField nlg  //output surface tension force
     dimensionedVector("nlg", dimless, vector(0,0,0))
 );
 
+IOdictionary transportProperties
+(
+    IOobject
+    (
+        "transportProperties",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
 
 #include "createFieldIndictors.H"
 #include "createPhi.H"
@@ -137,17 +148,6 @@ volScalarField& alpha2(mixture.alpha2());
 const dimensionedScalar& rho1 = mixture.rho1();
 const dimensionedScalar& rho2 = mixture.rho2();
 
-IOdictionary transportProperties
-(
-    IOobject
-    (
-        "transportProperties",
-        runTime.constant(),
-        mesh,
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
-    )
-);
 
 dictionary wetting (transportProperties.subDict(mixture.phase1Name())); 
 dictionary nonWetting (transportProperties.subDict(mixture.phase2Name()));
@@ -197,6 +197,7 @@ surfaceScalarField rhoPhiByEps
     ),
     rhoPhi*linearInterpolate(1/(eps+SMALL))
 );
+volScalarField divU  ("divU", fvc::div(fvc::absolute(phi, U)));
 
 #include "readGravitationalAcceleration.H"
 #include "readhRef.H"

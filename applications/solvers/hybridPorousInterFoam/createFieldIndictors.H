@@ -49,14 +49,46 @@ surfaceScalarField Solidf
     ),
     fvc::interpolate(Solid)
 );
-//Eliminating intermediate values of Solid Indicator Function
+
 forAll(Solidf,facei)
 {
-	if(Solidf[facei]<1) // if <1 ==0.  
-	{	
-	Solidf[facei]=0; 
-	}
+    if(Solidf[facei]<1) // if <1 ==0.  
+    {	
+        //when calculting the surface tension
+        //porous interface is treated as the fluid phase 
+        Solidf[facei]=0; 
+    }
 }
+
+// //choose the interface surface tension model
+// // 0: vof model for the fluid region, 1: porous model for the porous region
+// int mode_interface_fc(transportProperties.lookupOrDefault("Mifc", 1));
+
+// //Eliminating intermediate values of Solid Indicator Function
+// if(mode_interface_fc==1)
+// {
+//     forAll(Solidf,facei)
+//     {
+//         if(Solidf[facei]>0) // if <1 ==0.  
+//         {	
+//             //when calculting the surface tension
+//             //porous interface is treated as the porous phase 
+//             Solidf[facei]=1; 
+//         } 
+//     }
+// }
+// else
+// {
+//     forAll(Solidf,facei)
+//     {
+//         if(Solidf[facei]<1) // if <1 ==0.  
+//         {	
+//             //when calculting the surface tension
+//             //porous interface is treated as the fluid phase 
+//             Solidf[facei]=0; 
+//         }
+//     }
+// }
 
 // Defenition of Solid Indicator
 surfaceScalarField Fluidf
@@ -99,3 +131,37 @@ forAll(eps,celli)
 	Porous[celli]=0; 
 	}
 }
+
+// surfaceScalarField Fluidf2
+// (
+//     IOobject
+//     (
+//         "Fluidf2",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::NO_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     max(1.0-fvc::interpolate(Solid),SMALL)
+// );
+// // porous wall is treated as the fluid phase
+// Fluidf2 = fvc::interpolate(fvc::average(Fluidf));
+// forAll(Fluidf2,facei)
+// {
+// 	if(Fluidf2[facei]<1) // if <1 ==0.  
+// 	{	
+// 	Fluidf2[facei]=1; 
+// 	}
+// }
+
+// surfaceScalarField Solidf0 ("Solidf0",Solidf);
+// volScalarField Solidv ("Solidv",max((1.0-Solid),SMALL));
+// Solidf0 = fvc::interpolate(Solidv);
+// forAll(Solidf0,facei)
+// {
+// 	if(Solidf0[facei]<1) // if <1 ==0.  
+// 	{	
+// 	Solidf0[facei]=0; 
+// 	}
+// }
+

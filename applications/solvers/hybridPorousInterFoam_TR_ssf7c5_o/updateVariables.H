@@ -28,7 +28,7 @@ Drag= fvc::average(Dragf);
 forAll(Drag,celli)
 {
 	if (Solid[celli] == 0)
-		{Drag[celli] = 0;}
+		{Drag[celli]= 0;}
 }
 
 // Updating Capillary Pressure Model
